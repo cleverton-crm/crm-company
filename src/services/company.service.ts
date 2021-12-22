@@ -15,6 +15,6 @@ export class CompanyService {
     this.companyModel = this.connection.model(
       'Companies',
     ) as CompanyModel<Companies>;
-    //this.companyModel.create({}).then((docs) => console.log(docs));
+    this.companyModel.create({}).then((docs) => console.log(docs));
   }
 }
