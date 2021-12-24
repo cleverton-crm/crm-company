@@ -22,8 +22,11 @@ export class CompanyService {
   /**
    * Создание компании
    * @param {Core.Company.Schema} companyData - основные данные о компании
+   * @return ({Core.Response.Answer})
    */
-  async createCompany(companyData: Core.Company.Schema) {
+  async createCompany(
+    companyData: Core.Company.Schema,
+  ): Promise<Core.Response.Answer> {
     let result;
     const company = new this.companyModel(companyData);
     try {
@@ -37,6 +40,40 @@ export class CompanyService {
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Ошибка при создании компании',
         errors: 'Bad Request',
+      };
+    }
+    return result;
+  }
+
+  /**
+   * Архивация компании
+   * @param {Core.Company.ArchiveData} archiveData
+   * @return ({Core.Response.Answer})
+   */
+  async archiveCompany(
+    archiveData: Core.Company.ArchiveData,
+  ): Promise<Core.Response.Answer> {
+    let result;
+    const company = await this.companyModel.findOne({ _id: archiveData.id });
+    if (company) {
+      company.active = archiveData.active;
+      await company.save();
+      if (!company.active) {
+        result = {
+          statusCode: HttpStatus.OK,
+          message: 'Компания была отправлена в архив',
+        };
+      } else {
+        result = {
+          statusCode: HttpStatus.OK,
+          message: 'Компания была разархивирована',
+        };
+      }
+    } else {
+      result = {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Компания с таким id не найдена',
+        errors: 'Not Found',
       };
     }
     return result;

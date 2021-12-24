@@ -4,15 +4,61 @@ import { v4 as uuidv4 } from 'uuid';
 import { Core } from 'crm-core';
 
 @Schema({ timestamps: true })
-export class Companies extends Document implements Core.Company.CompanySchema {
+export class Companies extends Document implements Core.Company.Schema {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
+
   @Prop({ type: String, default: null })
   name: string;
-  companyId: string;
-  data: Core.Company.Requisites.CompanyUs;
-  unrestricted_value: string;
-  value: string;
+
+  @Prop({ type: Boolean, default: true })
+  active: boolean;
+
+  @Prop({ type: Array, default: [] })
+  clients: Array<string>;
+
+  @Prop({ type: String, default: null })
+  companyLocation: string;
+
+  @Prop({ type: String, default: null })
+  employeesCount: number;
+
+  @Prop({ type: String, default: null })
+  factLocation: string;
+
+  @Prop({ type: String, default: null })
+  fax: string;
+
+  @Prop({ type: String, default: 'company' })
+  object: 'company';
+
+  @Prop({ type: String, default: null })
+  owner: string;
+
+  @Prop({ type: String, default: null })
+  ownership: string | Core.Company.Ownership;
+
+  @Prop({ type: String, default: null })
+  permissions: string;
+
+  @Prop({ type: String, default: null })
+  phoneNumber: string;
+
+  @Prop({ type: Array, default: [] })
+  phones: Array<string>;
+
+  @Prop({ type: String, default: null })
+  postLocation: string;
+
+  requisites: Core.Company.Requisites.CompanyName;
+  @Prop({ type: String, default: null })
+  source: string;
+
+  @Prop({ type: Array, default: [] })
+  tags: Array<string>;
+
+  @Prop({ type: String, default: null })
+  web: string;
 }
 export type CompanyModel<T extends Document> = PaginateModel<Companies>;
 export const CompanySchema = SchemaFactory.createForClass(Companies);
