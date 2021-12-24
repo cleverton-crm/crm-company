@@ -78,4 +78,49 @@ export class CompanyService {
     }
     return result;
   }
+
+  /**
+   * Список компаний
+   * @return({Core.Company.Schema[]})
+   */
+  async listCompanies(): Promise<Core.Company.Schema[]> {
+    let result;
+    try {
+      result = {
+        statusCode: HttpStatus.OK,
+        message: 'Company List',
+        data: await this.companyModel.find().exec(),
+      };
+    } catch (e) {
+      result = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: e.message,
+        errors: e.error,
+      };
+    }
+    return result;
+  }
+
+  /**
+   * Поиск компании по ID
+   * @param {String} id
+   * @return({Core.Company.Schema[]})
+   */
+  async findCompany(id: string): Promise<Core.Company.Schema> {
+    let result;
+    try {
+      result = {
+        statusCode: HttpStatus.OK,
+        message: 'Company Found',
+        data: await this.companyModel.findOne({ _id: id }).exec(),
+      };
+    } catch (e) {
+      result = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: e.message,
+        errors: e.error,
+      };
+    }
+    return result;
+  }
 }

@@ -16,4 +16,14 @@ export class CompanyController {
   async archiveCompany(@Payload() archiveData: Core.Company.ArchiveData) {
     return await this.appService.archiveCompany(archiveData);
   }
+
+  @MessagePattern('company:list')
+  async listCompanies() {
+    return await this.appService.listCompanies();
+  }
+
+  @MessagePattern('company:find')
+  async findCompany(id: string) {
+    return await this.appService.findCompany(id);
+  }
 }
