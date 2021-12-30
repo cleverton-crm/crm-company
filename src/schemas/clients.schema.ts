@@ -14,7 +14,7 @@ export class Clients extends Document implements Core.Client.Schema {
   @Prop({ type: Date, default: null })
   birthDate: Date;
 
-  @Prop({ type: Map, default: null })
+  @Prop({ type: Map, default: {} })
   comments: Map<string, string>;
 
   @Prop({ type: String, default: null })
@@ -47,7 +47,7 @@ export class Clients extends Document implements Core.Client.Schema {
   @Prop({ type: String, default: null })
   payerType: string;
 
-  @Prop({ type: Map, default: null })
+  @Prop({ type: Map, default: {} })
   permissions: Map<string, any>;
 
   @Prop({ type: Array, default: [] })
@@ -56,11 +56,11 @@ export class Clients extends Document implements Core.Client.Schema {
   @Prop({ type: String, default: null })
   roleInCompany: string;
 
-  @Prop({ type: Map, default: null })
+  @Prop({ type: Map, default: {} })
   socials: Map<string, string>;
 
-  @Prop({ type: String, default: null })
-  voices: Core.Client.SocialVoices;
+  @Prop({ type: Map, default: {} })
+  voices: Map<string, string>;
 
   @Prop({ type: String, default: null })
   workPhone: string;
