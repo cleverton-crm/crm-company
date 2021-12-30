@@ -8,6 +8,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MongoConfigService } from './services/mongo.service';
 import { CompanyProviderSchema } from './providers/company.provider';
 import { ConfigService } from './config/config.service';
+import { ClientsProviderSchema } from './providers/clients.provider';
+import { ClientsController } from './controllers/clients.controller';
+import { ClientService } from './services/clients.service';
 
 @Module({
   imports: [
@@ -21,10 +24,13 @@ import { ConfigService } from './config/config.service';
     MongooseModule.forRootAsync({
       useClass: MongoConfigService,
     }),
-    MongooseModule.forFeatureAsync([CompanyProviderSchema]),
+    MongooseModule.forFeatureAsync([
+      CompanyProviderSchema,
+      ClientsProviderSchema,
+    ]),
   ],
-  controllers: [CompanyController],
-  providers: [ConfigService, CompanyService],
+  controllers: [CompanyController, ClientsController],
+  providers: [ConfigService, CompanyService, ClientService],
   exports: [ConfigService],
 })
 export class AppModule {}
