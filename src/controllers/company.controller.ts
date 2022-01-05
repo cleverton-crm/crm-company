@@ -8,7 +8,7 @@ export class CompanyController {
   constructor(private readonly appService: CompanyService) {}
 
   @MessagePattern('company:create')
-  async createCompany(companyData: Core.Company.Schema) {
+  async createCompany(@Payload() companyData: Core.Company.Schema) {
     return await this.appService.createCompany(companyData);
   }
 
@@ -23,7 +23,12 @@ export class CompanyController {
   }
 
   @MessagePattern('company:find')
-  async findCompany(id: string) {
+  async findCompany(@Payload() id: string) {
     return await this.appService.findCompany(id);
+  }
+
+  @MessagePattern('company:update')
+  async updateCompany(@Payload() companyData: Core.Company.UpdateData) {
+    return await this.appService.updateCompany(companyData);
   }
 }

@@ -16,7 +16,6 @@ export class CompanyService {
     this.companyModel = this.connection.model(
       'Companies',
     ) as CompanyModel<Companies>;
-    this.companyModel.create({}).then((docs) => console.log(docs));
   }
 
   /**
@@ -113,6 +112,30 @@ export class CompanyService {
         statusCode: HttpStatus.OK,
         message: 'Company Found',
         data: await this.companyModel.findOne({ _id: id }).exec(),
+      };
+    } catch (e) {
+      result = {
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: e.message,
+        errors: e.error,
+      };
+    }
+    return result;
+  }
+
+  /**
+   * Изменение данных о компании
+   * @param updateData
+   */
+  async updateCompany(updateData: Core.Company.UpdateData) {
+    let result;
+    try {
+      await this.companyModel
+        .findOneAndUpdate({ _id: updateData.id }, updateData.data)
+        .exec();
+      result = {
+        statusCode: HttpStatus.OK,
+        message: 'Данные о компании изменены',
       };
     } catch (e) {
       result = {

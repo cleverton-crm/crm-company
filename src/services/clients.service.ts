@@ -14,7 +14,6 @@ export class ClientService {
     private jwtService: JwtService,
   ) {
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
-    this.clientModel.create({}).then((docs) => console.log(docs));
   }
 
   /**
