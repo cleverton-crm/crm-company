@@ -2175,7 +2175,7 @@ create-require@^1.1.0:
 
 "crm-core@https://github.com/cleverton-crm/crm-core.git":
   version "1.0.3"
-  resolved "https://github.com/cleverton-crm/crm-core.git#cdd0091dd730ec9a7bc8dde87d61683e319da948"
+  resolved "https://github.com/cleverton-crm/crm-core.git#c2f85f09d53084d6fc7db80cc765dca8d03a1f53"
   dependencies:
     "@nestjs/common" "^8.2.4"
     "@nestjs/microservices" "^8.2.4"

@@ -224,6 +224,24 @@ export class CompanyRequisitesAddress
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
+export class CompanyRequisitesFinance
+  implements Core.Company.Requisites.Finance
+{
+  @Prop({ type: String, default: null })
+  tax_system?: string;
+  @Prop({ type: String, default: null })
+  income?: string;
+  @Prop({ type: String, default: null })
+  expense?: string;
+  @Prop({ type: String, default: null })
+  debt?: string;
+  @Prop({ type: String, default: null })
+  penalty?: string;
+  @Prop({ type: String, default: null })
+  year?: string;
+}
+
+@Schema({ timestamps: false, _id: false, versionKey: false })
 export class CompanyRequisitesCompanyUs
   implements Core.Company.Requisites.CompanyUs
 {
@@ -248,8 +266,8 @@ export class CompanyRequisitesCompanyUs
   @Prop({ type: Number, default: 0 })
   employee_count: number | string | null;
 
-  @Prop({ type: String, default: null })
-  finance: string | null;
+  @Prop({ type: () => CompanyRequisitesFinance, default: {} })
+  finance: CompanyRequisitesFinance;
 
   @Prop({ type: String, default: null })
   hid: string | null;
