@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, model, PaginateModel } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Core } from 'crm-core';
+import { CompanyRequisitesCompanyName } from './nested-company.schema';
 
 @Schema({ timestamps: true })
 export class Companies extends Document implements Core.Company.Schema {
@@ -50,7 +51,9 @@ export class Companies extends Document implements Core.Company.Schema {
   @Prop({ type: String, default: null })
   postLocation: string;
 
-  requisites: Core.Company.Requisites.CompanyName;
+  @Prop({ type: () => CompanyRequisitesCompanyName, default: {} })
+  requisites: CompanyRequisitesCompanyName;
+
   @Prop({ type: String, default: null })
   source: string;
 
