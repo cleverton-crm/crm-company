@@ -48,165 +48,165 @@ export class CompanyRequisitesName implements Core.Company.Requisites.Name {
 @Schema({ timestamps: false, _id: false, versionKey: false })
 export class CompanyRequisitesInfo implements Core.Company.Requisites.Info {
   @Prop({ type: String, default: null })
-  area: string | null;
+  area?: string | null;
   @Prop({ type: String, default: null })
-  area_fias_id: string | null;
+  area_fias_id?: string | null;
   @Prop({ type: String, default: null })
-  area_kladr_id: string | null;
+  area_kladr_id?: string | null;
   @Prop({ type: String, default: null })
-  area_type: string | null;
+  area_type?: string | null;
   @Prop({ type: String, default: null })
-  area_type_full: string | null;
+  area_type_full?: string | null;
   @Prop({ type: String, default: null })
-  area_with_type: string | null;
+  area_with_type?: string | null;
   @Prop({ type: String, default: null })
-  beltway_distance: string | null;
+  beltway_distance?: string | null;
   @Prop({ type: String, default: null })
-  beltway_hit: string;
+  beltway_hit?: string;
   @Prop({ type: String, default: null })
-  block: string | null;
+  block?: string | null;
   @Prop({ type: String, default: null })
-  block_type: string | null;
+  block_type?: string | null;
   @Prop({ type: String, default: null })
-  block_type_full: string | null;
+  block_type_full?: string | null;
   @Prop({ type: String, default: null })
-  capital_marker: string;
+  capital_marker?: string;
   @Prop({ type: String, default: null })
-  city: string;
+  city?: string;
   @Prop({ type: String, default: null })
-  city_area: string;
+  city_area?: string;
   @Prop({ type: String, default: null })
-  city_district: string;
+  city_district?: string;
   @Prop({ type: String, default: null })
-  city_district_fias_id: string | null;
+  city_district_fias_id?: string | null;
   @Prop({ type: String, default: null })
-  city_district_kladr_id: string | null;
+  city_district_kladr_id?: string | null;
   @Prop({ type: String, default: null })
-  city_district_type: string;
+  city_district_type?: string;
   @Prop({ type: String, default: null })
-  city_district_type_full: string;
+  city_district_type_full?: string;
   @Prop({ type: String, default: null })
-  city_district_with_type: string;
+  city_district_with_type?: string;
   @Prop({ type: String, default: null })
-  city_fias_id: string;
+  city_fias_id?: string;
   @Prop({ type: String, default: null })
-  city_kladr_id: string;
+  city_kladr_id?: string;
   @Prop({ type: String, default: null })
-  city_type: string;
+  city_type?: string;
   @Prop({ type: String, default: null })
-  city_type_full: string;
+  city_type_full?: string;
   @Prop({ type: String, default: null })
-  city_with_type: string;
+  city_with_type?: string;
   @Prop({ type: String, default: null })
-  entrance: string | null;
+  entrance?: string | null;
   @Prop({ type: String, default: null })
-  fias_actuality_state: string;
+  fias_actuality_state?: string;
   @Prop({ type: String, default: null })
-  fias_code: string;
+  fias_code?: string;
   @Prop({ type: String, default: null })
-  fias_id: string;
+  fias_id?: string;
   @Prop({ type: String, default: null })
-  fias_level: string;
+  fias_level?: string;
   @Prop({ type: String, default: null })
-  flat: string | null;
+  flat?: string | null;
   @Prop({ type: String, default: null })
-  flat_area: string | null;
+  flat_area?: string | null;
   @Prop({ type: String, default: null })
-  flat_cadnum: string | null;
+  flat_cadnum?: string | null;
   @Prop({ type: String, default: null })
-  flat_fias_id: string | null;
+  flat_fias_id?: string | null;
   @Prop({ type: String, default: null })
-  flat_price: string | null;
+  flat_price?: string | null;
   @Prop({ type: String, default: null })
-  flat_type: string | null;
+  flat_type?: string | null;
   @Prop({ type: String, default: null })
-  flat_type_full: string | null;
+  flat_type_full?: string | null;
   @Prop({ type: String, default: null })
-  floor: string | null;
+  floor?: string | null;
   @Prop({ type: String, default: null })
-  geo_lat: string;
+  geo_lat?: string;
   @Prop({ type: String, default: null })
-  geo_lon: string;
+  geo_lon?: string;
   @Prop({ type: String, default: null })
-  geoname_id: string;
+  geoname_id?: string;
   @Prop({ type: String, default: null })
-  history_values: string | null;
+  history_values?: string | null;
   @Prop({ type: String, default: null })
-  house: string;
+  house?: string;
   @Prop({ type: String, default: null })
-  house_cadnum: string | null;
+  house_cadnum?: string | null;
   @Prop({ type: String, default: null })
-  house_fias_id: string;
+  house_fias_id?: string;
   @Prop({ type: String, default: null })
-  house_kladr_id: string;
+  house_kladr_id?: string;
   @Prop({ type: String, default: null })
-  house_type: string;
+  house_type?: string;
   @Prop({ type: String, default: null })
-  house_type_full: string;
+  house_type_full?: string;
   @Prop({ type: String, default: null })
-  kladr_id: string;
+  kladr_id?: string;
   @Prop({ type: Array, default: [] })
-  metro: Array<any>;
+  metro?: Array<any>;
   @Prop({ type: String, default: null })
-  okato: string;
+  okato?: string;
   @Prop({ type: String, default: null })
-  oktmo: string;
+  oktmo?: string;
   @Prop({ type: String, default: null })
-  postal_box: string | null;
+  postal_box?: string | null;
   @Prop({ type: String, default: null })
-  qc: string;
+  qc?: string;
   @Prop({ type: String, default: null })
-  qc_complete: string | null;
+  qc_complete?: string | null;
   @Prop({ type: String, default: null })
-  qc_geo: string;
+  qc_geo?: string;
   @Prop({ type: String, default: null })
-  qc_house: string | null;
+  qc_house?: string | null;
   @Prop({ type: String, default: null })
-  region: string;
+  region?: string;
   @Prop({ type: String, default: null })
-  region_iso_code: string;
+  region_iso_code?: string;
   @Prop({ type: String, default: null })
-  region_type: string;
+  region_type?: string;
   @Prop({ type: String, default: null })
-  region_type_full: string;
+  region_type_full?: string;
   @Prop({ type: String, default: null })
-  region_with_type: string;
+  region_with_type?: string;
   @Prop({ type: String, default: null })
-  settlement: string | null;
+  settlement?: string | null;
   @Prop({ type: String, default: null })
-  settlement_fias_id: string | null;
+  settlement_fias_id?: string | null;
   @Prop({ type: String, default: null })
-  settlement_kladr_id: string | null;
+  settlement_kladr_id?: string | null;
   @Prop({ type: String, default: null })
-  settlement_type: string | null;
+  settlement_type?: string | null;
   @Prop({ type: String, default: null })
-  settlement_type_full: string | null;
+  settlement_type_full?: string | null;
   @Prop({ type: String, default: null })
-  settlement_with_type: string | null;
+  settlement_with_type?: string | null;
   @Prop({ type: String, default: null })
   source: string;
   @Prop({ type: String, default: null })
-  square_meter_price: string | null;
+  square_meter_price?: string | null;
   @Prop({ type: String, default: null })
-  street: string;
+  street?: string;
   @Prop({ type: String, default: null })
-  street_fias_id: string;
+  street_fias_id?: string;
   @Prop({ type: String, default: null })
-  street_kladr_id: string;
+  street_kladr_id?: string;
   @Prop({ type: String, default: null })
-  street_type: string;
+  street_type?: string;
   @Prop({ type: String, default: null })
-  street_type_full: string;
+  street_type_full?: string;
   @Prop({ type: String, default: null })
-  street_with_type: string;
+  street_with_type?: string;
   @Prop({ type: String, default: null })
-  tax_office: string;
+  tax_office?: string;
   @Prop({ type: String, default: null })
-  tax_office_legal: string;
+  tax_office_legal?: string;
   @Prop({ type: String, default: null })
-  timezone: string;
+  timezone?: string;
   @Prop({ type: String, default: null })
-  unparsed_parts: string | null;
+  unparsed_parts?: string | null;
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
