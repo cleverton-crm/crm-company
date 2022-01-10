@@ -100,16 +100,21 @@ export class ClientService {
 
   /**
    * Поиск клиента по ID
-   * @param {String} id
    * @return({Core.Client.Schema[]})
+   * @param {} data
    */
-  async findClient(id: string): Promise<Core.Client.Schema> {
+  async findClient(data: {
+    id: string;
+    company: string;
+  }): Promise<Core.Client.Schema> {
     let result;
     try {
       result = {
         statusCode: HttpStatus.OK,
         message: 'Client Found',
-        data: await this.clientModel.findOne({ _id: id }).exec(),
+        data: await this.clientModel
+          .findOne({ $or: [{ _id: data.id }, { company: data.company }] })
+          .exec(),
       };
     } catch (e) {
       result = {

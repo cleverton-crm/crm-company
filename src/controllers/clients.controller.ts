@@ -23,7 +23,7 @@ export class ClientsController {
   }
 
   @MessagePattern('client:find')
-  async findClient(id: string) {
-    return await this.appService.findClient(id);
+  async findClient(data: { id: string; company: string }) {
+    return await this.appService.findClient(data);
   }
 }
