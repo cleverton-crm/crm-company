@@ -2,7 +2,7 @@ import { Prop, Schema } from '@nestjs/mongoose';
 import { Core } from 'crm-core';
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
-export class CompanyRequisitesState implements Core.Company.Requisites.State {
+export class CompanyRequisitesState {
   @Prop({ type: String, default: null })
   status?: string;
 
@@ -20,7 +20,7 @@ export class CompanyRequisitesState implements Core.Company.Requisites.State {
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
-export class CompanyRequisitesOPF implements Core.Company.Requisites.OPF {
+export class CompanyRequisitesOPF {
   @Prop({ type: String, default: null })
   type?: string;
   @Prop({ type: String, default: null })
@@ -32,7 +32,7 @@ export class CompanyRequisitesOPF implements Core.Company.Requisites.OPF {
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
-export class CompanyRequisitesName implements Core.Company.Requisites.Name {
+export class CompanyRequisitesName {
   @Prop({ type: String, default: null })
   full_with_opf?: string;
   @Prop({ type: String, default: null })
@@ -46,7 +46,19 @@ export class CompanyRequisitesName implements Core.Company.Requisites.Name {
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
-export class CompanyRequisitesInfo implements Core.Company.Requisites.Info {
+export class CompanyRequisitesInfo {
+  @Prop({ type: String, default: null })
+  postal_code?: string;
+  @Prop({ type: String, default: null })
+  country?: string;
+  @Prop({ type: String, default: null })
+  country_iso_code?: string;
+  @Prop({ type: String, default: null })
+  federal_district?: string;
+  @Prop({ type: String, default: null })
+  region_fias_id?: string;
+  @Prop({ type: String, default: null })
+  region_kladr_id?: string;
   @Prop({ type: String, default: null })
   area?: string | null;
   @Prop({ type: String, default: null })
@@ -210,9 +222,7 @@ export class CompanyRequisitesInfo implements Core.Company.Requisites.Info {
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
-export class CompanyRequisitesAddress
-  implements Core.Company.Requisites.Address
-{
+export class CompanyRequisitesAddress {
   @Prop({ type: () => CompanyRequisitesInfo, default: {} })
   data: CompanyRequisitesInfo;
 
@@ -224,9 +234,7 @@ export class CompanyRequisitesAddress
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
-export class CompanyRequisitesFinance
-  implements Core.Company.Requisites.Finance
-{
+export class CompanyRequisitesFinance {
   @Prop({ type: String, default: null })
   tax_system?: string;
   @Prop({ type: String, default: null })
@@ -242,9 +250,7 @@ export class CompanyRequisitesFinance
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
-export class CompanyRequisitesCompanyUs
-  implements Core.Company.Requisites.CompanyUs
-{
+export class CompanyRequisitesCompanyUs {
   @Prop({ type: () => CompanyRequisitesAddress, default: {} })
   address: CompanyRequisitesAddress;
 
@@ -330,9 +336,7 @@ export class CompanyRequisitesCompanyUs
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
-export class CompanyRequisitesCompanyName
-  implements Core.Company.Requisites.CompanyName
-{
+export class CompanyRequisitesCompanyName {
   @Prop({ type: () => CompanyRequisitesCompanyUs, default: {} })
   data: CompanyRequisitesCompanyUs;
 

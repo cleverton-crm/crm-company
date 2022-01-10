@@ -5,7 +5,7 @@ import { Core } from 'crm-core';
 import { CompanyRequisitesCompanyName } from './nested-company.schema';
 
 @Schema({ timestamps: true })
-export class Companies extends Document implements Core.Company.Schema {
+export class Companies extends Document {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
 
