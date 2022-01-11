@@ -83,9 +83,7 @@ export class CarsService {
     archiveData: Core.Cars.ArchiveData,
   ): Promise<Core.Response.Answer> {
     let result;
-    console.log(archiveData.id);
     const car = await this.carsModel.findOne({ _id: archiveData.id }).exec();
-    console.log(car);
     if (car) {
       car.active = archiveData.active;
       await car.save();
