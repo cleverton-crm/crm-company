@@ -60,6 +60,9 @@ export class Cars extends Document {
 
   @Prop({ type: Map, default: {} })
   ownerCar: Map<string, string>;
+
+  @Prop({ type: Boolean, default: true })
+  active: boolean;
 }
 export type CarsModel<T extends Document> = PaginateModel<Cars>;
 export const CarsSchema = SchemaFactory.createForClass(Cars);
