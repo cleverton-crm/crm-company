@@ -11,6 +11,9 @@ import { ConfigService } from './config/config.service';
 import { ClientsProviderSchema } from './providers/clients.provider';
 import { ClientsController } from './controllers/clients.controller';
 import { ClientService } from './services/clients.service';
+import { CarsProviderSchema } from './providers/cars.provider';
+import { CarsController } from './controllers/cars.controller';
+import { CarsService } from './services/cars.service';
 
 @Module({
   imports: [
@@ -27,10 +30,11 @@ import { ClientService } from './services/clients.service';
     MongooseModule.forFeatureAsync([
       CompanyProviderSchema,
       ClientsProviderSchema,
+      CarsProviderSchema,
     ]),
   ],
-  controllers: [CompanyController, ClientsController],
-  providers: [ConfigService, CompanyService, ClientService],
+  controllers: [CompanyController, ClientsController, CarsController],
+  providers: [ConfigService, CompanyService, ClientService, CarsService],
   exports: [ConfigService],
 })
 export class AppModule {}

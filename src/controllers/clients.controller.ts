@@ -8,7 +8,7 @@ export class ClientsController {
   constructor(private readonly appService: ClientService) {}
 
   @MessagePattern('client:create')
-  async createClient(clientData: Core.Client.Schema) {
+  async createClient(@Payload() clientData: Core.Client.Schema) {
     return await this.appService.createClient(clientData);
   }
 
