@@ -16,4 +16,14 @@ export class CarsController {
   async listCars() {
     return await this.appService.listCars();
   }
+
+  @MessagePattern('cars:find')
+  async findCar(id: string) {
+    return await this.appService.findCar(id);
+  }
+
+  @MessagePattern('cars:archive')
+  async archiveCar(@Payload() archiveData: Core.Cars.ArchiveData) {
+    return await this.appService.archiveCar(archiveData);
+  }
 }

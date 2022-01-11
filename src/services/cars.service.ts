@@ -56,12 +56,51 @@ export class CarsService {
     return result;
   }
 
-  async findCar(): Promise<Core.Response.Answer> {
+  /**
+   * Поиск машины по ID
+   * @param id
+   */
+  async findCar(id: string): Promise<Core.Response.Answer> {
     let result;
-    const car = await this.carsModel.findOne().exec();
+    const car = await this.carsModel.findOne({ _id: id }).exec();
     try {
-      result = Core.ResponseData('Car Found', car);
-    } catch (e) {}
+      result = Core.ResponseData('Транспорт найден', car);
+    } catch (e) {
+      result = Core.ResponseNotFound(
+        'Транспорт с таким идентификатором не найден',
+        e.status,
+        e.error,
+      );
+    }
+    return result;
+  }
+
+  /**
+   * Архивация транспорта
+   * @param archiveData
+   */
+  async archiveCar(
+    archiveData: Core.Cars.ArchiveData,
+  ): Promise<Core.Response.Answer> {
+    let result;
+    console.log(archiveData.id);
+    const car = await this.carsModel.findOne({ _id: archiveData.id }).exec();
+    console.log(car);
+    if (car) {
+      car.active = archiveData.active;
+      await car.save();
+      if (!car.active) {
+        result = Core.ResponseSuccess('Транспорт был отправлен в архив');
+      } else {
+        result = Core.ResponseSuccess('Транспорт был разархивирован');
+      }
+    } else {
+      result = Core.ResponseNotFound(
+        'Транспорт с таким ID не найден',
+        HttpStatus.NOT_FOUND,
+        'Not Found',
+      );
+    }
     return result;
   }
 }
