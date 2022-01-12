@@ -6,7 +6,6 @@ import {
   CompanyBank,
   CompanyRequisitesCompanyName,
 } from './nested-company.schema';
-import { type } from 'os';
 
 @Schema({ timestamps: true })
 export class Companies extends Document {
