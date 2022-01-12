@@ -2,7 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, model, PaginateModel } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { Core } from 'crm-core';
-import { CompanyRequisitesCompanyName } from './nested-company.schema';
+import {
+  CompanyBank,
+  CompanyRequisitesCompanyName,
+} from './nested-company.schema';
+import { type } from 'os';
 
 @Schema({ timestamps: true })
 export class Companies extends Document {
@@ -29,6 +33,9 @@ export class Companies extends Document {
 
   @Prop({ type: String, default: null })
   fax: string;
+
+  @Prop({ type: () => CompanyBank, default: {} })
+  bank: CompanyBank;
 
   @Prop({ type: String, default: 'company' })
   object: 'company';

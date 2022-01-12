@@ -129,6 +129,7 @@ export class CompanyService {
    */
   async updateCompany(updateData: Core.Company.UpdateData) {
     let result;
+    console.log(updateData);
     try {
       await this.companyModel
         .findOneAndUpdate({ _id: updateData.id }, updateData.data)

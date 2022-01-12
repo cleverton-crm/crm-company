@@ -250,6 +250,20 @@ export class CompanyRequisitesFinance {
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
+export class CompanyBank {
+  @Prop({ type: String, default: null })
+  bank?: string;
+  @Prop({ type: String, default: null })
+  bankAddress?: string;
+  @Prop({ type: String, default: null })
+  bik?: string;
+  @Prop({ type: String, default: null })
+  correspondent?: string;
+  @Prop({ type: String, default: null })
+  payment?: string;
+}
+
+@Schema({ timestamps: false, _id: false, versionKey: false })
 export class CompanyRequisitesCompanyUs {
   @Prop({ type: () => CompanyRequisitesAddress, default: {} })
   address: CompanyRequisitesAddress;
