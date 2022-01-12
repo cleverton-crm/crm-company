@@ -26,4 +26,9 @@ export class CarsController {
   async archiveCar(@Payload() archiveData: Core.Cars.ArchiveData) {
     return await this.appService.archiveCar(archiveData);
   }
+
+  @MessagePattern('cars:update')
+  async updateCar(@Payload() updateData: Core.Cars.UpdateData) {
+    return await this.appService.updateCar(updateData);
+  }
 }

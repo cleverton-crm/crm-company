@@ -44,6 +44,7 @@ export class CarsService {
 
   /**
    * Список всех машин
+   * @return ({Core.Response.Answer})
    */
   async listCars(): Promise<Core.Response.Answer> {
     let result;
@@ -59,6 +60,7 @@ export class CarsService {
   /**
    * Поиск машины по ID
    * @param id
+   * @return ({Core.Response.Answer})
    */
   async findCar(id: string): Promise<Core.Response.Answer> {
     let result;
@@ -78,6 +80,7 @@ export class CarsService {
   /**
    * Архивация транспорта
    * @param archiveData
+   * @return ({Core.Response.Answer})
    */
   async archiveCar(
     archiveData: Core.Cars.ArchiveData,
@@ -98,6 +101,27 @@ export class CarsService {
         HttpStatus.NOT_FOUND,
         'Not Found',
       );
+    }
+    return result;
+  }
+
+  /**
+   * Изменение данных транспорта
+   * @param updateData
+   * @return ({Core.Response.Answer})
+   */
+  async updateCar(
+    updateData: Core.Cars.UpdateData,
+  ): Promise<Core.Response.Answer> {
+    let result;
+    try {
+      await this.carsModel.findOneAndUpdate(
+        { _id: updateData.id },
+        updateData.data,
+      );
+      result = Core.ResponseSuccess('Данные о транспорте изменены');
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
