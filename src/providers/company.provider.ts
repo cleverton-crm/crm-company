@@ -11,6 +11,9 @@ export const CompanyProviderSchema = {
     };
     CompanySchema.plugin(mongoosePaginator);
 
+    CompanySchema.set('toJSON', { virtuals: true });
+    CompanySchema.set('toObject', { virtuals: true });
+
     return CompanySchema;
   },
 };
