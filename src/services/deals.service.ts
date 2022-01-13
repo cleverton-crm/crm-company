@@ -3,6 +3,7 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { DealModel, Deals } from '../schemas/deals.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { log } from 'util';
 
 @Injectable()
 export class DealsService {
@@ -184,9 +185,11 @@ export class DealsService {
   async commentDeal(commentData: Core.Deals.CommentData) {
     let result;
     const deal = await this.dealsModel.findOne({ _id: commentData.id }).exec();
-    let historyAction = {};
     try {
-      deal.history.set(Date.now().toString(), historyAction);
+      deal.history.set(Date.now().toString(), {
+        comments: { [commentData.userId]: commentData.comments },
+      });
+      await deal.save();
       result = Core.ResponseDataAsync('Комментарий успешно добавлен', deal);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
