@@ -180,4 +180,17 @@ export class DealsService {
     }
     return result;
   }
+
+  async commentDeal(commentData: Core.Deals.CommentData) {
+    let result;
+    const deal = await this.dealsModel.findOne({ _id: commentData.id }).exec();
+    let historyAction = {};
+    try {
+      deal.history.set(Date.now().toString(), historyAction);
+      result = Core.ResponseDataAsync('Комментарий успешно добавлен', deal);
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
 }

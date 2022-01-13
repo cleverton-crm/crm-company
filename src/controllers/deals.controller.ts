@@ -31,4 +31,9 @@ export class DealsController {
   async updateDeal(@Payload() updateData: Core.Deals.UpdateData) {
     return await this.appService.updateDeal(updateData);
   }
+
+  @MessagePattern('deals:comment')
+  async commentDeal(@Payload() commentData: Core.Deals.CommentData) {
+    return await this.appService.commentDeal(commentData);
+  }
 }
