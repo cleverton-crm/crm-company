@@ -91,4 +91,93 @@ export class DealsService {
     }
     return result;
   }
+
+  /**
+   * Изменение сделки
+   * @param updateData
+   * @return ({Core.Response.Answer})
+   */
+  async updateDeal(
+    updateData: Core.Deals.UpdateData,
+  ): Promise<Core.Response.Answer> {
+    let result;
+    const dealOld = await this.dealsModel
+      .findOne({ _id: updateData.id })
+      .exec();
+    const dealNew = updateData.data;
+    let historyAction = {};
+    try {
+      historyAction = Object.assign(historyAction, {
+        whoChanged: updateData.userId,
+      });
+      if (dealOld.owner !== dealNew.owner && dealNew.owner !== undefined) {
+        historyAction = Object.assign(historyAction, {
+          owner: { old: dealOld.owner, new: dealNew.owner },
+        });
+        dealOld.owner = dealNew.owner;
+      }
+      if (dealOld.name !== dealNew.name) {
+        historyAction = Object.assign(historyAction, {
+          name: { old: dealOld.name, new: dealNew.name },
+        });
+        dealOld.name = dealNew.name;
+      }
+
+      if (dealOld.fuelAmount !== dealNew.fuelAmount) {
+        historyAction = Object.assign(historyAction, {
+          fuelAmount: { old: dealOld.fuelAmount, new: dealNew.fuelAmount },
+        });
+        dealOld.fuelAmount = dealNew.fuelAmount;
+      }
+
+      if (dealOld.fuelType !== dealNew.fuelType) {
+        historyAction = Object.assign(historyAction, {
+          fuelType: { old: dealOld.fuelType, new: dealNew.fuelType },
+        });
+        dealOld.fuelType = dealNew.fuelType;
+      }
+
+      if (dealOld.ownership !== dealNew.ownership) {
+        historyAction = Object.assign(historyAction, {
+          ownership: { old: dealOld.ownership, new: dealNew.ownership },
+        });
+        dealOld.ownership = dealNew.ownership;
+      }
+
+      if (dealOld.status !== dealNew.status) {
+        historyAction = Object.assign(historyAction, {
+          status: { old: dealOld.status, new: dealNew.status },
+        });
+        dealOld.status = dealNew.status;
+      }
+
+      if (dealOld.sum !== dealNew.sum) {
+        historyAction = Object.assign(historyAction, {
+          sum: { old: dealOld.sum, new: dealNew.sum },
+        });
+        dealOld.sum = dealNew.sum;
+      }
+
+      if (dealOld.fullname !== dealNew.fullname) {
+        historyAction = Object.assign(historyAction, {
+          fullname: { old: dealOld.fullname, new: dealNew.fullname },
+        });
+        dealOld.fullname = dealNew.fullname;
+      }
+
+      if (dealOld.tags !== dealNew.tags) {
+        historyAction = Object.assign(historyAction, {
+          sum: { old: dealOld.tags, new: dealNew.tags },
+        });
+        dealOld.tags = dealNew.tags;
+      }
+
+      dealOld.history.set(Date.now().toString(), historyAction);
+      await dealOld.save();
+      result = Core.ResponseDataAsync('Сделка успешно изменена', dealOld);
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
 }

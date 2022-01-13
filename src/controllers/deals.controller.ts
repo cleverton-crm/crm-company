@@ -26,4 +26,9 @@ export class DealsController {
   async archiveDeal(@Payload() archiveData: Core.Deals.ArchiveData) {
     return await this.appService.archiveDeal(archiveData);
   }
+
+  @MessagePattern('deals:update')
+  async updateDeal(@Payload() updateData: Core.Deals.UpdateData) {
+    return await this.appService.updateDeal(updateData);
+  }
 }
