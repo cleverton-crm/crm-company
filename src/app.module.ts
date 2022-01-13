@@ -14,6 +14,9 @@ import { ClientService } from './services/clients.service';
 import { CarsProviderSchema } from './providers/cars.provider';
 import { CarsController } from './controllers/cars.controller';
 import { CarsService } from './services/cars.service';
+import { DealsProviderSchema } from './providers/deals.provider';
+import { DealsController } from './controllers/deals.controller';
+import { DealsService } from './services/deals.service';
 
 @Module({
   imports: [
@@ -31,10 +34,22 @@ import { CarsService } from './services/cars.service';
       CompanyProviderSchema,
       ClientsProviderSchema,
       CarsProviderSchema,
+      DealsProviderSchema,
     ]),
   ],
-  controllers: [CompanyController, ClientsController, CarsController],
-  providers: [ConfigService, CompanyService, ClientService, CarsService],
+  controllers: [
+    CompanyController,
+    ClientsController,
+    CarsController,
+    DealsController,
+  ],
+  providers: [
+    ConfigService,
+    CompanyService,
+    ClientService,
+    CarsService,
+    DealsService,
+  ],
   exports: [ConfigService],
 })
 export class AppModule {}
