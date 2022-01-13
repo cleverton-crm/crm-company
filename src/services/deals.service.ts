@@ -1,5 +1,5 @@
 import { Core } from 'crm-core';
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { DealModel, Deals } from '../schemas/deals.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
@@ -59,6 +59,34 @@ export class DealsService {
         'Сделка с таким идентификатором не найдена',
         e.status,
         e.error,
+      );
+    }
+    return result;
+  }
+
+  /**
+   * Архивация сделки
+   * @param archiveData
+   * @return ({Core.Response.Answer})
+   */
+  async archiveDeal(
+    archiveData: Core.Deals.ArchiveData,
+  ): Promise<Core.Response.Answer> {
+    let result;
+    const deal = await this.dealsModel.findOne({ _id: archiveData.id }).exec();
+    if (deal) {
+      deal.active = archiveData.active;
+      await deal.save();
+      if (!deal.active) {
+        result = Core.ResponseSuccess('Сделка была отправлена в архив');
+      } else {
+        result = Core.ResponseSuccess('Сделка была разархивирована');
+      }
+    } else {
+      result = Core.ResponseNotFound(
+        'Сделка с таким ID не найдена',
+        HttpStatus.NOT_FOUND,
+        'Not Found',
       );
     }
     return result;

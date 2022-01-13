@@ -21,4 +21,9 @@ export class DealsController {
   async findDeal(@Payload() id: string) {
     return await this.appService.findDeal(id);
   }
+
+  @MessagePattern('deals:archive')
+  async archiveDeal(@Payload() archiveData: Core.Deals.ArchiveData) {
+    return await this.appService.archiveDeal(archiveData);
+  }
 }
