@@ -26,7 +26,6 @@ export class CarsService {
     let result;
     const car = new this.carsModel({ ...carsData });
     const company = await this.companyModel.exists({ _id: carsData.company });
-    console.log(company);
     try {
       if (company) {
         await car.save();
