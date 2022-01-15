@@ -97,7 +97,7 @@ export class CarsService {
     } else {
       result = Core.ResponseNotFound(
         'Транспорт с таким ID не найден',
-        HttpStatus.NOT_FOUND,
+        HttpStatus.OK,
         'Not Found',
       );
     }
