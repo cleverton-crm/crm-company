@@ -112,9 +112,7 @@ export class ClientService {
       result = {
         statusCode: HttpStatus.OK,
         message: 'Client Found',
-        data: await this.clientModel
-          .findOne({ $or: [{ _id: data.id }, { company: data.company }] })
-          .exec(),
+        data: await this.clientModel.findOne({ _id: data.id }).exec(),
       };
     } catch (e) {
       result = {
