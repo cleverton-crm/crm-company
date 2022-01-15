@@ -101,18 +101,15 @@ export class ClientService {
   /**
    * Поиск клиента по ID
    * @return({Core.Client.Schema[]})
-   * @param {} data
+   * @param id
    */
-  async findClient(data: {
-    id: string;
-    company: string;
-  }): Promise<Core.Client.Schema> {
+  async findClient(id: string): Promise<Core.Client.Schema> {
     let result;
     try {
       result = {
         statusCode: HttpStatus.OK,
         message: 'Client Found',
-        data: await this.clientModel.findOne({ _id: data.id }).exec(),
+        data: await this.clientModel.findOne({ _id: id }).exec(),
       };
     } catch (e) {
       result = {
