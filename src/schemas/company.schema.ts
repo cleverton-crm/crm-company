@@ -75,3 +75,7 @@ export const CompanyModel: CompanyModel<Companies> = model<Companies>(
   'Companies',
   CompanySchema,
 ) as CompanyModel<Companies>;
+
+@Schema({ collection: 'companyList' })
+export class ListCompany extends Companies {}
+export const ListCompanySchema = SchemaFactory.createForClass(ListCompany);

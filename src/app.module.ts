@@ -6,7 +6,10 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtConfigService } from './services/jwt.services';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongoConfigService } from './services/mongo.service';
-import { CompanyProviderSchema } from './providers/company.provider';
+import {
+  CompanyProviderSchema,
+  ListCompanyProviderSchema,
+} from './providers/company.provider';
 import { ConfigService } from './config/config.service';
 import { ClientsProviderSchema } from './providers/clients.provider';
 import { ClientsController } from './controllers/clients.controller';
@@ -36,6 +39,7 @@ import { LeadsService } from './services/leads.service';
     }),
     MongooseModule.forFeatureAsync([
       CompanyProviderSchema,
+      ListCompanyProviderSchema,
       ClientsProviderSchema,
       CarsProviderSchema,
       DealsProviderSchema,

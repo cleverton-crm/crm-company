@@ -1,21 +1,28 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { Connection } from 'mongoose';
+import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { Companies, CompanyModel } from 'src/schemas/company.schema';
+import {
+  Companies,
+  CompanyModel,
+  ListCompany,
+} from 'src/schemas/company.schema';
 import { Core } from 'crm-core';
 
 @Injectable()
 export class CompanyService {
   private readonly companyModel: CompanyModel<Companies>;
+  private readonly listCompanyModel: Model<ListCompany>;
 
   constructor(
     @InjectConnection() private connection: Connection,
     private jwtService: JwtService,
   ) {
+    console.log(this.connection);
     this.companyModel = this.connection.model(
       'Companies',
     ) as CompanyModel<Companies>;
+    this.listCompanyModel = this.connection.model('ListCompany');
   }
 
   /**
@@ -88,7 +95,7 @@ export class CompanyService {
       result = {
         statusCode: HttpStatus.OK,
         message: 'Company List',
-        data: await this.companyModel.find().exec(),
+        data: await this.listCompanyModel.find().exec(),
       };
     } catch (e) {
       result = {
