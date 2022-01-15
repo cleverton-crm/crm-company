@@ -86,7 +86,7 @@ export class DealsService {
     } else {
       result = Core.ResponseNotFound(
         'Сделка с таким ID не найдена',
-        HttpStatus.NOT_FOUND,
+        HttpStatus.OK,
         'Not Found',
       );
     }

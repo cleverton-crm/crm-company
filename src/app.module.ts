@@ -17,6 +17,10 @@ import { CarsService } from './services/cars.service';
 import { DealsProviderSchema } from './providers/deals.provider';
 import { DealsController } from './controllers/deals.controller';
 import { DealsService } from './services/deals.service';
+import { Leads } from './schemas/leads.schema';
+import { LeadsProviderSchema } from './providers/leads.provider';
+import { LeadsController } from './controllers/leads.controller';
+import { LeadsService } from './services/leads.service';
 
 @Module({
   imports: [
@@ -35,6 +39,7 @@ import { DealsService } from './services/deals.service';
       ClientsProviderSchema,
       CarsProviderSchema,
       DealsProviderSchema,
+      LeadsProviderSchema,
     ]),
   ],
   controllers: [
@@ -42,6 +47,7 @@ import { DealsService } from './services/deals.service';
     ClientsController,
     CarsController,
     DealsController,
+    LeadsController,
   ],
   providers: [
     ConfigService,
@@ -49,6 +55,7 @@ import { DealsService } from './services/deals.service';
     ClientService,
     CarsService,
     DealsService,
+    LeadsService,
   ],
   exports: [ConfigService],
 })
