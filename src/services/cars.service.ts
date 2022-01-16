@@ -45,9 +45,11 @@ export class CarsService {
    * Список всех машин
    * @return ({Core.Response.Answer})
    */
-  async listCars(): Promise<Core.Response.Answer> {
+  async listCars(company: string): Promise<Core.Response.Answer> {
     let result;
-    const cars = await this.carsModel.find().exec();
+    let filter = {};
+    if (company) filter = Object.assign(filter, { company: company });
+    const cars = await this.carsModel.find(filter).exec();
     try {
       result = Core.ResponseData('List of cars', cars);
     } catch (e) {
