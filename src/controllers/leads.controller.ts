@@ -8,27 +8,27 @@ export class LeadsController {
   constructor(private readonly appService: LeadsService) {}
 
   @MessagePattern('leads:create')
-  async createClient(@Payload() leadData: Core.Leads.Schema) {
+  async createLead(@Payload() leadData: Core.Leads.Schema) {
     return await this.appService.createLead(leadData);
   }
 
   @MessagePattern('leads:archive')
-  async archiveClient(@Payload() archiveData: Core.Leads.ArchiveData) {
+  async archiveLead(@Payload() archiveData: Core.Leads.ArchiveData) {
     return await this.appService.archiveLead(archiveData);
   }
 
   @MessagePattern('leads:list')
-  async listClients() {
+  async listLeads() {
     return await this.appService.listLeads();
   }
 
   @MessagePattern('leads:find')
-  async findClient(id: string) {
+  async findLead(id: string) {
     return await this.appService.findLead(id);
   }
 
   @MessagePattern('leads:update')
-  async updateDeal(@Payload() updateData: Core.Leads.UpdateData) {
+  async updateLead(@Payload() updateData: Core.Leads.UpdateData) {
     return await this.appService.updateLead(updateData);
   }
 }

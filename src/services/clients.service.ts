@@ -120,4 +120,25 @@ export class ClientService {
     }
     return result;
   }
+
+  /**
+   * Изменение данных клиента
+   * @param updateData
+   * @return({Core.Response.Answer})
+   */
+  async updateClient(
+    updateData: Core.Client.UpdateData,
+  ): Promise<Core.Response.Answer> {
+    let result;
+    try {
+      const client = await this.clientModel.findOneAndUpdate(
+        { _id: updateData.id },
+        updateData.data,
+      );
+      result = Core.ResponseData('Клиент успешно изменен', client);
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
 }

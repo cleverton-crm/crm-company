@@ -26,4 +26,9 @@ export class ClientsController {
   async findClient(id: string) {
     return await this.appService.findClient(id);
   }
+
+  @MessagePattern('client:update')
+  async updateClient(@Payload() updateData: Core.Client.UpdateData) {
+    return await this.appService.updateClient(updateData);
+  }
 }

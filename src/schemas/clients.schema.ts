@@ -11,9 +11,9 @@ export class PassportClientData {
   @Prop({ type: String, default: null })
   issuedBy: string;
   @Prop({ type: String, default: null })
-  passportSeries: string;
+  number: string;
   @Prop({ type: String, default: null })
-  passportNumber: string;
+  series: string;
 }
 
 @Schema({ timestamps: true })
