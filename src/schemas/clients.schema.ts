@@ -2,6 +2,19 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Core } from 'crm-core';
 import { v4 as uuidv4 } from 'uuid';
 import { Document, model, PaginateModel } from 'mongoose';
+import { LicensesData } from './leads.schema';
+
+@Schema({ timestamps: false, _id: false, versionKey: false })
+export class PassportClientData {
+  @Prop({ type: Date, default: null })
+  dateOfIssue: Date;
+  @Prop({ type: String, default: null })
+  issuedBy: string;
+  @Prop({ type: String, default: null })
+  passportSeries: string;
+  @Prop({ type: String, default: null })
+  passportNumber: string;
+}
 
 @Schema({ timestamps: true })
 export class Clients extends Document implements Core.Client.Schema {
@@ -67,6 +80,12 @@ export class Clients extends Document implements Core.Client.Schema {
 
   @Prop({ type: Boolean, default: true })
   active: boolean;
+
+  @Prop({ type: () => LicensesData, default: {} })
+  licenses: LicensesData;
+
+  @Prop({ type: () => PassportClientData, default: {} })
+  passport: PassportClientData;
 }
 export type ClientModel<T extends Document> = PaginateModel<Clients>;
 export const ClientSchema = SchemaFactory.createForClass(Clients);
