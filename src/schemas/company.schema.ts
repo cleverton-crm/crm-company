@@ -68,6 +68,15 @@ export class Companies extends Document {
 
   @Prop({ type: String, default: null })
   web: string;
+
+  @Prop({ type: Map, default: {} })
+  partner: Map<string, any>;
+
+  @Prop({ type: Map, default: {} })
+  holding: Map<string, any>;
+
+  @Prop({ type: Map, default: {} })
+  park: Map<string, any>;
 }
 export type CompanyModel<T extends Document> = PaginateModel<Companies>;
 export const CompanySchema = SchemaFactory.createForClass(Companies);
