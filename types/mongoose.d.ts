@@ -1,9 +1,7 @@
 import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 
-
-declare module 'mongoose' {
-
+export declare module 'mongoose' {
   interface CustomLabels {
     totalDocs?: string | undefined;
     limit?: string | undefined;
@@ -13,8 +11,8 @@ declare module 'mongoose' {
     nextPage?: string | undefined;
     prevPage?: string | undefined;
   }
-  interface QueryFindOptions extends mongoose.QueryOptions{}
-  interface CollationOptions extends mongodb.CollationOptions{}
+  interface QueryFindOptions extends mongoose.QueryOptions {}
+  interface CollationOptions extends mongodb.CollationOptions {}
 
   interface ReadOptions {
     pref: string;
@@ -26,7 +24,13 @@ declare module 'mongoose' {
     sort?: object | string | undefined;
     customLabels?: CustomLabels | undefined;
     collation?: CollationOptions | undefined;
-    populate?: object[] | string[] | object | string | QueryPopulateOptions | undefined;
+    populate?:
+      | object[]
+      | string[]
+      | object
+      | string
+      | QueryPopulateOptions
+      | undefined;
     lean?: boolean | undefined;
     leanWithId?: boolean | undefined;
     offset?: number | undefined;
@@ -69,8 +73,6 @@ declare module 'mongoose' {
     [customLabel: string]: T[] | number | boolean | null | undefined;
   }
 
-
-
   export interface PaginateModel<T extends Document> extends Model<T> {
     paginate(
       query?: FilterQuery<T>,
@@ -79,9 +81,13 @@ declare module 'mongoose' {
     ): Promise<PaginateResult<T>>;
   }
 
-  function model(name: string, schema?: Schema, collection?: string, skipInit?: boolean): PaginateModel<any>;
+  function model(
+    name: string,
+    schema?: Schema,
+    collection?: string,
+    skipInit?: boolean,
+  ): PaginateModel<any>;
 }
-
 
 declare function _(schema: mongoose.Schema): void;
 export = _;
