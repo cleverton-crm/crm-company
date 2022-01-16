@@ -3,7 +3,6 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { DealModel, Deals } from '../schemas/deals.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
-import { log } from 'util';
 
 @Injectable()
 export class DealsService {

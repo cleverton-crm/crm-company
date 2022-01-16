@@ -18,7 +18,6 @@ export class CompanyService {
     @InjectConnection() private connection: Connection,
     private jwtService: JwtService,
   ) {
-    console.log(this.connection);
     this.companyModel = this.connection.model(
       'Companies',
     ) as CompanyModel<Companies>;
