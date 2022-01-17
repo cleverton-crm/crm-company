@@ -67,9 +67,9 @@ export class LeadsService {
    */
   async listLeads(): Promise<Core.Response.Answer> {
     let result;
-    const deals = await this.leadsModel.find().exec();
+    const leads = await this.leadsModel.find().exec();
     try {
-      result = Core.ResponseData('Список лидов', deals);
+      result = Core.ResponseData('Список лидов', leads);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
@@ -83,9 +83,9 @@ export class LeadsService {
    */
   async findLead(id: string): Promise<Core.Response.Answer> {
     let result;
-    const deal = await this.leadsModel.findOne({ _id: id }).exec();
+    const lead = await this.leadsModel.findOne({ _id: id }).exec();
     try {
-      result = Core.ResponseData('Лид найден', deal);
+      result = Core.ResponseData('Лид найден', lead);
     } catch (e) {
       result = Core.ResponseNotFound(
         'Лид с таким идентификатором не найден',
