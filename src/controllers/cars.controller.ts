@@ -13,8 +13,8 @@ export class CarsController {
   }
 
   @MessagePattern('cars:list')
-  async listCars() {
-    return await this.appService.listCars();
+  async listCars(@Payload() data: { company: string }) {
+    return await this.appService.listCars(data);
   }
 
   @MessagePattern('cars:find')
