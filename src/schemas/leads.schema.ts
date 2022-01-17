@@ -37,6 +37,9 @@ export class Leads extends Document implements Core.Leads.Schema {
   @Prop({ type: String, default: null })
   comments: string;
 
+  @Prop({ type: Number, default: 0 })
+  status: number;
+
   @Prop({ type: String, default: null })
   companyRole: string | Core.Leads.CompanyRole;
 
