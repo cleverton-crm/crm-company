@@ -32,8 +32,8 @@ export class Deals extends Document {
   @Prop({ type: String, default: null })
   ownership: string;
 
-  @Prop({ type: String, default: null })
-  permissions: string;
+  @Prop({ type: Map, default: {} })
+  permissions: Map<string, any>;
 
   @Prop({ type: String, default: null })
   source: string;

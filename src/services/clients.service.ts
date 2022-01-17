@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
-import { JwtService } from '@nestjs/jwt';
 import { Core } from 'crm-core';
 import { ClientModel, Clients } from '../schemas/clients.schema';
 
@@ -9,10 +8,7 @@ import { ClientModel, Clients } from '../schemas/clients.schema';
 export class ClientService {
   private readonly clientModel: ClientModel<Clients>;
 
-  constructor(
-    @InjectConnection() private connection: Connection,
-    private jwtService: JwtService,
-  ) {
+  constructor(@InjectConnection() private connection: Connection) {
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
   }
 
@@ -28,16 +24,9 @@ export class ClientService {
     const client = new this.clientModel(clientData);
     try {
       await client.save();
-      result = {
-        statusCode: HttpStatus.OK,
-        message: 'Клиент успешно создан',
-      };
+      result = Core.ResponseSuccess('Клиент успешно создан');
     } catch (e) {
-      result = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Ошибка при создании клиента',
-        errors: 'Bad Request',
-      };
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -56,22 +45,16 @@ export class ClientService {
       client.active = archiveData.active;
       await client.save();
       if (!client.active) {
-        result = {
-          statusCode: HttpStatus.OK,
-          message: 'Клиент был отправлен в архив',
-        };
+        result = Core.ResponseSuccess('Клиент был отправлен в архив');
       } else {
-        result = {
-          statusCode: HttpStatus.OK,
-          message: 'Клиент был разархивирован',
-        };
+        result = Core.ResponseSuccess('Клиент был разархивирован');
       }
     } else {
-      result = {
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Клиент с таким id не найден',
-        errors: 'Not Found',
-      };
+      result = Core.ResponseError(
+        'Клиент с таким id не найден',
+        HttpStatus.OK,
+        'Not Found',
+      );
     }
     return result;
   }
@@ -83,17 +66,12 @@ export class ClientService {
   async listClients(): Promise<Core.Client.Schema[]> {
     let result;
     try {
-      result = {
-        statusCode: HttpStatus.OK,
-        message: 'Clients List',
-        data: await this.clientModel.find().exec(),
-      };
+      result = Core.ResponseData(
+        'Список клиентов',
+        await this.clientModel.find().exec(),
+      );
     } catch (e) {
-      result = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: e.message,
-        errors: e.error,
-      };
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -106,17 +84,12 @@ export class ClientService {
   async findClient(id: string): Promise<Core.Client.Schema> {
     let result;
     try {
-      result = {
-        statusCode: HttpStatus.OK,
-        message: 'Client Found',
-        data: await this.clientModel.findOne({ _id: id }).exec(),
-      };
+      result = Core.ResponseData(
+        'Клиент найден',
+        await this.clientModel.findOne({ _id: id }).exec(),
+      );
     } catch (e) {
-      result = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: e.message,
-        errors: e.error,
-      };
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }

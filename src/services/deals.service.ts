@@ -37,7 +37,7 @@ export class DealsService {
     let result;
     const deals = await this.dealsModel.find().exec();
     try {
-      result = Core.ResponseData('List of deals', deals);
+      result = Core.ResponseData('Список сделок', deals);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
@@ -55,7 +55,7 @@ export class DealsService {
     try {
       result = Core.ResponseData('Сделка найдена', deal);
     } catch (e) {
-      result = Core.ResponseNotFound(
+      result = Core.ResponseError(
         'Сделка с таким идентификатором не найдена',
         e.status,
         e.error,
@@ -83,7 +83,7 @@ export class DealsService {
         result = Core.ResponseSuccess('Сделка была разархивирована');
       }
     } else {
-      result = Core.ResponseNotFound(
+      result = Core.ResponseError(
         'Сделка с таким ID не найдена',
         HttpStatus.OK,
         'Not Found',

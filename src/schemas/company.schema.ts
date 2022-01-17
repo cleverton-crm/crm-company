@@ -45,8 +45,8 @@ export class Companies extends Document {
   @Prop({ type: String, default: null })
   ownership: string | Core.Company.Ownership;
 
-  @Prop({ type: String, default: null })
-  permissions: string;
+  @Prop({ type: Map, default: {} })
+  permissions: Map<string, any>;
 
   @Prop({ type: String, default: null })
   phoneNumber: string;

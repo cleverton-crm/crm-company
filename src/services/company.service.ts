@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
-import { JwtService } from '@nestjs/jwt';
 import {
   Companies,
   CompanyModel,
@@ -14,10 +13,7 @@ export class CompanyService {
   private readonly companyModel: CompanyModel<Companies>;
   private readonly listCompanyModel: Model<ListCompany>;
 
-  constructor(
-    @InjectConnection() private connection: Connection,
-    private jwtService: JwtService,
-  ) {
+  constructor(@InjectConnection() private connection: Connection) {
     this.companyModel = this.connection.model(
       'Companies',
     ) as CompanyModel<Companies>;
@@ -36,16 +32,9 @@ export class CompanyService {
     const company = new this.companyModel(companyData);
     try {
       await company.save();
-      result = {
-        statusCode: HttpStatus.OK,
-        message: 'Компания успешно создана',
-      };
+      result = Core.ResponseSuccess('Компания успешно создана');
     } catch (e) {
-      result = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Ошибка при создании компании',
-        errors: 'Bad Request',
-      };
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -64,22 +53,16 @@ export class CompanyService {
       company.active = archiveData.active;
       await company.save();
       if (!company.active) {
-        result = {
-          statusCode: HttpStatus.OK,
-          message: 'Компания была отправлена в архив',
-        };
+        result = Core.ResponseSuccess('Компания была отправлена в архив');
       } else {
-        result = {
-          statusCode: HttpStatus.OK,
-          message: 'Компания была разархивирована',
-        };
+        result = Core.ResponseSuccess('Компания была разархивирована');
       }
     } else {
-      result = {
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Компания с таким id не найдена',
-        errors: 'Not Found',
-      };
+      result = Core.ResponseError(
+        'Компания с таким ID не найдена',
+        HttpStatus.OK,
+        'Not Found',
+      );
     }
     return result;
   }
@@ -91,17 +74,12 @@ export class CompanyService {
   async listCompanies(): Promise<Core.Company.Schema[]> {
     let result;
     try {
-      result = {
-        statusCode: HttpStatus.OK,
-        message: 'Company List',
-        data: await this.listCompanyModel.find().exec(),
-      };
+      result = Core.ResponseData(
+        'Список компаний',
+        await this.listCompanyModel.find().exec(),
+      );
     } catch (e) {
-      result = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: e.message,
-        errors: e.error,
-      };
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -114,17 +92,12 @@ export class CompanyService {
   async findCompany(id: string): Promise<Core.Company.Schema> {
     let result;
     try {
-      result = {
-        statusCode: HttpStatus.OK,
-        message: 'Company Found',
-        data: await this.companyModel.findOne({ _id: id }).exec(),
-      };
+      result = Core.ResponseData(
+        'Компания найдена',
+        await this.companyModel.findOne({ _id: id }).exec(),
+      );
     } catch (e) {
-      result = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: e.message,
-        errors: e.error,
-      };
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -140,16 +113,9 @@ export class CompanyService {
       await this.companyModel
         .findOneAndUpdate({ _id: updateData.id }, updateData.data)
         .exec();
-      result = {
-        statusCode: HttpStatus.OK,
-        message: 'Данные о компании изменены',
-      };
+      result = Core.ResponseSuccess('Данные о компании изменены');
     } catch (e) {
-      result = {
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: e.message,
-        errors: e.error,
-      };
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }

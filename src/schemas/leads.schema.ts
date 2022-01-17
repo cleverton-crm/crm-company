@@ -79,8 +79,8 @@ export class Leads extends Document implements Core.Leads.Schema {
   @Prop({ type: String, default: null })
   payerType: string | Core.Company.Ownership;
 
-  @Prop({ type: String, default: null })
-  permissions: string;
+  @Prop({ type: Map, default: {} })
+  permissions: Map<string, any>;
 
   @Prop({ type: String, default: null })
   personalEmail: string;

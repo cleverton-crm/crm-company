@@ -87,7 +87,7 @@ export class LeadsService {
     try {
       result = Core.ResponseData('Лид найден', lead);
     } catch (e) {
-      result = Core.ResponseNotFound(
+      result = Core.ResponseError(
         'Лид с таким идентификатором не найден',
         e.status,
         e.error,

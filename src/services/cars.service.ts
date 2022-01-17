@@ -72,7 +72,7 @@ export class CarsService {
     try {
       result = Core.ResponseData('Транспорт найден', car);
     } catch (e) {
-      result = Core.ResponseNotFound(
+      result = Core.ResponseError(
         'Транспорт с таким идентификатором не найден',
         e.status,
         e.error,
@@ -100,7 +100,7 @@ export class CarsService {
         result = Core.ResponseSuccess('Транспорт был разархивирован');
       }
     } else {
-      result = Core.ResponseNotFound(
+      result = Core.ResponseError(
         'Транспорт с таким ID не найден',
         HttpStatus.OK,
         'Not Found',
