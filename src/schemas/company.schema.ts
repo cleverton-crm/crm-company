@@ -75,6 +75,9 @@ export class Companies extends Document {
   @Prop({ type: Map, default: {} })
   holding: Map<string, any>;
 
+  @Prop({ type: String, default: null, unique: true })
+  inn: string;
+
   @Prop({ type: Map, default: {} })
   park: Map<string, any>;
 }

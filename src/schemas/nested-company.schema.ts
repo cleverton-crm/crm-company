@@ -292,7 +292,7 @@ export class CompanyRequisitesCompanyUs {
   @Prop({ type: String, default: null })
   hid: string | null;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, unique: true })
   inn: string;
 
   @Prop({ type: String, default: null })
