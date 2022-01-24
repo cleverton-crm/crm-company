@@ -32,7 +32,7 @@ export class CompanyService {
     const company = new this.companyModel(companyData);
     try {
       await company.save();
-      result = Core.ResponseSuccess('Компания успешно создана');
+      result = Core.ResponseDataAsync('Компания успешно создана', company);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
