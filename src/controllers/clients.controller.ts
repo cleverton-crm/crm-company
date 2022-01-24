@@ -18,8 +18,8 @@ export class ClientsController {
   }
 
   @MessagePattern('client:list')
-  async listClients() {
-    return await this.appService.listClients();
+  async listClients(@Payload() data: { company: string }) {
+    return await this.appService.listClients(data);
   }
 
   @MessagePattern('client:find')

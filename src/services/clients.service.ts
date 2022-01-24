@@ -63,13 +63,16 @@ export class ClientService {
    * Список компаний
    * @return({Core.Client.Schema[]})
    */
-  async listClients(): Promise<Core.Client.Schema[]> {
+  async listClients(data: { company: string }): Promise<Core.Client.Schema[]> {
     let result;
+    let filter = {};
+    let clients;
     try {
-      result = Core.ResponseData(
-        'Список клиентов',
-        await this.clientModel.find().exec(),
-      );
+      if (data.company) {
+        filter = Object.assign(filter, { company: data.company });
+      }
+      clients = await this.clientModel.find(filter).exec();
+      result = Core.ResponseData('List of cars', clients);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
