@@ -76,7 +76,7 @@ export class CompanyService {
     try {
       result = Core.ResponseData(
         'Список компаний',
-        await this.listCompanyModel.find().exec(),
+        await this.companyModel.find().exec(),
       );
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -94,7 +94,7 @@ export class CompanyService {
     try {
       result = Core.ResponseData(
         'Компания найдена',
-        await this.companyModel.findOne({ _id: id }).exec(),
+        await this.listCompanyModel.findOne({ _id: id }).exec(),
       );
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
