@@ -18,7 +18,9 @@ export class ClientsController {
   }
 
   @MessagePattern('client:list')
-  async listClients(@Payload() data: { company: string }) {
+  async listClients(
+    @Payload() data: { company: string; pagination: Core.MongoPagination },
+  ) {
     return await this.appService.listClients(data);
   }
 
