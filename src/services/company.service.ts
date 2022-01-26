@@ -106,7 +106,9 @@ export class CompanyService {
    * Изменение данных о компании
    * @param updateData
    */
-  async updateCompany(updateData: Core.Company.UpdateData) {
+  async updateCompany(
+    updateData: Core.Company.UpdateData,
+  ): Promise<Core.Response.Answer> {
     let result;
     console.log(updateData);
     try {
@@ -114,6 +116,33 @@ export class CompanyService {
         .findOneAndUpdate({ _id: updateData.id }, updateData.data)
         .exec();
       result = Core.ResponseSuccess('Данные о компании изменены');
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
+
+  /**
+   * Поиск существующих компаний по ИНН
+   * @param inn
+   * @return({Core.Response.Answer})
+   */
+  async checkoutCompany(inn: string): Promise<Core.Response.Answer> {
+    let result;
+    const company = await this.companyModel.findOne({ inn: inn }).exec();
+    try {
+      if (company) {
+        if (!company.active) {
+          result = Core.ResponseDataAsync(
+            'Компания с таким ИНН находится в архиве и ее можно восстановить',
+            company.id,
+          );
+        } else {
+          result = Core.ResponseSuccess('Компания с таким ИНН уже существует');
+        }
+      } else {
+        result = Core.ResponseSuccess('Компания не найдена');
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
