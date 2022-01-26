@@ -71,12 +71,16 @@ export class CompanyService {
    * Список компаний
    * @return({Core.Company.Schema[]})
    */
-  async listCompanies(): Promise<Core.Company.Schema[]> {
+  async listCompanies(
+    pagination: Core.MongoPagination,
+  ): Promise<Core.Response.RecordsData> {
     let result;
     try {
-      result = Core.ResponseData(
+      const company = await this.companyModel.paginate({}, pagination);
+      result = Core.ResponseDataRecords(
         'Список компаний',
-        await this.companyModel.find().exec(),
+        company.data,
+        company.records,
       );
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);

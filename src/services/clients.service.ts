@@ -63,7 +63,10 @@ export class ClientService {
    * Список компаний
    * @return({Core.Client.Schema[]})
    */
-  async listClients(data: { company: string }): Promise<Core.Client.Schema[]> {
+  async listClients(data: {
+    company: string;
+    pagination: Core.MongoPagination;
+  }): Promise<Core.Response.RecordsData> {
     let result;
     let filter = {};
     let clients;
@@ -71,8 +74,13 @@ export class ClientService {
       if (data.company) {
         filter = Object.assign(filter, { company: data.company });
       }
-      clients = await this.clientModel.find(filter).exec();
-      result = Core.ResponseData('List of cars', clients);
+      clients = await this.clientModel.paginate(filter, data.pagination);
+      console.log(clients);
+      result = Core.ResponseDataRecords(
+        'List of cars',
+        clients.data,
+        clients.records,
+      );
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
