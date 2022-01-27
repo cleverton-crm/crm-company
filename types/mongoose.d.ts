@@ -1,7 +1,7 @@
 import mongodb = require('mongodb');
 import mongoose = require('mongoose');
 
-export declare module 'mongoose' {
+declare module 'mongoose' {
   interface CustomLabels {
     totalDocs?: string | undefined;
     limit?: string | undefined;

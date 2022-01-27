@@ -30,6 +30,7 @@ export class CompanyService {
   ): Promise<Core.Response.Answer> {
     let result;
     const company = new this.companyModel(companyData);
+    company.inn = companyData.requisites.data.inn;
     try {
       await company.save();
       result = Core.ResponseDataAsync('Компания успешно создана', company);
@@ -117,7 +118,10 @@ export class CompanyService {
     console.log(updateData);
     try {
       await this.companyModel
-        .findOneAndUpdate({ _id: updateData.id }, updateData.data)
+        .findOneAndUpdate(
+          { _id: updateData.id },
+          { ...updateData.data, inn: updateData.data.requisites.data.inn },
+        )
         .exec();
       result = Core.ResponseSuccess('Данные о компании изменены');
     } catch (e) {

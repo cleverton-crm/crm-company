@@ -1,0 +1,15 @@
+{
+  "volume": "Объект",
+  "name": "Название",
+  "object": "fuelcompanypark",
+  "owner": "id",
+  "company": "id",
+  "position": "",
+  "pump": true,
+  "roadkm": 10,
+  "fuel": [
+    {"index": 1,"name": "Aи-80","capacity":60,"consumption": 3},
+    {"index": 2,"name": "Aи-95","capacity":60,"consumption": 3}
+  ]
+
+}
