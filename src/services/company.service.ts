@@ -144,14 +144,23 @@ export class CompanyService {
       if (company) {
         if (!company.active) {
           result = Core.ResponseDataAsync(
-            'Компания с таким ИНН находится в архиве и ее можно восстановить',
+            {
+              text: 'Компания с таким ИНН находится в архиве и ее можно восстановить',
+              status: 'inactive',
+            },
             company.id,
           );
         } else {
-          result = Core.ResponseSuccess('Компания с таким ИНН уже существует');
+          result = Core.ResponseSuccess({
+            text: 'Компания с таким ИНН уже существует',
+            status: 'active',
+          });
         }
       } else {
-        result = Core.ResponseSuccess('Компания не найдена');
+        result = Core.ResponseSuccess(
+          { text: 'Компания не найдена', status: 'notfound' },
+          HttpStatus.NO_CONTENT,
+        );
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);

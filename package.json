@@ -1,6 +1,6 @@
 {
   "name": "crm-company",
-  "version": "1.0.55",
+  "version": "1.0.56",
   "description": "Company and Clients for CRM",
   "author": "",
   "private": true,
@@ -25,7 +25,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "types": "yarn add https://github.com/cleverton-crm/crm-core.git",
+    "types": "rimraf node_modules/crm-core && yarn add https://github.com/cleverton-crm/crm-core.git",
     "prepare": "husky install"
   },
   "dependencies": {

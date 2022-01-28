@@ -2174,8 +2174,8 @@ create-require@^1.1.0:
   integrity sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
 
 "crm-core@https://github.com/cleverton-crm/crm-core.git":
-  version "1.0.76"
-  resolved "https://github.com/cleverton-crm/crm-core.git#2a14aba06f2d70a4a4560d62c2b993809b2aea55"
+  version "1.0.78"
+  resolved "https://github.com/cleverton-crm/crm-core.git#d5b880e293c8068ce3715735c34625f488b329bc"
   dependencies:
     "@nestjs/common" "^8.2.4"
     "@nestjs/microservices" "^8.2.4"
