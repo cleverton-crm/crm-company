@@ -77,7 +77,10 @@ export class CompanyService {
   ): Promise<Core.Response.RecordsData> {
     let result;
     try {
-      const company = await this.companyModel.paginate({}, pagination);
+      const company = await this.companyModel.paginate(
+        { active: true },
+        pagination,
+      );
       result = Core.ResponseDataRecords(
         'Список компаний',
         company.data,
@@ -115,7 +118,6 @@ export class CompanyService {
     updateData: Core.Company.UpdateData,
   ): Promise<Core.Response.Answer> {
     let result;
-    console.log(updateData);
     try {
       await this.companyModel
         .findOneAndUpdate(
