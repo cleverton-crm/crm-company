@@ -93,6 +93,9 @@ export class Leads extends Document implements Core.Leads.Schema {
 
   @Prop({ type: Date, default: null })
   updatedAt: Date;
+
+  @Prop({ type: Array, default: [] })
+  contacts: Array<any>;
 }
 export type LeadModel<T extends Document> = PaginateModel<Leads>;
 export const LeadSchema = SchemaFactory.createForClass(Leads);
