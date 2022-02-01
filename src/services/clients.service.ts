@@ -77,7 +77,7 @@ export class ClientService {
       clients = await this.clientModel.paginate(filter, data.pagination);
       console.log(clients);
       result = Core.ResponseDataRecords(
-        'List of cars',
+        'Список клиентов',
         clients.data,
         clients.records,
       );
