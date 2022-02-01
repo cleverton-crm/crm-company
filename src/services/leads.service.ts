@@ -85,13 +85,13 @@ export class LeadsService {
     let result;
     const lead = await this.leadsModel.findOne({ _id: id }).exec();
     try {
-      result = Core.ResponseData('Лид найден', lead);
+      if (lead !== null) {
+        result = Core.ResponseData('Лид найден', lead);
+      } else {
+        result = Core.ResponseSuccess('Лид с таким идентификатором не найден');
+      }
     } catch (e) {
-      result = Core.ResponseError(
-        'Лид с таким идентификатором не найден',
-        e.status,
-        e.error,
-      );
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }

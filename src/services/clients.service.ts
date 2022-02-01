@@ -94,11 +94,15 @@ export class ClientService {
    */
   async findClient(id: string): Promise<Core.Client.Schema> {
     let result;
+    const client = await this.clientModel.findOne({ _id: id }).exec();
     try {
-      result = Core.ResponseData(
-        'Клиент найден',
-        await this.clientModel.findOne({ _id: id }).exec(),
-      );
+      if (client !== null) {
+        result = Core.ResponseData('Клиент найден', client);
+      } else {
+        result = Core.ResponseSuccess(
+          'Клиент с таким идентификатором не найден',
+        );
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }

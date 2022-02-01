@@ -53,13 +53,13 @@ export class DealsService {
     let result;
     const deal = await this.dealsModel.findOne({ _id: id }).exec();
     try {
-      result = Core.ResponseData('Сделка найдена', deal);
+      if (deal !== null) {
+        result = Core.ResponseData('Сделка найдена', deal);
+      } else {
+        result = Core.ResponseSuccess('Сделка с таким ID не найдена');
+      }
     } catch (e) {
-      result = Core.ResponseError(
-        'Сделка с таким идентификатором не найдена',
-        e.status,
-        e.error,
-      );
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }

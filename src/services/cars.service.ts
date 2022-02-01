@@ -70,13 +70,15 @@ export class CarsService {
     let result;
     const car = await this.carsModel.findOne({ _id: id }).exec();
     try {
-      result = Core.ResponseData('Транспорт найден', car);
+      if (car !== null) {
+        result = Core.ResponseData('Транспорт найден', car);
+      } else {
+        result = Core.ResponseSuccess(
+          'Транспорт с таким идентификатором не найден',
+        );
+      }
     } catch (e) {
-      result = Core.ResponseError(
-        'Транспорт с таким идентификатором не найден',
-        e.status,
-        e.error,
-      );
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }

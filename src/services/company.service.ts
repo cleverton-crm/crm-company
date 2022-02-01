@@ -99,11 +99,13 @@ export class CompanyService {
    */
   async findCompany(id: string): Promise<Core.Company.Schema> {
     let result;
+    const company = await this.listCompanyModel.findOne({ _id: id }).exec();
     try {
-      result = Core.ResponseData(
-        'Компания найдена',
-        await this.listCompanyModel.findOne({ _id: id }).exec(),
-      );
+      if (company !== null) {
+        result = Core.ResponseData('Компания найдена', company);
+      } else {
+        result = Core.ResponseSuccess('Компания с таким ID не найдена');
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
