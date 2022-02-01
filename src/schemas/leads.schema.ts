@@ -31,71 +31,68 @@ export class Leads extends Document implements Core.Leads.Schema {
   @Prop({ type: Boolean, default: true })
   active: boolean;
 
-  @Prop({ type: Date, default: new Date() })
-  birthDate: Date;
+  @Prop({ type: Map, default: {} })
+  activity: Map<string, any>;
+
+  @Prop({ type: Map, default: {} })
+  attachments: Map<string, any>;
 
   @Prop({ type: String, default: null })
-  comments: string;
+  author: string;
 
-  @Prop({ type: Number, default: 0 })
-  status: number;
-
-  @Prop({ type: String, default: null })
-  companyRole: string | Core.Leads.CompanyRole;
+  @Prop({ type: String, default: null, ref: 'Clients' })
+  client: string;
 
   @Prop({ type: String, default: null })
-  corporateEmail: string;
+  company: string;
+
+  @Prop({ type: Date, default: null })
+  createdAt: Date;
 
   @Prop({ type: String, default: null })
-  delivery: string;
+  currency: string;
 
   @Prop({ type: String, default: null })
-  fullname: string;
+  description: string;
 
-  @Prop({ type: String, default: null })
-  mobilePhone: string;
+  @Prop({ type: Date, default: null })
+  endDate: Date;
 
-  @Prop({ type: String, default: 'lead' })
-  object: 'lead';
-
-  @Prop({ type: String, default: null })
-  mobilePhone2: string;
-
-  @Prop({ type: String, default: null })
-  mobilePhone3: string;
+  @Prop({ type: Map, default: {} })
+  information: Map<string, any>;
 
   @Prop({ type: String, default: null })
   name: string;
 
+  @Prop({ type: String, default: 'task' })
+  object: string;
+
   @Prop({ type: String, default: null })
   owner: string;
-
-  @Prop({ type: () => PassportData, default: {} })
-  passport: PassportData;
-
-  @Prop({ type: () => LicensesData, default: {} })
-  licenses: LicensesData;
-
-  @Prop({ type: String, default: null })
-  payerType: string | Core.Company.Ownership;
 
   @Prop({ type: Map, default: {} })
   permissions: Map<string, any>;
 
-  @Prop({ type: String, default: null })
-  personalEmail: string;
-
-  @Prop({ type: String, default: null })
-  position: string;
-
-  @Prop({ type: String, default: null })
-  skype: string;
+  @Prop({ type: Number, default: 0 })
+  price: number;
 
   @Prop({ type: String, default: null })
   source: string;
 
+  @Prop({ type: Date, default: null })
+  startDate: Date;
+
   @Prop({ type: String, default: null })
-  workPhone: string;
+  status: string;
+
+  @Prop({ type: Array, default: [] })
+  tags: Array<string>;
+
+  @Prop({ type: String, default: 'leads' })
+  type: string;
+
+  @Prop({ type: Date, default: null })
+  updatedAt: Date;
 }
 export type LeadModel<T extends Document> = PaginateModel<Leads>;
 export const LeadSchema = SchemaFactory.createForClass(Leads);
