@@ -17,13 +17,12 @@ import { ClientService } from './services/clients.service';
 import { CarsProviderSchema } from './providers/cars.provider';
 import { CarsController } from './controllers/cars.controller';
 import { CarsService } from './services/cars.service';
-import { DealsProviderSchema } from './providers/deals.provider';
-import { DealsController } from './controllers/deals.controller';
 import { DealsService } from './services/deals.service';
-import { Leads } from './schemas/leads.schema';
-import { LeadsProviderSchema } from './providers/leads.provider';
 import { LeadsController } from './controllers/leads.controller';
 import { LeadsService } from './services/leads.service';
+import { DealsController } from './controllers/deals.controller';
+import { DealsProviderSchema } from './providers/deals.provider';
+import { StatusDealsProviderSchema } from './providers/status-deals.provider';
 
 @Module({
   imports: [
@@ -43,15 +42,15 @@ import { LeadsService } from './services/leads.service';
       ClientsProviderSchema,
       CarsProviderSchema,
       DealsProviderSchema,
-      LeadsProviderSchema,
+      StatusDealsProviderSchema,
     ]),
   ],
   controllers: [
     CompanyController,
     ClientsController,
     CarsController,
-    DealsController,
     LeadsController,
+    DealsController,
   ],
   providers: [
     ConfigService,

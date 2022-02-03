@@ -1,8 +1,9 @@
 import { Core } from 'crm-core';
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { DealModel, Deals } from '../schemas/deals.schema';
+
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
+import { DealModel, Deals } from '../schemas/deals.schema';
 
 @Injectable()
 export class DealsService {
@@ -123,46 +124,11 @@ export class DealsService {
         dealOld.name = dealNew.name;
       }
 
-      if (dealOld.fuelAmount !== dealNew.fuelAmount) {
-        historyAction = Object.assign(historyAction, {
-          fuelAmount: { old: dealOld.fuelAmount, new: dealNew.fuelAmount },
-        });
-        dealOld.fuelAmount = dealNew.fuelAmount;
-      }
-
-      if (dealOld.fuelType !== dealNew.fuelType) {
-        historyAction = Object.assign(historyAction, {
-          fuelType: { old: dealOld.fuelType, new: dealNew.fuelType },
-        });
-        dealOld.fuelType = dealNew.fuelType;
-      }
-
-      if (dealOld.ownership !== dealNew.ownership) {
-        historyAction = Object.assign(historyAction, {
-          ownership: { old: dealOld.ownership, new: dealNew.ownership },
-        });
-        dealOld.ownership = dealNew.ownership;
-      }
-
       if (dealOld.status !== dealNew.status) {
         historyAction = Object.assign(historyAction, {
           status: { old: dealOld.status, new: dealNew.status },
         });
         dealOld.status = dealNew.status;
-      }
-
-      if (dealOld.sum !== dealNew.sum) {
-        historyAction = Object.assign(historyAction, {
-          sum: { old: dealOld.sum, new: dealNew.sum },
-        });
-        dealOld.sum = dealNew.sum;
-      }
-
-      if (dealOld.fullname !== dealNew.fullname) {
-        historyAction = Object.assign(historyAction, {
-          fullname: { old: dealOld.fullname, new: dealNew.fullname },
-        });
-        dealOld.fullname = dealNew.fullname;
       }
 
       if (dealOld.tags !== dealNew.tags) {
@@ -172,7 +138,7 @@ export class DealsService {
         dealOld.tags = dealNew.tags;
       }
 
-      dealOld.history.set(Date.now().toString(), historyAction);
+      dealOld.activity.set(Date.now().toString(), historyAction);
       await dealOld.save();
       result = Core.ResponseDataAsync('Сделка успешно изменена', dealOld);
     } catch (e) {
@@ -185,7 +151,7 @@ export class DealsService {
     let result;
     const deal = await this.dealsModel.findOne({ _id: commentData.id }).exec();
     try {
-      deal.history.set(Date.now().toString(), {
+      deal.activity.set(Date.now().toString(), {
         comments: { [commentData.userId]: commentData.comments },
       });
       await deal.save();

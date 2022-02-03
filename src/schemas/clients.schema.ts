@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Core } from 'crm-core';
 import { v4 as uuidv4 } from 'uuid';
 import { Document, model, PaginateModel } from 'mongoose';
-import { LicensesData } from './leads.schema';
+import { LicensesData } from './deals.schema';
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
 export class PassportClientData {

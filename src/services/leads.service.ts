@@ -2,18 +2,18 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
-import { LeadModel, Leads } from '../schemas/leads.schema';
 import { Core } from 'crm-core';
+import { DealModel, Deals } from '../schemas/deals.schema';
 
 @Injectable()
 export class LeadsService {
-  private readonly leadsModel: LeadModel<Leads>;
+  private readonly leadsModel: DealModel<Deals>;
 
   constructor(
     @InjectConnection() private connection: Connection,
     private jwtService: JwtService,
   ) {
-    this.leadsModel = this.connection.model('Leads') as LeadModel<Leads>;
+    this.leadsModel = this.connection.model('Deals') as DealModel<Deals>;
   }
 
   /**
