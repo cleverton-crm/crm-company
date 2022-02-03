@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, model, PaginateModel } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { StatusDeals } from './status-deals.schema';
+import { Core } from 'crm-core';
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
 export class PassportData {
@@ -75,6 +76,12 @@ export class Deals extends Document {
 
   @Prop({ type: Number, default: 0 })
   price: number;
+
+  @Prop({ type: String, default: null })
+  fuelType: string;
+
+  @Prop({ type: String, default: null })
+  amountFuel: string;
 
   @Prop({ type: String, default: null })
   source: string;
