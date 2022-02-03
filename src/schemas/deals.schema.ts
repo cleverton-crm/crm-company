@@ -80,8 +80,8 @@ export class Deals extends Document {
   @Prop({ type: String, default: null })
   fuelType: string;
 
-  @Prop({ type: String, default: null })
-  amountFuel: string;
+  @Prop({ type: Number, default: null })
+  amountFuel: number;
 
   @Prop({ type: String, default: null })
   source: string;
