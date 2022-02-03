@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, model, PaginateModel } from 'mongoose';
-import { Core } from 'crm-core';
 import { v4 as uuidv4 } from 'uuid';
 import { StatusDeals } from './status-deals.schema';
 
@@ -25,7 +24,7 @@ export class LicensesData {
 }
 
 @Schema({ timestamps: true })
-export class Deals extends Document implements Core.Leads.Schema {
+export class Deals extends Document {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
 

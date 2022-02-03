@@ -21,7 +21,7 @@ export class LeadsService {
    * @param leadData
    * @return ({Core.Response.Answer})
    */
-  async createLead(leadData: Core.Leads.Schema): Promise<Core.Response.Answer> {
+  async createLead(leadData: Core.Deals.Schema): Promise<Core.Response.Answer> {
     let result;
     const lead = new this.leadsModel(leadData);
     try {
@@ -39,7 +39,7 @@ export class LeadsService {
    * @return ({Core.Response.Answer})
    */
   async archiveLead(
-    archiveData: Core.Leads.ArchiveData,
+    archiveData: Core.Deals.ArchiveData,
   ): Promise<Core.Response.Answer> {
     let result;
     const lead = await this.leadsModel.findOne({ _id: archiveData.id });
@@ -102,7 +102,7 @@ export class LeadsService {
    * @return ({Core.Response.Answer})
    */
   async updateLead(
-    updateData: Core.Leads.UpdateData,
+    updateData: Core.Deals.UpdateData,
   ): Promise<Core.Response.Answer> {
     let result;
     try {
