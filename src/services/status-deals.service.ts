@@ -1,4 +1,9 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { StatusDeals } from '../schemas/status-deals.schema';
@@ -34,9 +39,8 @@ export class StatusDealsService {
     } else {
       statusData.data.locked = false;
     }
-    const statusLength = await this.statusModel.find().exec();
-    statusData.data.priority = statusLength.length - 1;
-
+    const statusLength = await this.statusModel.countDocuments();
+    statusData.data.priority = statusLength;
     const status = new this.statusModel(statusData.data);
     try {
       await status.save();
@@ -60,8 +64,10 @@ export class StatusDealsService {
    */
   async listStatus() {
     let result;
-    const status = await this.statusModel.find().exec();
-    status.length;
+    const status = await this.statusModel
+      .find()
+      .sort({ priority: 1, createdAt: 1 })
+      .exec();
     try {
       result = Core.ResponseData('Список статусов сделки', status);
     } catch (e) {
@@ -126,11 +132,49 @@ export class StatusDealsService {
   async updateStatus(updateData: Core.StatusDeals.UpdateData) {
     let result;
     try {
-      await this.statusModel.findOneAndUpdate(
-        { _id: updateData.id },
+      const status = await this.statusModel.findOneAndUpdate(
+        { _id: updateData.id, locked: false },
         updateData.data,
       );
-      result = Core.ResponseSuccess('Данные статуса сделки изменены');
+      if (status) {
+        result = Core.ResponseSuccess('Данные статуса сделки изменены');
+      } else {
+        throw new BadRequestException('Данный статус обновить нельзя');
+      }
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
+
+  /**
+   * Смена приоритета у статуса
+   * @param data
+   */
+  async changeStatusPriority(data: { id: string; priority: number }) {
+    let result;
+    try {
+      if (data.priority <= 1 || data.priority >= 99) {
+        throw new BadRequestException(
+          'Нельзя изменять приоритет статуса ниже либо равно 1 или выше 99',
+        );
+      }
+      const statusId = await this.statusModel.findOne({ _id: data.id }).exec();
+      if (!statusId) {
+        throw new NotFoundException('Статус с таким ID не найден');
+      }
+      const statusPriority = await this.statusModel
+        .findOne({ priority: data.priority })
+        .exec();
+      if (statusPriority) {
+        statusPriority.priority = statusId.priority;
+        statusId.priority = data.priority;
+        await statusPriority.save();
+      } else {
+        statusId.priority = data.priority;
+      }
+      await statusId.save();
+      result = Core.ResponseSuccess('Приоритет статуса был успешно изменен');
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
