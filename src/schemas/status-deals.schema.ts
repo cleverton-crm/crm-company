@@ -7,7 +7,7 @@ export class StatusDeals extends Document {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, unique: true, index: true, required: true })
   name: string;
 
   @Prop({ type: Boolean, default: true })

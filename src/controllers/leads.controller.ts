@@ -31,4 +31,9 @@ export class LeadsController {
   async updateLead(@Payload() updateData: Core.Deals.UpdateData) {
     return await this.appService.updateLead(updateData);
   }
+
+  @MessagePattern('leads:swap')
+  async swapType(@Payload() id: string) {
+    return await this.appService.swapType(id);
+  }
 }

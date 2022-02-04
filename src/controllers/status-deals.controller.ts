@@ -8,7 +8,9 @@ export class StatusDealsController {
   constructor(private readonly appService: StatusDealsService) {}
 
   @MessagePattern('status:create')
-  async createDeal(@Payload() statusData: Core.StatusDeals.Schema) {
+  async createDeal(
+    @Payload() statusData: { data: Core.StatusDeals.Schema; owner: any },
+  ) {
     return await this.appService.createStatus(statusData);
   }
 

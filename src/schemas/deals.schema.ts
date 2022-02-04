@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, model, PaginateModel } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { StatusDeals } from './status-deals.schema';
+import { StatusDeals, StatusSchema } from './status-deals.schema';
 import { Core } from 'crm-core';
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
@@ -89,7 +89,7 @@ export class Deals extends Document {
   @Prop({ type: Date, default: null })
   startDate: Date;
 
-  @Prop({ type: () => StatusDeals, default: {} })
+  @Prop({ type: StatusSchema, default: {} })
   status: StatusDeals;
 
   @Prop({ type: Boolean, default: false })

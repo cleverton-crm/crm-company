@@ -19,16 +19,38 @@ export class StatusDealsService {
    * @param {Core.StatusDeals.Schema} statusData
    * @return ({Core.Response.Answer})
    */
-  async createStatus(
-    statusData: Core.StatusDeals.Schema,
-  ): Promise<Core.Response.Answer> {
+  async createStatus(statusData: {
+    data: Core.StatusDeals.Schema;
+    owner: any;
+  }): Promise<Core.Response.Answer> {
     let result;
-    const status = new this.statusModel(statusData);
+    statusData.data.owner = statusData.owner.userID;
+    if (statusData.data.locked) {
+      if (statusData.owner.roles.name === 'Admin') {
+        statusData.data.locked = true;
+      } else {
+        statusData.data.locked = false;
+      }
+    } else {
+      statusData.data.locked = false;
+    }
+    const statusLength = await this.statusModel.find().exec();
+    statusData.data.priority = statusLength.length - 1;
+
+    const status = new this.statusModel(statusData.data);
     try {
       await status.save();
       result = Core.ResponseSuccess('Статус сделки успешно создан');
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      if (e.name === 'MongoServerError') {
+        result = Core.ResponseError(
+          'Статус с таким названием уже существует в базе',
+          HttpStatus.BAD_REQUEST,
+          'Bad Request',
+        );
+      } else {
+        result = Core.ResponseError(e.message, e.status, e.error);
+      }
     }
     return result;
   }
@@ -39,6 +61,7 @@ export class StatusDealsService {
   async listStatus() {
     let result;
     const status = await this.statusModel.find().exec();
+    status.length;
     try {
       result = Core.ResponseData('Список статусов сделки', status);
     } catch (e) {

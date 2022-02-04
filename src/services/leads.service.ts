@@ -68,6 +68,7 @@ export class LeadsService {
   async listLeads(): Promise<Core.Response.Answer> {
     let result;
     const leads = await this.leadsModel.find().exec();
+    console.log(leads);
     try {
       result = Core.ResponseData('Список лидов', leads);
     } catch (e) {
@@ -111,6 +112,19 @@ export class LeadsService {
         updateData.data,
       );
       result = Core.ResponseSuccess('Данные о лиде изменены');
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
+
+  async swapType(id: string) {
+    let result;
+    const lead = this.leadsModel.findOne({ _id: id }).exec();
+    try {
+      if (lead['type'] === 'lead') {
+        result = Core.ResponseSuccess('Данный лид уже является сделкой');
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
