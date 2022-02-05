@@ -109,7 +109,7 @@ export class DealsService {
     let historyAction = {};
     try {
       historyAction = Object.assign(historyAction, {
-        whoChanged: updateData.userId,
+        whoChanged: updateData.owner.userID,
       });
       if (dealOld.owner !== dealNew.owner && dealNew.owner !== undefined) {
         historyAction = Object.assign(historyAction, {

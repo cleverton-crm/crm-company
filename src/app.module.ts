@@ -25,6 +25,7 @@ import { DealsProviderSchema } from './providers/deals.provider';
 import { StatusDealsProviderSchema } from './providers/status-deals.provider';
 import { StatusDealsService } from './services/status-deals.service';
 import { StatusDealsController } from './controllers/status-deals.controller';
+import { ProfileProviderSchema } from './providers/profile.provider';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { StatusDealsController } from './controllers/status-deals.controller';
       CarsProviderSchema,
       DealsProviderSchema,
       StatusDealsProviderSchema,
+      ProfileProviderSchema,
     ]),
   ],
   controllers: [

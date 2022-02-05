@@ -1,11 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, model, PaginateModel } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
-import { Core } from 'crm-core';
 import {
   CompanyBank,
   CompanyRequisitesCompanyName,
 } from './nested-company.schema';
+import { Core } from 'crm-core';
 
 @Schema({ timestamps: true })
 export class Companies extends Document {

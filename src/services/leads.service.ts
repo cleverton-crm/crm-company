@@ -1,19 +1,24 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Connection } from 'mongoose';
-import { JwtService } from '@nestjs/jwt';
+import { Connection, Model } from 'mongoose';
+
 import { Core } from 'crm-core';
 import { DealModel, Deals } from '../schemas/deals.schema';
+import { StatusDeals } from '../schemas/status-deals.schema';
+import { Profile } from '../schemas/profile.schema';
 
 @Injectable()
 export class LeadsService {
   private readonly leadsModel: DealModel<Deals>;
+  private readonly statusModel: Model<StatusDeals>;
+  private readonly profileModel: Model<Profile>;
 
-  constructor(
-    @InjectConnection() private connection: Connection,
-    private jwtService: JwtService,
-  ) {
+  constructor(@InjectConnection() private connection: Connection) {
     this.leadsModel = this.connection.model('Deals') as DealModel<Deals>;
+    this.statusModel = this.connection.model(
+      'StatusDeals',
+    ) as Model<StatusDeals>;
+    this.profileModel = this.connection.model('Profile') as Model<Profile>;
   }
 
   /**
@@ -21,14 +26,29 @@ export class LeadsService {
    * @param leadData
    * @return ({Core.Response.Answer})
    */
-  async createLead(leadData: Core.Deals.Schema): Promise<Core.Response.Answer> {
+  async createLead(leadData: {
+    data: Core.Deals.Schema;
+    owner: any;
+  }): Promise<Core.Response.Answer> {
     let result;
-    const lead = new this.leadsModel(leadData);
     try {
+      const lead = new this.leadsModel(leadData);
+      lead.owner = leadData.owner.userID;
+      lead.author = leadData.owner.userID;
+      const status = await this.statusModel
+        .findOne({ priority: 1, locked: true })
+        .exec();
+      lead.status = status;
+      leadData.data.contacts.forEach((value) => lead.contacts.push(value));
+      leadData.data.tags.forEach((value) => lead.tags.push(value));
+      lead.activity.set(Date.now().toString(), {
+        content: 'Создан новый лид',
+        owner: leadData.owner.userID,
+      });
       await lead.save();
       result = Core.ResponseData('Лид успешно создан', lead);
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
@@ -107,23 +127,158 @@ export class LeadsService {
   ): Promise<Core.Response.Answer> {
     let result;
     try {
+      const lead = await this.leadsModel.findOne({ _id: updateData.id });
+      const newLead = updateData.data;
+      console.log(updateData.data.active);
+      let activity = {};
+      if (!lead) {
+        throw new BadRequestException('Лид с таким идентификатором не найден');
+      }
+      if (updateData.data.object) {
+        throw new BadRequestException('Смена объекта запрещена');
+      }
+      if (
+        updateData.data.type !== 'lead' &&
+        updateData.data.type !== undefined
+      ) {
+        throw new BadRequestException('Нельзя менять лид на сделку');
+      }
+      if (
+        updateData.data.status !== lead.status &&
+        updateData.data.status !== undefined
+      ) {
+        throw new BadRequestException(
+          'Для смены статуса воспользуйтесь отдельным эндпоинтом',
+        );
+      }
+      if (
+        (updateData.data.owner !== undefined &&
+          updateData.data.owner !== lead.owner) ||
+        (updateData.data.owner !== undefined &&
+          lead.owner !== updateData.owner.userID)
+      ) {
+        throw new BadRequestException(
+          'Для смены ответственного воспользуйтесь отдельным эндпоинтом',
+        );
+      }
+      if (!updateData.data.active && updateData.data.active !== undefined) {
+        throw new BadRequestException(
+          'Для архивации лида воспользуйтесь отдельным эндпоинтом',
+        );
+      }
+      activity = Object.assign(activity, {
+        whoChanged: updateData.owner.userID,
+      });
+
+      if (lead.name !== newLead.name) {
+        activity = Object.assign(activity, {
+          name: { old: lead.name, new: newLead.name },
+        });
+      }
+      if (lead.description !== newLead.description) {
+        activity = Object.assign(activity, {
+          description: { old: lead.description, new: newLead.description },
+        });
+      }
+      if (lead.currency !== newLead.currency) {
+        activity = Object.assign(activity, {
+          currency: { old: lead.currency, new: newLead.currency },
+        });
+      }
+      if (lead.price !== newLead.price) {
+        activity = Object.assign(activity, {
+          price: { old: lead.price, new: newLead.price },
+        });
+      }
+      if (lead.fuelType !== newLead.fuelType) {
+        activity = Object.assign(activity, {
+          fuelType: { old: lead.fuelType, new: newLead.fuelType },
+        });
+      }
+      if (lead.amountFuel !== newLead.amountFuel) {
+        activity = Object.assign(activity, {
+          amountFuel: { old: lead.amountFuel, new: newLead.amountFuel },
+        });
+      }
+      if (lead.tags !== newLead.tags) {
+        activity = Object.assign(activity, {
+          tags: { old: lead.tags, new: newLead.tags },
+        });
+      }
+      updateData.data.updatedAt = new Date();
+
       await this.leadsModel.findOneAndUpdate(
         { _id: updateData.id },
         updateData.data,
       );
-      result = Core.ResponseSuccess('Данные о лиде изменены');
+      result = Core.ResponseSuccess('Лид успешно изменен');
+    } catch (e) {
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+    }
+    return result;
+  }
+
+  /**
+   * Смена статуса у лида
+   * @param data
+   */
+  async changeLeadStatus(data: { id: string; sid: string; owner: any }) {
+    let result;
+    const lead = await this.leadsModel.findOne({ _id: data.id }).exec();
+    const status = await this.statusModel.findOne({ _id: data.sid }).exec();
+    try {
+      if (lead) {
+        if (status) {
+          lead.status = status;
+          await lead.save();
+          result = Core.ResponseSuccess('Статус лида успешно изменен');
+        } else {
+          result = Core.ResponseError(
+            'Статус с таким ID не существует в базе',
+            HttpStatus.BAD_REQUEST,
+            'Bad Request',
+          );
+        }
+      } else {
+        result = Core.ResponseError(
+          'Лид с таким ID не существует в базе',
+          HttpStatus.BAD_REQUEST,
+          'Bad Request',
+        );
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
 
-  async swapType(id: string) {
+  /**
+   * Смена овнера у лида
+   * @param data
+   */
+  async changeLeadOwner(data: { id: string; oid: string; owner: any }) {
     let result;
-    const lead = this.leadsModel.findOne({ _id: id }).exec();
+    const lead = await this.leadsModel.findOne({ _id: data.id }).exec();
+    const profile = await this.profileModel.findOne({ _id: data.oid }).exec();
     try {
-      if (lead['type'] === 'lead') {
-        result = Core.ResponseSuccess('Данный лид уже является сделкой');
+      if (lead) {
+        if (profile) {
+          lead.owner = profile.id;
+          await lead.save();
+          result = Core.ResponseSuccess('Ответственный лида успешно изменен');
+        } else {
+          result = Core.ResponseError(
+            'Ответственный с таким ID не существует в базе',
+            HttpStatus.BAD_REQUEST,
+            'Bad Request',
+          );
+        }
+      } else {
+        result = Core.ResponseError(
+          'Лид с таким ID не существует в базе',
+          HttpStatus.BAD_REQUEST,
+          'Bad Request',
+        );
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
