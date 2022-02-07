@@ -128,9 +128,6 @@ export class LeadsService {
     let result;
     try {
       const lead = await this.leadsModel.findOne({ _id: updateData.id });
-      const newLead = updateData.data;
-      console.log(updateData.data.active);
-      let activity = {};
       if (!lead) {
         throw new BadRequestException('Лид с таким идентификатором не найден');
       }
@@ -166,45 +163,7 @@ export class LeadsService {
           'Для архивации лида воспользуйтесь отдельным эндпоинтом',
         );
       }
-      activity = Object.assign(activity, {
-        whoChanged: updateData.owner.userID,
-      });
 
-      if (lead.name !== newLead.name) {
-        activity = Object.assign(activity, {
-          name: { old: lead.name, new: newLead.name },
-        });
-      }
-      if (lead.description !== newLead.description) {
-        activity = Object.assign(activity, {
-          description: { old: lead.description, new: newLead.description },
-        });
-      }
-      if (lead.currency !== newLead.currency) {
-        activity = Object.assign(activity, {
-          currency: { old: lead.currency, new: newLead.currency },
-        });
-      }
-      if (lead.price !== newLead.price) {
-        activity = Object.assign(activity, {
-          price: { old: lead.price, new: newLead.price },
-        });
-      }
-      if (lead.fuelType !== newLead.fuelType) {
-        activity = Object.assign(activity, {
-          fuelType: { old: lead.fuelType, new: newLead.fuelType },
-        });
-      }
-      if (lead.amountFuel !== newLead.amountFuel) {
-        activity = Object.assign(activity, {
-          amountFuel: { old: lead.amountFuel, new: newLead.amountFuel },
-        });
-      }
-      if (lead.tags !== newLead.tags) {
-        activity = Object.assign(activity, {
-          tags: { old: lead.tags, new: newLead.tags },
-        });
-      }
       updateData.data.updatedAt = new Date();
 
       await this.leadsModel.findOneAndUpdate(
@@ -283,6 +242,20 @@ export class LeadsService {
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
+    return result;
+  }
+
+  async failureLead(data: { id: string; owner: any }) {
+    let result;
+    try {
+      const lead = await this.leadsModel
+        .findOneAndUpdate({ _id: data.id }, { active: false })
+        .exec();
+      result = Core.ResponseSuccess('Лид был отменен');
+    } catch (e) {
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+    }
+
     return result;
   }
 }

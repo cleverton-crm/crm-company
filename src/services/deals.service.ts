@@ -105,40 +105,7 @@ export class DealsService {
     const dealOld = await this.dealsModel
       .findOne({ _id: updateData.id })
       .exec();
-    const dealNew = updateData.data;
-    let historyAction = {};
     try {
-      historyAction = Object.assign(historyAction, {
-        whoChanged: updateData.owner.userID,
-      });
-      if (dealOld.owner !== dealNew.owner && dealNew.owner !== undefined) {
-        historyAction = Object.assign(historyAction, {
-          owner: { old: dealOld.owner, new: dealNew.owner },
-        });
-        dealOld.owner = dealNew.owner;
-      }
-      if (dealOld.name !== dealNew.name) {
-        historyAction = Object.assign(historyAction, {
-          name: { old: dealOld.name, new: dealNew.name },
-        });
-        dealOld.name = dealNew.name;
-      }
-
-      if (dealOld.status !== dealNew.status) {
-        historyAction = Object.assign(historyAction, {
-          status: { old: dealOld.status, new: dealNew.status },
-        });
-        dealOld.status = dealNew.status;
-      }
-
-      if (dealOld.tags !== dealNew.tags) {
-        historyAction = Object.assign(historyAction, {
-          sum: { old: dealOld.tags, new: dealNew.tags },
-        });
-        dealOld.tags = dealNew.tags;
-      }
-
-      dealOld.activity.set(Date.now().toString(), historyAction);
       await dealOld.save();
       result = Core.ResponseDataAsync('Сделка успешно изменена', dealOld);
     } catch (e) {
