@@ -47,8 +47,14 @@ export class LeadsController {
   ) {
     return await this.appService.changeLeadOwner(data);
   }
+
   @MessagePattern('leads:failure')
   async failureLead(@Payload() data: { id: string; owner: any }) {
     return await this.appService.failureLead(data);
+  }
+
+  @MessagePattern('leads:done')
+  async doneLead(@Payload() data: { id: string; owner: any }) {
+    return await this.appService.doneLead(data);
   }
 }

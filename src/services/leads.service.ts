@@ -245,6 +245,10 @@ export class LeadsService {
     return result;
   }
 
+  /**
+   * Отмена лида
+   * @param data
+   */
   async failureLead(data: { id: string; owner: any }) {
     let result;
     try {
@@ -256,6 +260,17 @@ export class LeadsService {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
 
+    return result;
+  }
+
+  /**
+   * Лид переходит в завершенную сделку / Конвертируется в Сделку
+   * @param data
+   */
+  async doneLead(data: { id: string; owner: any }) {
+    let result;
+    try {
+    } catch (e) {}
     return result;
   }
 }

@@ -6,11 +6,11 @@ import { v4 as uuidv4 } from 'uuid';
 export class Activity extends Document {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
-  @Prop({ name: String, default: null })
+  @Prop({ type: String, default: null })
   fieldName: string;
   old: any;
   new: any;
-  @Prop({ name: String, default: null })
+  @Prop({ type: String, default: null })
   owner: string;
 }
 export const ActivitySchema = SchemaFactory.createForClass(Activity);
