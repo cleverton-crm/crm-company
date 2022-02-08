@@ -8,8 +8,10 @@ export class Activity extends Document {
   _id: string;
   @Prop({ type: String, default: null })
   fieldName: string;
-  old: any;
-  new: any;
+  @Prop({ type: Map, default: {} })
+  old: Map<string, any>;
+  @Prop({ type: Map, default: {} })
+  new: Map<string, any>;
   @Prop({ type: String, default: null })
   owner: string;
 }
