@@ -32,7 +32,7 @@ export class LeadsService {
   }): Promise<Core.Response.Answer> {
     let result;
     try {
-      const lead = new this.leadsModel(leadData);
+      const lead = new this.leadsModel(leadData.data);
       lead.owner = leadData.owner.userID;
       lead.author = leadData.owner.userID;
       const status = await this.statusModel
