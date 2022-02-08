@@ -40,7 +40,6 @@ export class DealsService {
         .findOne({ priority: 1, locked: true })
         .exec();
       deal.status = status;
-      dealData.data.tags.forEach((value) => deal.tags.push(value));
       await deal.save();
       result = Core.ResponseSuccess('Сделка успешно создана');
     } catch (e) {

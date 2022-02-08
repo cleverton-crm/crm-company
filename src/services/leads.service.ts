@@ -39,8 +39,6 @@ export class LeadsService {
         .findOne({ priority: 1, locked: true })
         .exec();
       lead.status = status;
-      leadData.data.contacts.forEach((value) => lead.contacts.push(value));
-      leadData.data.tags.forEach((value) => lead.tags.push(value));
       await lead.save();
       result = Core.ResponseData('Лид успешно создан', lead);
     } catch (e) {
