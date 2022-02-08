@@ -8,7 +8,9 @@ export class DealsController {
   constructor(private readonly appService: DealsService) {}
 
   @MessagePattern('deals:create')
-  async createDeal(@Payload() dealData: Core.Deals.Schema) {
+  async createDeal(
+    @Payload() dealData: { data: Core.Deals.Schema; owner: any },
+  ) {
     return await this.appService.createDeal(dealData);
   }
 
@@ -20,6 +22,20 @@ export class DealsController {
   @MessagePattern('deals:find')
   async findDeal(@Payload() id: string) {
     return await this.appService.findDeal(id);
+  }
+
+  @MessagePattern('deals:change:status')
+  async changeDealStatus(
+    @Payload() data: { id: string; sid: string; owner: any },
+  ) {
+    return await this.appService.changeDealStatus(data);
+  }
+
+  @MessagePattern('deals:change:owner')
+  async changeDealOwner(
+    @Payload() data: { id: string; oid: string; owner: any },
+  ) {
+    return await this.appService.changeDealOwner(data);
   }
 
   @MessagePattern('deals:archive')

@@ -41,10 +41,6 @@ export class LeadsService {
       lead.status = status;
       leadData.data.contacts.forEach((value) => lead.contacts.push(value));
       leadData.data.tags.forEach((value) => lead.tags.push(value));
-      lead.activity.set(Date.now().toString(), {
-        content: 'Создан новый лид',
-        owner: leadData.owner.userID,
-      });
       await lead.save();
       result = Core.ResponseData('Лид успешно создан', lead);
     } catch (e) {
@@ -135,8 +131,9 @@ export class LeadsService {
         throw new BadRequestException('Смена объекта запрещена');
       }
       if (
-        updateData.data.type !== 'lead' &&
-        updateData.data.type !== undefined
+        (updateData.data.type !== 'lead' &&
+          updateData.data.type !== undefined) ||
+        lead.type !== 'lead'
       ) {
         throw new BadRequestException('Нельзя менять лид на сделку');
       }
@@ -183,7 +180,9 @@ export class LeadsService {
    */
   async changeLeadStatus(data: { id: string; sid: string; owner: any }) {
     let result;
-    const lead = await this.leadsModel.findOne({ _id: data.id }).exec();
+    const lead = await this.leadsModel
+      .findOne({ _id: data.id, type: 'lead' })
+      .exec();
     const status = await this.statusModel.findOne({ _id: data.sid }).exec();
     try {
       if (lead) {
@@ -217,7 +216,9 @@ export class LeadsService {
    */
   async changeLeadOwner(data: { id: string; oid: string; owner: any }) {
     let result;
-    const lead = await this.leadsModel.findOne({ _id: data.id }).exec();
+    const lead = await this.leadsModel
+      .findOne({ _id: data.id, type: 'lead' })
+      .exec();
     const profile = await this.profileModel.findOne({ _id: data.oid }).exec();
     try {
       if (lead) {
@@ -253,7 +254,7 @@ export class LeadsService {
     let result;
     try {
       const lead = await this.leadsModel
-        .findOneAndUpdate({ _id: data.id }, { active: false })
+        .findOneAndUpdate({ _id: data.id, type: 'lead' }, { active: false })
         .exec();
       result = Core.ResponseSuccess('Лид был отменен');
     } catch (e) {
