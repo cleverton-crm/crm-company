@@ -173,6 +173,35 @@ export class LeadsService {
   }
 
   /**
+   * Комментарий для лида
+   * @param commentData
+   */
+  async commentLead(commentData: Core.Deals.CommentData) {
+    let result;
+    const lead = await this.leadsModel
+      .findOne({ _id: commentData.id, type: 'lead' })
+      .exec();
+    try {
+      if (lead) {
+        lead.comments.set(Date.now().toString(), {
+          [commentData.userId]: commentData.comments,
+        });
+        await lead.save();
+        result = Core.ResponseDataAsync('Комментарий успешно добавлен', lead);
+      } else {
+        result = Core.ResponseError(
+          'Лид с таким ID не существует в базе',
+          HttpStatus.BAD_REQUEST,
+          'Bad Request',
+        );
+      }
+    } catch (e) {
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+    }
+    return result;
+  }
+
+  /**
    * Смена статуса у лида
    * @param data
    */

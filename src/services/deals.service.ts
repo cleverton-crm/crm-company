@@ -261,11 +261,19 @@ export class DealsService {
       .findOne({ _id: commentData.id, type: 'deal' })
       .exec();
     try {
-      deal.activity.set(Date.now().toString(), {
-        comments: { [commentData.userId]: commentData.comments },
-      });
-      await deal.save();
-      result = Core.ResponseDataAsync('Комментарий успешно добавлен', deal);
+      if (deal) {
+        deal.comments.set(Date.now().toString(), {
+          [commentData.userId]: commentData.comments,
+        });
+        await deal.save();
+        result = Core.ResponseDataAsync('Комментарий успешно добавлен', deal);
+      } else {
+        result = Core.ResponseError(
+          'Сделка с таким ID не существует в базе',
+          HttpStatus.BAD_REQUEST,
+          'Bad Request',
+        );
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }

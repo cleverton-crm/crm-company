@@ -57,4 +57,9 @@ export class LeadsController {
   async doneLead(@Payload() data: { id: string; owner: any }) {
     return await this.appService.doneLead(data);
   }
+
+  @MessagePattern('leads:comment')
+  async commentLead(@Payload() commentData: Core.Deals.CommentData) {
+    return await this.appService.commentLead(commentData);
+  }
 }

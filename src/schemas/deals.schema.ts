@@ -32,7 +32,7 @@ export class Deals extends Document {
   active: boolean;
 
   @Prop({ type: Map, default: {} })
-  activity: Map<string, any>;
+  comments: Map<string, any>;
 
   @Prop({ type: Map, default: {} })
   attachments: Map<string, any>;
