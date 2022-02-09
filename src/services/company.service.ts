@@ -1,11 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
-import {
-  Companies,
-  CompanyModel,
-  ListCompany,
-} from 'src/schemas/company.schema';
+import { Companies, CompanyModel, ListCompany } from 'src/schemas/company.schema';
 import { Core } from 'crm-core';
 
 @Injectable()
@@ -14,9 +10,7 @@ export class CompanyService {
   private readonly listCompanyModel: Model<ListCompany>;
 
   constructor(@InjectConnection() private connection: Connection) {
-    this.companyModel = this.connection.model(
-      'Companies',
-    ) as CompanyModel<Companies>;
+    this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
     this.listCompanyModel = this.connection.model('ListCompany');
   }
 
@@ -25,9 +19,7 @@ export class CompanyService {
    * @param {Core.Company.Schema} companyData - основные данные о компании
    * @return ({Core.Response.Answer})
    */
-  async createCompany(
-    companyData: Core.Company.Schema,
-  ): Promise<Core.Response.Answer> {
+  async createCompany(companyData: Core.Company.Schema): Promise<Core.Response.Data> {
     let result;
     const company = new this.companyModel(companyData);
     company.inn = companyData.requisites.data.inn;
@@ -35,7 +27,7 @@ export class CompanyService {
       await company.save();
       result = Core.ResponseDataAsync('Компания успешно создана', company);
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
@@ -45,25 +37,23 @@ export class CompanyService {
    * @param {Core.Company.ArchiveData} archiveData
    * @return ({Core.Response.Answer})
    */
-  async archiveCompany(
-    archiveData: Core.Company.ArchiveData,
-  ): Promise<Core.Response.Answer> {
+  async archiveCompany(archiveData: Core.Company.ArchiveData): Promise<Core.Response.Answer> {
     let result;
     const company = await this.companyModel.findOne({ _id: archiveData.id });
-    if (company) {
-      company.active = archiveData.active;
-      await company.save();
-      if (!company.active) {
-        result = Core.ResponseSuccess('Компания была отправлена в архив');
+    try {
+      if (company) {
+        company.active = archiveData.active;
+        await company.save();
+        if (!company.active) {
+          result = Core.ResponseSuccess('Компания была отправлена в архив');
+        } else {
+          result = Core.ResponseSuccess('Компания была разархивирована');
+        }
       } else {
-        result = Core.ResponseSuccess('Компания была разархивирована');
+        result = Core.ResponseError('Компания с таким ID не найдена', HttpStatus.OK, 'Not Found');
       }
-    } else {
-      result = Core.ResponseError(
-        'Компания с таким ID не найдена',
-        HttpStatus.OK,
-        'Not Found',
-      );
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -72,20 +62,11 @@ export class CompanyService {
    * Список компаний
    * @return({Core.Company.Schema[]})
    */
-  async listCompanies(
-    pagination: Core.MongoPagination,
-  ): Promise<Core.Response.RecordsData> {
+  async listCompanies(pagination: Core.MongoPagination): Promise<Core.Response.RecordsData> {
     let result;
     try {
-      const company = await this.companyModel.paginate(
-        { active: true },
-        pagination,
-      );
-      result = Core.ResponseDataRecords(
-        'Список компаний',
-        company.data,
-        company.records,
-      );
+      const company = await this.companyModel.paginate({ active: true }, pagination);
+      result = Core.ResponseDataRecords('Список компаний', company.data, company.records);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
@@ -116,16 +97,11 @@ export class CompanyService {
    * Изменение данных о компании
    * @param updateData
    */
-  async updateCompany(
-    updateData: Core.Company.UpdateData,
-  ): Promise<Core.Response.Answer> {
+  async updateCompany(updateData: Core.Company.UpdateData): Promise<Core.Response.Answer> {
     let result;
     try {
       await this.companyModel
-        .findOneAndUpdate(
-          { _id: updateData.id },
-          { ...updateData.data, inn: updateData.data.requisites.data.inn },
-        )
+        .findOneAndUpdate({ _id: updateData.id }, { ...updateData.data, inn: updateData.data.requisites.data.inn })
         .exec();
       result = Core.ResponseSuccess('Данные о компании изменены');
     } catch (e) {
@@ -159,10 +135,7 @@ export class CompanyService {
           });
         }
       } else {
-        result = Core.ResponseSuccess(
-          { text: 'Компания не найдена', status: 'notfound' },
-          HttpStatus.NO_CONTENT,
-        );
+        result = Core.ResponseSuccess({ text: 'Компания не найдена', status: 'notfound' }, HttpStatus.NO_CONTENT);
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);

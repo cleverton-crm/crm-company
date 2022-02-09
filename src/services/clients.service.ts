@@ -19,14 +19,14 @@ export class ClientService {
    */
   async createClient(
     clientData: Core.Client.Schema,
-  ): Promise<Core.Response.Answer> {
+  ): Promise<Core.Response.Data> {
     let result;
     const client = new this.clientModel(clientData);
     try {
       await client.save();
       result = Core.ResponseSuccess('Клиент успешно создан');
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
