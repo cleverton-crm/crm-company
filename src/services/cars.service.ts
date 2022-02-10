@@ -12,9 +12,7 @@ export class CarsService {
 
   constructor(@InjectConnection() private connection: Connection) {
     this.carsModel = this.connection.model('Cars') as CarsModel<Cars>;
-    this.companyModel = this.connection.model(
-      'Companies',
-    ) as CompanyModel<Companies>;
+    this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
   }
 
   /**
@@ -30,9 +28,7 @@ export class CarsService {
       if (company) {
         await car.save();
       } else {
-        throw new NotFoundException(
-          'Неизвестаня компания. Укажите правильный идентификатор компании',
-        );
+        throw new NotFoundException('Неизвестаня компания. Укажите правильный идентификатор компании');
       }
       result = Core.ResponseDataAsync('Транспорт успешно создан', car);
     } catch (e) {
@@ -73,9 +69,7 @@ export class CarsService {
       if (car !== null) {
         result = Core.ResponseData('Транспорт найден', car);
       } else {
-        result = Core.ResponseSuccess(
-          'Транспорт с таким идентификатором не найден',
-        );
+        result = Core.ResponseSuccess('Транспорт с таким идентификатором не найден');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -88,9 +82,7 @@ export class CarsService {
    * @param archiveData
    * @return ({Core.Response.Answer})
    */
-  async archiveCar(
-    archiveData: Core.Cars.ArchiveData,
-  ): Promise<Core.Response.Answer> {
+  async archiveCar(archiveData: Core.Cars.ArchiveData): Promise<Core.Response.Answer> {
     let result;
     const car = await this.carsModel.findOne({ _id: archiveData.id }).exec();
     if (car) {
@@ -102,11 +94,7 @@ export class CarsService {
         result = Core.ResponseSuccess('Транспорт был разархивирован');
       }
     } else {
-      result = Core.ResponseError(
-        'Транспорт с таким ID не найден',
-        HttpStatus.OK,
-        'Not Found',
-      );
+      result = Core.ResponseError('Транспорт с таким ID не найден', HttpStatus.OK, 'Not Found');
     }
     return result;
   }
@@ -116,15 +104,10 @@ export class CarsService {
    * @param updateData
    * @return ({Core.Response.Answer})
    */
-  async updateCar(
-    updateData: Core.Cars.UpdateData,
-  ): Promise<Core.Response.Answer> {
+  async updateCar(updateData: Core.Cars.UpdateData): Promise<Core.Response.Answer> {
     let result;
     try {
-      await this.carsModel.findOneAndUpdate(
-        { _id: updateData.id },
-        updateData.data,
-      );
+      await this.carsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
       result = Core.ResponseSuccess('Данные о транспорте изменены');
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);

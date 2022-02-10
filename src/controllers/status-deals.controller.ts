@@ -8,9 +8,7 @@ export class StatusDealsController {
   constructor(private readonly appService: StatusDealsService) {}
 
   @MessagePattern('status:create')
-  async createStatusDeal(
-    @Payload() statusData: { data: Core.StatusDeals.Schema; owner: any },
-  ) {
+  async createStatusDeal(@Payload() statusData: { data: Core.StatusDeals.Schema; owner: any }) {
     return await this.appService.createStatus(statusData);
   }
 
@@ -25,9 +23,7 @@ export class StatusDealsController {
   }
 
   @MessagePattern('status:archive')
-  async archiveStatusDeal(
-    @Payload() archiveData: Core.StatusDeals.ArchiveData,
-  ) {
+  async archiveStatusDeal(@Payload() archiveData: Core.StatusDeals.ArchiveData) {
     return await this.appService.archiveStatus(archiveData);
   }
 
@@ -37,9 +33,7 @@ export class StatusDealsController {
   }
 
   @MessagePattern('status:change:priority')
-  async changeStatusPriority(
-    @Payload() data: { id: string; priority: number },
-  ) {
+  async changeStatusPriority(@Payload() data: { id: string; priority: number }) {
     return await this.appService.changeStatusPriority(data);
   }
 }

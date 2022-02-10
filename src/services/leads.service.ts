@@ -59,17 +59,24 @@ export class LeadsService {
    */
   async archiveLead(archiveData: Core.Deals.ArchiveData): Promise<Core.Response.Answer> {
     let result;
-    const lead = await this.leadsModel.findOne({ _id: archiveData.id });
-    if (lead) {
-      lead.active = archiveData.active;
-      await lead.save();
-      if (!lead.active) {
-        result = Core.ResponseSuccess('Лид был отправлена в архив');
+    try {
+      const lead = await this.leadsModel.findOne({ _id: archiveData.id });
+      if (lead) {
+        if (lead.final) {
+          throw new BadRequestException('Нельзя изменять законченный лид');
+        }
+        lead.active = archiveData.active;
+        await lead.save();
+        if (!lead.active) {
+          result = Core.ResponseSuccess('Лид был отправлена в архив');
+        } else {
+          result = Core.ResponseSuccess('Лид был разархивирован');
+        }
       } else {
-        result = Core.ResponseSuccess('Лид был разархивирован');
+        result = Core.ResponseError('Лид с таким ID не найден', HttpStatus.OK, 'Not Found');
       }
-    } else {
-      result = Core.ResponseError('Лид с таким ID не найден', HttpStatus.OK, 'Not Found');
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -122,6 +129,9 @@ export class LeadsService {
       if (!lead) {
         throw new BadRequestException('Лид с таким идентификатором не найден');
       }
+      if (lead.final) {
+        throw new BadRequestException('Нельзя изменять законченный лид');
+      }
       if (updateData.data.object) {
         throw new BadRequestException('Смена объекта запрещена');
       }
@@ -141,8 +151,6 @@ export class LeadsService {
         throw new BadRequestException('Для архивации лида воспользуйтесь отдельным эндпоинтом');
       }
 
-      updateData.data.updatedAt = new Date();
-
       await this.leadsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
       result = Core.ResponseSuccess('Лид успешно изменен');
     } catch (e) {
@@ -160,6 +168,9 @@ export class LeadsService {
     const lead = await this.leadsModel.findOne({ _id: commentData.id, type: 'lead' }).exec();
     try {
       if (lead) {
+        if (lead.final) {
+          throw new BadRequestException('Нельзя изменять законченный лид');
+        }
         lead.comments.set(Date.now().toString(), {
           [commentData.userId]: commentData.comments,
         });
@@ -184,6 +195,9 @@ export class LeadsService {
     const status = await this.statusModel.findOne({ _id: data.sid }).exec();
     try {
       if (lead) {
+        if (lead.final) {
+          throw new BadRequestException('Нельзя изменять законченный лид');
+        }
         if (status) {
           lead.status = status;
           await lead.save();
@@ -210,6 +224,9 @@ export class LeadsService {
     const profile = await this.profileModel.findOne({ _id: data.oid }).exec();
     try {
       if (lead) {
+        if (lead.final) {
+          throw new BadRequestException('Нельзя изменять законченный лид');
+        }
         if (profile) {
           lead.owner = profile.id;
           await lead.save();
@@ -258,6 +275,9 @@ export class LeadsService {
       if (lead) {
         if (lead.status.priority === 1) {
           throw new BadRequestException('Новый лид нельзя переводить в законченную сделку');
+        }
+        if (lead.final) {
+          throw new BadRequestException('Нельзя изменять законченный лид');
         }
         if (lead.contacts.length != 0) {
           let companyContact = lead.contacts.find((o) => o.object === 'company');

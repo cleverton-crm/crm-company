@@ -17,9 +17,7 @@ export class ClientService {
    * @param clientData
    * @return ({Core.Response.Answer})
    */
-  async createClient(
-    clientData: Core.Client.Schema,
-  ): Promise<Core.Response.Data> {
+  async createClient(clientData: Core.Client.Schema): Promise<Core.Response.Data> {
     let result;
     const client = new this.clientModel(clientData);
     try {
@@ -36,9 +34,7 @@ export class ClientService {
    * @param {Core.Client.ArchiveData} archiveData
    * @return ({Core.Response.Answer})
    */
-  async archiveClient(
-    archiveData: Core.Client.ArchiveData,
-  ): Promise<Core.Response.Answer> {
+  async archiveClient(archiveData: Core.Client.ArchiveData): Promise<Core.Response.Answer> {
     let result;
     const client = await this.clientModel.findOne({ _id: archiveData.id });
     if (client) {
@@ -50,11 +46,7 @@ export class ClientService {
         result = Core.ResponseSuccess('Клиент был разархивирован');
       }
     } else {
-      result = Core.ResponseError(
-        'Клиент с таким id не найден',
-        HttpStatus.OK,
-        'Not Found',
-      );
+      result = Core.ResponseError('Клиент с таким id не найден', HttpStatus.OK, 'Not Found');
     }
     return result;
   }
@@ -63,10 +55,7 @@ export class ClientService {
    * Список компаний
    * @return({Core.Client.Schema[]})
    */
-  async listClients(data: {
-    company: string;
-    pagination: Core.MongoPagination;
-  }): Promise<Core.Response.RecordsData> {
+  async listClients(data: { company: string; pagination: Core.MongoPagination }): Promise<Core.Response.RecordsData> {
     let result;
     let filter = {};
     let clients;
@@ -76,11 +65,7 @@ export class ClientService {
       }
       clients = await this.clientModel.paginate(filter, data.pagination);
       console.log(clients);
-      result = Core.ResponseDataRecords(
-        'Список клиентов',
-        clients.data,
-        clients.records,
-      );
+      result = Core.ResponseDataRecords('Список клиентов', clients.data, clients.records);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }
@@ -99,9 +84,7 @@ export class ClientService {
       if (client !== null) {
         result = Core.ResponseData('Клиент найден', client);
       } else {
-        result = Core.ResponseSuccess(
-          'Клиент с таким идентификатором не найден',
-        );
+        result = Core.ResponseSuccess('Клиент с таким идентификатором не найден');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -114,15 +97,10 @@ export class ClientService {
    * @param updateData
    * @return({Core.Response.Answer})
    */
-  async updateClient(
-    updateData: Core.Client.UpdateData,
-  ): Promise<Core.Response.Answer> {
+  async updateClient(updateData: Core.Client.UpdateData): Promise<Core.Response.Answer> {
     let result;
     try {
-      const client = await this.clientModel.findOneAndUpdate(
-        { _id: updateData.id },
-        updateData.data,
-      );
+      const client = await this.clientModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
       result = Core.ResponseData('Клиент успешно изменен', client);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);

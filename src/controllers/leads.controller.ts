@@ -8,9 +8,7 @@ export class LeadsController {
   constructor(private readonly appService: LeadsService) {}
 
   @MessagePattern('leads:create')
-  async createLead(
-    @Payload() leadData: { data: Core.Deals.Schema; owner: any },
-  ) {
+  async createLead(@Payload() leadData: { data: Core.Deals.Schema; owner: any }) {
     return await this.appService.createLead(leadData);
   }
 
@@ -35,16 +33,12 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:change:status')
-  async changeLeadStatus(
-    @Payload() data: { id: string; sid: string; owner: any },
-  ) {
+  async changeLeadStatus(@Payload() data: { id: string; sid: string; owner: any }) {
     return await this.appService.changeLeadStatus(data);
   }
 
   @MessagePattern('leads:change:owner')
-  async changeLeadOwner(
-    @Payload() data: { id: string; oid: string; owner: any },
-  ) {
+  async changeLeadOwner(@Payload() data: { id: string; oid: string; owner: any }) {
     return await this.appService.changeLeadOwner(data);
   }
 

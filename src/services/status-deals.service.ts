@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 import { StatusDeals } from '../schemas/status-deals.schema';
@@ -14,9 +9,7 @@ export class StatusDealsService {
   private readonly statusModel: Model<StatusDeals>;
 
   constructor(@InjectConnection() private connection: Connection) {
-    this.statusModel = this.connection.model(
-      'StatusDeals',
-    ) as Model<StatusDeals>;
+    this.statusModel = this.connection.model('StatusDeals') as Model<StatusDeals>;
   }
 
   /**
@@ -24,10 +17,7 @@ export class StatusDealsService {
    * @param {Core.StatusDeals.Schema} statusData
    * @return ({Core.Response.Answer})
    */
-  async createStatus(statusData: {
-    data: Core.StatusDeals.Schema;
-    owner: any;
-  }): Promise<Core.Response.Answer> {
+  async createStatus(statusData: { data: Core.StatusDeals.Schema; owner: any }): Promise<Core.Response.Answer> {
     let result;
     statusData.data.owner = statusData.owner.userID;
     if (statusData.data.locked) {
@@ -64,10 +54,7 @@ export class StatusDealsService {
    */
   async listStatus() {
     let result;
-    const status = await this.statusModel
-      .find()
-      .sort({ priority: 1, createdAt: 1 })
-      .exec();
+    const status = await this.statusModel.find().sort({ priority: 1, createdAt: 1 }).exec();
     try {
       result = Core.ResponseData('Список статусов сделки', status);
     } catch (e) {
@@ -100,13 +87,9 @@ export class StatusDealsService {
    * @param archiveData
    * @return ({Core.Response.Answer})
    */
-  async archiveStatus(
-    archiveData: Core.StatusDeals.ArchiveData,
-  ): Promise<Core.Response.Answer> {
+  async archiveStatus(archiveData: Core.StatusDeals.ArchiveData): Promise<Core.Response.Answer> {
     let result;
-    const status = await this.statusModel
-      .findOne({ _id: archiveData.id })
-      .exec();
+    const status = await this.statusModel.findOne({ _id: archiveData.id }).exec();
     if (status) {
       status.active = archiveData.active;
       await status.save();
@@ -116,11 +99,7 @@ export class StatusDealsService {
         result = Core.ResponseSuccess('Статус сделки был разархивирован');
       }
     } else {
-      result = Core.ResponseError(
-        'Статус сделки с таким ID не найден',
-        HttpStatus.OK,
-        'Not Found',
-      );
+      result = Core.ResponseError('Статус сделки с таким ID не найден', HttpStatus.OK, 'Not Found');
     }
     return result;
   }
@@ -132,10 +111,7 @@ export class StatusDealsService {
   async updateStatus(updateData: Core.StatusDeals.UpdateData) {
     let result;
     try {
-      const status = await this.statusModel.findOneAndUpdate(
-        { _id: updateData.id, locked: false },
-        updateData.data,
-      );
+      const status = await this.statusModel.findOneAndUpdate({ _id: updateData.id, locked: false }, updateData.data);
       if (status) {
         result = Core.ResponseSuccess('Данные статуса сделки изменены');
       } else {
@@ -155,17 +131,13 @@ export class StatusDealsService {
     let result;
     try {
       if (data.priority <= 1 || data.priority >= 99) {
-        throw new BadRequestException(
-          'Нельзя изменять приоритет статуса ниже либо равно 1 или выше 99',
-        );
+        throw new BadRequestException('Нельзя изменять приоритет статуса ниже либо равно 1 или выше 99');
       }
       const statusId = await this.statusModel.findOne({ _id: data.id }).exec();
       if (!statusId) {
         throw new NotFoundException('Статус с таким ID не найден');
       }
-      const statusPriority = await this.statusModel
-        .findOne({ priority: data.priority })
-        .exec();
+      const statusPriority = await this.statusModel.findOne({ priority: data.priority }).exec();
       if (statusPriority) {
         statusPriority.priority = statusId.priority;
         statusId.priority = data.priority;

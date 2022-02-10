@@ -1,7 +1,4 @@
-import {
-  MongooseModuleOptions,
-  MongooseOptionsFactory,
-} from '@nestjs/mongoose';
+import { MongooseModuleOptions, MongooseOptionsFactory } from '@nestjs/mongoose';
 import { Core } from 'crm-core';
 
 export class MongoConfigService implements MongooseOptionsFactory {

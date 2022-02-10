@@ -108,7 +108,4 @@ export class Deals extends Document {
 }
 export type DealModel<T extends Document> = PaginateModel<Deals>;
 export const DealSchema = SchemaFactory.createForClass(Deals);
-export const DealModel: DealModel<Deals> = model<Deals>(
-  'Deals',
-  DealSchema,
-) as DealModel<Deals>;
+export const DealModel: DealModel<Deals> = model<Deals>('Deals', DealSchema) as DealModel<Deals>;
