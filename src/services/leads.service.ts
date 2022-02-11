@@ -71,8 +71,6 @@ export class LeadsService {
         });
       }
 
-      console.log(cacheCompany);
-
       let clientContact = leadData.data.contacts.find((o) => o.object === 'client') as Core.Client.Schema;
       cacheClient = clientContact ? clientContact : {};
       let leadClient = (await this.leadClientModel.create(cacheClient)) as Core.Client.Schema;
