@@ -370,4 +370,62 @@ export class LeadsService {
     }
     return result;
   }
+
+  /**
+   * Обновление компании в лиде
+   * @param updateData
+   */
+  async updateLeadCompany(updateData: { id: string; cid: string; data: Core.Company.Schema }) {
+    let result;
+    try {
+      const lead = await this.leadsModel.findOne({ _id: updateData.id }).exec();
+      if (lead) {
+        const company = await this.leadCompanyModel.findOne({ id: updateData.cid }).exec();
+        if (company && lead.company === company.id) {
+          await this.leadCompanyModel.findOneAndUpdate({ id: updateData.cid }, updateData.data);
+          result = Core.ResponseSuccess('Данные о компании изменены');
+        } else {
+          result = Core.ResponseError(
+            'Компания с таким ID не существует в данном лиде',
+            HttpStatus.BAD_REQUEST,
+            'Bad Request',
+          );
+        }
+      } else {
+        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+      }
+    } catch (e) {
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+    }
+    return result;
+  }
+
+  /**
+   * Обновление клиента в лиде
+   * @param updateData
+   */
+  async updateLeadClient(updateData: { id: string; cid: string; data: Core.Client.Schema }) {
+    let result;
+    try {
+      const lead = await this.leadsModel.findOne({ _id: updateData.id }).exec();
+      if (lead) {
+        const client = await this.leadClientModel.findOne({ id: updateData.cid }).exec();
+        if (client && lead.client === client.id) {
+          await this.leadClientModel.findOneAndUpdate({ id: updateData.cid }, updateData.data);
+          result = Core.ResponseSuccess('Данные о клиенте изменены');
+        } else {
+          result = Core.ResponseError(
+            'Клиент с таким ID не существует в данном лиде',
+            HttpStatus.BAD_REQUEST,
+            'Bad Request',
+          );
+        }
+      } else {
+        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+      }
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
 }

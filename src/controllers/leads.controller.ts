@@ -42,6 +42,16 @@ export class LeadsController {
     return await this.appService.changeLeadOwner(data);
   }
 
+  @MessagePattern('leads:company:update')
+  async updateLeadCompany(@Payload() updateData: { id: string; cid: string; data: Core.Company.Schema }) {
+    return await this.appService.updateLeadCompany(updateData);
+  }
+
+  @MessagePattern('leads:client:update')
+  async updateLeadClient(@Payload() updateData: { id: string; cid: string; data: Core.Client.Schema }) {
+    return await this.appService.updateLeadClient(updateData);
+  }
+
   @MessagePattern('leads:failure')
   async failureLead(@Payload() data: { id: string; owner: any }) {
     return await this.appService.failureLead(data);
