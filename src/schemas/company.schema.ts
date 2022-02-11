@@ -77,6 +77,9 @@ export class Companies extends Document {
 
   @Prop({ type: Map, default: {} })
   park: Map<string, any>;
+
+  @Prop({ type: Map, default: {} })
+  avatar: Map<string, any>;
 }
 export type CompanyModel<T extends Document> = PaginateModel<Companies>;
 export const CompanySchema = SchemaFactory.createForClass(Companies);

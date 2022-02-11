@@ -63,10 +63,10 @@ export class Cars extends Document {
 
   @Prop({ type: Boolean, default: true })
   active: boolean;
+
+  @Prop({ type: Map, default: {} })
+  avatar: Map<string, any>;
 }
 export type CarsModel<T extends Document> = PaginateModel<Cars>;
 export const CarsSchema = SchemaFactory.createForClass(Cars);
-export const CarsModel: CarsModel<Cars> = model<Cars>(
-  'Cars',
-  CarsSchema,
-) as CarsModel<Cars>;
+export const CarsModel: CarsModel<Cars> = model<Cars>('Cars', CarsSchema) as CarsModel<Cars>;
