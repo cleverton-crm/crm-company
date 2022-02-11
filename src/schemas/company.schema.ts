@@ -85,6 +85,20 @@ export const CompanyModel: CompanyModel<Companies> = model<Companies>(
   CompanySchema,
 ) as CompanyModel<Companies>;
 
+// View collection
 @Schema({ collection: 'companyList' })
 export class ListCompany extends Companies {}
 export const ListCompanySchema = SchemaFactory.createForClass(ListCompany);
+
+// Lead Model Collection
+@Schema({ timestamps: true })
+export class LeadCompany extends Companies {
+  @Prop({ type: uuidv4, default: null })
+  original: string;
+}
+export const LeadCompanySchema = SchemaFactory.createForClass(LeadCompany);
+export type LeadCompanyModel<T extends Document> = PaginateModel<LeadCompany>;
+export const LeadCompanyModel: LeadCompanyModel<LeadCompany> = model<LeadCompany>(
+  'LeadCompany',
+  LeadCompanySchema,
+) as LeadCompanyModel<LeadCompany>;

@@ -1,6 +1,8 @@
 import {
   Companies,
   CompanySchema,
+  LeadCompany,
+  LeadCompanySchema,
   ListCompany,
   ListCompanySchema,
 } from 'src/schemas/company.schema';
@@ -36,5 +38,21 @@ export const ListCompanyProviderSchema = {
     ListCompanySchema.set('toObject', { virtuals: true });
 
     return ListCompanySchema;
+  },
+};
+
+export const LeadCompanyProviderSchema = {
+  name: LeadCompany.name,
+  useFactory: () => {
+    mongoosePaginator.paginate.options = {
+      limit: 25,
+      customLabels: Core.ResponseDataLabels,
+    };
+    LeadCompanySchema.plugin(mongoosePaginator);
+
+    LeadCompanySchema.set('toJSON', { virtuals: true });
+    LeadCompanySchema.set('toObject', { virtuals: true });
+
+    return LeadCompanySchema;
   },
 };

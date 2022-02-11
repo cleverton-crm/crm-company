@@ -3,6 +3,7 @@ import { Core } from 'crm-core';
 import { v4 as uuidv4 } from 'uuid';
 import { Document, model, PaginateModel } from 'mongoose';
 import { LicensesData } from './deals.schema';
+import { Companies } from './company.schema';
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
 export class PassportClientData {
@@ -89,7 +90,16 @@ export class Clients extends Document implements Core.Client.Schema {
 }
 export type ClientModel<T extends Document> = PaginateModel<Clients>;
 export const ClientSchema = SchemaFactory.createForClass(Clients);
-export const ClientModel: ClientModel<Clients> = model<Clients>(
-  'Clients',
-  ClientSchema,
-) as ClientModel<Clients>;
+export const ClientModel: ClientModel<Clients> = model<Clients>('Clients', ClientSchema) as ClientModel<Clients>;
+
+@Schema({ timestamps: true })
+export class LeadClients extends Clients {
+  @Prop({ type: uuidv4, default: null })
+  original: string;
+}
+export const LeadClientsSchema = SchemaFactory.createForClass(LeadClients);
+export type LeadClientModel<T extends Document> = PaginateModel<LeadClients>;
+export const LeadClientModel: LeadClientModel<LeadClients> = model<LeadClients>(
+  'LeadClients',
+  LeadClientsSchema,
+) as LeadClientModel<LeadClients>;

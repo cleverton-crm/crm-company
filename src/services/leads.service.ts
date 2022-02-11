@@ -7,9 +7,10 @@ import { DealModel, Deals } from '../schemas/deals.schema';
 import { StatusDeals } from '../schemas/status-deals.schema';
 import { Profile } from '../schemas/profile.schema';
 import { CompanyService } from './company.service';
-import { Companies, CompanyModel } from '../schemas/company.schema';
+import { Companies, CompanyModel, LeadCompany, LeadCompanyModel } from '../schemas/company.schema';
 import { ClientService } from './clients.service';
-import { ClientModel, Clients } from '../schemas/clients.schema';
+import { ClientModel, Clients, LeadClientModel, LeadClients } from '../schemas/clients.schema';
+import { log } from 'util';
 
 @Injectable()
 export class LeadsService {
@@ -18,6 +19,8 @@ export class LeadsService {
   private readonly profileModel: Model<Profile>;
   private readonly companyModel: CompanyModel<Companies>;
   private readonly clientModel: ClientModel<Clients>;
+  private readonly leadCompanyModel: LeadCompanyModel<LeadCompany>;
+  private readonly leadClientModel: LeadClientModel<LeadClients>;
 
   constructor(
     @InjectConnection() private connection: Connection,
@@ -29,6 +32,8 @@ export class LeadsService {
     this.profileModel = this.connection.model('Profile') as Model<Profile>;
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
+    this.leadCompanyModel = this.connection.model('LeadCompany') as LeadCompanyModel<LeadCompany>;
+    this.leadClientModel = this.connection.model('LeadClients') as LeadClientModel<LeadClients>;
   }
 
   /**
@@ -37,11 +42,47 @@ export class LeadsService {
    * @return ({Core.Response.Answer})
    */
   async createLead(leadData: { data: Core.Deals.Schema; owner: any }): Promise<Core.Response.Answer> {
-    let result;
+    let result, oldCompany;
+    let cacheCompany,
+      cacheClient = {};
+    let failInn = 'fail_' + Date.now();
     try {
+      let companyContact = leadData.data.contacts.find((o) => o.object === 'company') as Core.Company.Schema;
+      if (companyContact) {
+        oldCompany = await this.leadCompanyModel.findOne({
+          inn: companyContact?.requisites.data.inn || companyContact?.inn,
+        });
+        if (oldCompany) {
+          cacheCompany = oldCompany;
+        } else {
+          cacheCompany = await this.leadCompanyModel.create({
+            ...companyContact,
+            inn: companyContact.requisites.data.inn,
+          });
+        }
+      } else {
+        cacheCompany = await this.leadCompanyModel.create({
+          inn: failInn,
+          requisites: {
+            data: {
+              inn: failInn,
+            },
+          },
+        });
+      }
+
+      console.log(cacheCompany);
+
+      let clientContact = leadData.data.contacts.find((o) => o.object === 'client') as Core.Client.Schema;
+      cacheClient = clientContact ? clientContact : {};
+      let leadClient = (await this.leadClientModel.create(cacheClient)) as Core.Client.Schema;
+
       const lead = new this.leadsModel(leadData.data);
       lead.owner = leadData.owner.userID;
       lead.author = leadData.owner.userID;
+      lead.company = cacheCompany.id;
+      lead.client = leadClient.id || null;
+      lead.contacts = [];
       const status = await this.statusModel.findOne({ priority: 1, locked: true }).exec();
       lead.status = status;
       await lead.save();
