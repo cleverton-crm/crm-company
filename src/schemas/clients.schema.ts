@@ -88,8 +88,8 @@ export class Clients extends Document implements Core.Client.Schema {
   @Prop({ type: () => PassportClientData, default: {} })
   passport: PassportClientData;
 
-  @Prop({ type: String, default: null })
-  avatar: string;
+  @Prop({ type: Map, default: {} })
+  avatar: Map<string, any>;
 }
 export type ClientModel<T extends Document> = PaginateModel<Clients>;
 export const ClientSchema = SchemaFactory.createForClass(Clients);
