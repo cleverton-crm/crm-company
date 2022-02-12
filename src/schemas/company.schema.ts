@@ -78,6 +78,9 @@ export class Companies extends Document {
   @Prop({ type: Map, default: {} })
   park: Map<string, any>;
 
+  @Prop({ type: Map, default: null })
+  attachments: Map<string, string>;
+
   @Prop({ type: Map, default: {} })
   avatar: Map<string, any>;
 }

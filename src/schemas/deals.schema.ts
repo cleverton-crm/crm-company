@@ -105,6 +105,9 @@ export class Deals extends Document {
 
   @Prop({ type: Array, default: [] })
   contacts: Array<any>;
+
+  @Prop({ type: Map, default: {} })
+  avatar: Map<string, any>;
 }
 export type DealModel<T extends Document> = PaginateModel<Deals>;
 export const DealSchema = SchemaFactory.createForClass(Deals);
