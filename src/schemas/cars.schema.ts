@@ -64,6 +64,9 @@ export class Cars extends Document {
   @Prop({ type: Boolean, default: true })
   active: boolean;
 
+  @Prop({ type: Map, default: null })
+  attachments: Map<string, string>;
+
   @Prop({ type: Map, default: {} })
   avatar: Map<string, any>;
 }
