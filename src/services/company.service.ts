@@ -35,7 +35,7 @@ export class CompanyService {
 
   /**
    * Архивация компании
-   * @param {Core.Company.ArchiveData} archiveData
+   * @param {Core.Company.ArchiveData} archiveData - Статус архивации
    * @return ({Core.Response.Answer})
    */
   async archiveCompany(archiveData: Core.Company.ArchiveData): Promise<Core.Response.Answer> {
