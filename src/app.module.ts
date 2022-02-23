@@ -28,6 +28,7 @@ import { StatusDealsService } from './services/status-deals.service';
 import { StatusDealsController } from './controllers/status-deals.controller';
 import { ProfileProviderSchema } from './providers/profile.provider';
 import { ActivityProviderSchema } from './providers/activity.provider';
+import { ActivityService } from './services/activity.service';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { ActivityProviderSchema } from './providers/activity.provider';
     DealsService,
     LeadsService,
     StatusDealsService,
+    ActivityService,
   ],
   exports: [ConfigService],
 })

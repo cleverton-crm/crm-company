@@ -9,79 +9,101 @@ export class Companies extends Document {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Название', changelog: 'Изменение названия компании' })
   name: string;
 
-  @Prop({ type: Boolean, default: true })
+  @Prop({ type: Boolean, default: true, description: 'Статус архивации', changelog: 'Изменение статуса архивации' })
   active: boolean;
 
-  @Prop({ type: Array, default: [] })
+  @Prop({ type: Array, default: [], description: 'Клиенты', changelog: 'Изменение клиентов компании' })
   clients: Array<string>;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Местоположение', changelog: 'Изменение местоположения компании' })
   companyLocation: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({
+    type: String,
+    default: null,
+    description: 'Количество сотрудников',
+    changelog: 'Изменение количества сотрудников',
+  })
   employeesCount: number;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Фактический адрес', changelog: 'Изменение фактического адреса' })
   factLocation: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Факс', changelog: 'Изменение факса' })
   fax: string;
 
-  @Prop({ type: () => CompanyBank, default: {} })
+  @Prop({ type: () => CompanyBank, default: {}, description: 'Банк компании', changelog: 'Изменение банка компании' })
   bank: CompanyBank;
 
   @Prop({ type: String, default: 'company' })
   object: 'company';
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Ответственный', changelog: 'Изменение ответственного' })
   owner: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Тип компании', changelog: 'Изменение типа компании' })
   ownership: string | Core.Company.Ownership;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Права доступа', changelog: 'Изменение прав доступа' })
   permissions: Map<string, any>;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Телефон', changelog: 'Изменение телефона' })
   phoneNumber: string;
 
-  @Prop({ type: Array, default: [] })
+  @Prop({ type: Array, default: [], description: 'Телефоны', changelog: 'Изменение телефонных номеров' })
   phones: Array<string>;
 
-  @Prop({ type: String, default: null })
+  @Prop({
+    type: String,
+    default: null,
+    description: 'Почтовый адрес',
+    changelog: 'Изменение почтового адреса компании',
+  })
   postLocation: string;
 
-  @Prop({ type: () => CompanyRequisitesCompanyName, default: {} })
+  @Prop({
+    type: () => CompanyRequisitesCompanyName,
+    default: {},
+    description: 'Реквизиты',
+    changelog: 'Изменение реквизитов',
+  })
   requisites: CompanyRequisitesCompanyName;
 
   @Prop({ type: String, default: null })
   source: string;
 
-  @Prop({ type: Array, default: [] })
+  @Prop({ type: Array, default: [], description: 'Тэги', changelog: 'Изменение тэгов' })
   tags: Array<string>;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Сайт', changelog: 'Изменение адреса сайта' })
   web: string;
 
   @Prop({ type: Map, default: {} })
   partner: Map<string, any>;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Холдинг', changelog: 'Изменение холдинга' })
   holding: Map<string, any>;
 
-  @Prop({ type: String, default: null, unique: true, index: true })
+  @Prop({
+    type: String,
+    default: null,
+    unique: true,
+    index: true,
+    description: 'ИНН',
+    changelog: 'Изменение ИНН компании',
+  })
   inn: string;
 
   @Prop({ type: Map, default: {} })
   park: Map<string, any>;
 
-  @Prop({ type: Map, default: null })
+  @Prop({ type: Map, default: null, description: 'Документы', changelog: 'Изменение документов' })
   attachments: Map<string, string>;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Изображение', changelog: 'Изменение изображения компании' })
   avatar: Map<string, any>;
 }
 export type CompanyModel<T extends Document> = PaginateModel<Companies>;

@@ -3,13 +3,14 @@ import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Companies, CompanyModel, ListCompany } from 'src/schemas/company.schema';
 import { Core } from 'crm-core';
+import { ActivityService } from './activity.service';
 
 @Injectable()
 export class CompanyService {
   private readonly companyModel: CompanyModel<Companies>;
   private readonly listCompanyModel: Model<ListCompany>;
 
-  constructor(@InjectConnection() private connection: Connection) {
+  constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
     this.listCompanyModel = this.connection.model('ListCompany');
   }
@@ -39,11 +40,18 @@ export class CompanyService {
    */
   async archiveCompany(archiveData: Core.Company.ArchiveData): Promise<Core.Response.Answer> {
     let result;
-    const company = await this.companyModel.findOne({ _id: archiveData.id });
+    const company = await this.companyModel.findOne({ _id: archiveData.id }).exec();
+    const oldCompany = company.toObject();
     try {
       if (company) {
         company.active = archiveData.active;
-        await company.save();
+        const newCompany = await this.companyModel.findOneAndUpdate({ _id: archiveData.id }, company, { new: true });
+        await this.activityService.historyData(
+          oldCompany,
+          newCompany.toObject(),
+          this.companyModel,
+          archiveData.userId,
+        );
         if (!company.active) {
           result = Core.ResponseSuccess('Компания была отправлена в архив');
         } else {
@@ -99,13 +107,20 @@ export class CompanyService {
    */
   async updateCompany(updateData: Core.Company.UpdateData): Promise<Core.Response.Answer> {
     let result;
+    const company = await this.companyModel.findOne({ _id: updateData.id }).exec();
+    const oldCompany = company.toObject();
     try {
-      await this.companyModel
-        .findOneAndUpdate({ _id: updateData.id }, { ...updateData.data, inn: updateData.data.requisites.data.inn })
+      const newCompany = await this.companyModel
+        .findOneAndUpdate(
+          { _id: updateData.id },
+          { ...updateData.data, inn: updateData.data.requisites.data.inn },
+          { new: true },
+        )
         .exec();
+      await this.activityService.historyData(oldCompany, newCompany.toObject(), this.companyModel, updateData.userId);
       result = Core.ResponseSuccess('Данные о компании изменены');
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }

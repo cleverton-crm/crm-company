@@ -10,7 +10,7 @@ import { CompanyService } from './company.service';
 import { Companies, CompanyModel, LeadCompany, LeadCompanyModel } from '../schemas/company.schema';
 import { ClientService } from './clients.service';
 import { ClientModel, Clients, LeadClientModel, LeadClients } from '../schemas/clients.schema';
-import { log } from 'util';
+import { ActivityService } from './activity.service';
 
 @Injectable()
 export class LeadsService {
@@ -26,6 +26,7 @@ export class LeadsService {
     @InjectConnection() private connection: Connection,
     private readonly companyService: CompanyService,
     private readonly clientService: ClientService,
+    private readonly activityService: ActivityService,
   ) {
     this.leadsModel = this.connection.model('Deals') as DealModel<Deals>;
     this.statusModel = this.connection.model('StatusDeals') as Model<StatusDeals>;
@@ -100,14 +101,16 @@ export class LeadsService {
     let result;
     try {
       const lead = await this.leadsModel.findOne({ _id: archiveData.id });
+      const oldLead = lead.toObject();
       if (lead) {
         if (lead.final) {
           throw new BadRequestException('Нельзя изменять законченный лид');
         }
         lead.active = archiveData.active;
-        await lead.save();
+        const newLead = await this.leadsModel.findOneAndUpdate({ _id: lead.id }, lead, { new: true }).exec();
+        await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, archiveData.userId);
         if (!lead.active) {
-          result = Core.ResponseSuccess('Лид был отправлена в архив');
+          result = Core.ResponseSuccess('Лид был отправлен в архив');
         } else {
           result = Core.ResponseSuccess('Лид был разархивирован');
         }
@@ -115,7 +118,7 @@ export class LeadsService {
         result = Core.ResponseError('Лид с таким ID не найден', HttpStatus.OK, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
@@ -127,7 +130,6 @@ export class LeadsService {
   async listLeads(): Promise<Core.Response.Answer> {
     let result;
     const leads = await this.leadsModel.find().exec();
-    console.log(leads);
     try {
       result = Core.ResponseData('Список лидов', leads);
     } catch (e) {
@@ -165,6 +167,7 @@ export class LeadsService {
     let result;
     try {
       const lead = await this.leadsModel.findOne({ _id: updateData.id });
+      const oldLead = lead.toObject();
       if (!lead) {
         throw new BadRequestException('Лид с таким идентификатором не найден');
       }
@@ -190,7 +193,8 @@ export class LeadsService {
         throw new BadRequestException('Для архивации лида воспользуйтесь отдельным эндпоинтом');
       }
 
-      await this.leadsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
+      const newLead = await this.leadsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, { new: true });
+      await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, updateData.owner.userID);
       result = Core.ResponseSuccess('Лид успешно изменен');
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
@@ -205,6 +209,7 @@ export class LeadsService {
   async commentLead(commentData: Core.Deals.CommentData) {
     let result;
     const lead = await this.leadsModel.findOne({ _id: commentData.id, type: 'lead' }).exec();
+    const oldLead = lead.toObject();
     try {
       if (lead) {
         if (lead.final) {
@@ -213,7 +218,8 @@ export class LeadsService {
         lead.comments.set(Date.now().toString(), {
           [commentData.userId]: commentData.comments,
         });
-        await lead.save();
+        const newLead = await this.leadsModel.findOneAndUpdate({ _id: commentData.id }, lead, { new: true });
+        await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, commentData.userId);
         result = Core.ResponseDataAsync('Комментарий успешно добавлен', lead);
       } else {
         result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
@@ -231,6 +237,7 @@ export class LeadsService {
   async changeLeadStatus(data: { id: string; sid: string; owner: any }) {
     let result;
     const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
+    const oldLead = lead.toObject();
     const status = await this.statusModel.findOne({ _id: data.sid }).exec();
     try {
       if (lead) {
@@ -239,7 +246,8 @@ export class LeadsService {
         }
         if (status) {
           lead.status = status;
-          await lead.save();
+          const newLead = await this.leadsModel.findOneAndUpdate({ _id: data.id }, lead, { new: true });
+          await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userId);
           result = Core.ResponseSuccess('Статус лида успешно изменен');
         } else {
           result = Core.ResponseError('Статус с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
@@ -260,6 +268,7 @@ export class LeadsService {
   async changeLeadOwner(data: { id: string; oid: string; owner: any }) {
     let result;
     const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
+    const oldLead = lead.toObject();
     const profile = await this.profileModel.findOne({ _id: data.oid }).exec();
     try {
       if (lead) {
@@ -268,7 +277,8 @@ export class LeadsService {
         }
         if (profile) {
           lead.owner = profile.id;
-          await lead.save();
+          const newLead = await this.leadsModel.findOneAndUpdate({ _id: data.id }, lead, { new: true });
+          await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userID);
           result = Core.ResponseSuccess('Ответственный лида успешно изменен');
         } else {
           result = Core.ResponseError(
@@ -292,8 +302,11 @@ export class LeadsService {
    */
   async failureLead(data: { id: string; owner: any }) {
     let result;
+    const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
+    const oldLead = lead.toObject();
     try {
-      await this.leadsModel.findOneAndUpdate({ _id: data.id, type: 'lead' }, { active: false }).exec();
+      const newLead = await this.leadsModel.findOneAndUpdate({ _id: data.id, type: 'lead' }, { active: false }).exec();
+      await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userID);
       result = Core.ResponseSuccess('Лид был отменен');
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
@@ -310,6 +323,7 @@ export class LeadsService {
     let result, newCompany, newClient;
     try {
       const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
+      const oldLead = lead.toObject();
       const status = await this.statusModel.findOne({ priority: 9999 }).exec();
       if (lead) {
         if (lead.status.priority === 1) {
@@ -360,7 +374,8 @@ export class LeadsService {
         lead.final = true;
         lead.tags.push(status.name);
         lead.type = 'deal';
-        await this.leadsModel.findOneAndUpdate({ _id: lead.id }, lead);
+        const newLead = await this.leadsModel.findOneAndUpdate({ _id: lead.id }, lead, { new: true });
+        await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userID);
         result = Core.ResponseSuccess('Лид успешно конвертирован в сделку');
       } else {
         result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
@@ -375,14 +390,16 @@ export class LeadsService {
    * Обновление компании в лиде
    * @param updateData
    */
-  async updateLeadCompany(updateData: { id: string; cid: string; data: Core.Company.Schema }) {
+  async updateLeadCompany(updateData: { id: string; cid: string; data: Core.Company.Schema; owner: any }) {
     let result;
     try {
-      const lead = await this.leadsModel.findOne({ _id: updateData.id }).exec();
+      const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead' }).exec();
+      const oldLead = lead.toObject();
       if (lead) {
-        const company = await this.leadCompanyModel.findOne({ id: updateData.cid }).exec();
+        const company = await this.leadCompanyModel.findOne({ _id: updateData.cid }).exec();
         if (company && lead.company === company.id) {
-          await this.leadCompanyModel.findOneAndUpdate({ id: updateData.cid }, updateData.data);
+          const newLead = await this.leadCompanyModel.findOneAndUpdate({ _id: updateData.cid }, updateData.data);
+          await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, updateData.owner.userID);
           result = Core.ResponseSuccess('Данные о компании изменены');
         } else {
           result = Core.ResponseError(
@@ -404,14 +421,17 @@ export class LeadsService {
    * Обновление клиента в лиде
    * @param updateData
    */
-  async updateLeadClient(updateData: { id: string; cid: string; data: Core.Client.Schema }) {
+  async updateLeadClient(updateData: { id: string; cid: string; data: Core.Client.Schema; owner: any }) {
     let result;
     try {
-      const lead = await this.leadsModel.findOne({ _id: updateData.id }).exec();
+      const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead' }).exec();
+      const oldLead = lead.toObject();
       if (lead) {
-        const client = await this.leadClientModel.findOne({ id: updateData.cid }).exec();
+        const client = await this.leadClientModel.findOne({ _id: updateData.cid }).exec();
+        console.log(updateData.cid);
         if (client && lead.client === client.id) {
-          await this.leadClientModel.findOneAndUpdate({ id: updateData.cid }, updateData.data);
+          const newLead = await this.leadClientModel.findOneAndUpdate({ _id: updateData.cid }, updateData.data);
+          await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, updateData.owner.userID);
           result = Core.ResponseSuccess('Данные о клиенте изменены');
         } else {
           result = Core.ResponseError(

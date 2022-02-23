@@ -6,13 +6,26 @@ import { v4 as uuidv4 } from 'uuid';
 export class Activity extends Document {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
+
+  @Prop({ type: Map, default: {}, description: 'Название поля' })
+  changelog: Map<string, any>;
+
+  @Prop({ type: String, required: true })
+  objectId: string;
+
   @Prop({ type: String, default: null })
-  fieldName: string;
-  @Prop({ type: Map, default: {} })
-  old: Map<string, any>;
-  @Prop({ type: Map, default: {} })
-  new: Map<string, any>;
+  type: string;
+
+  @Prop({ type: String, default: 'activity' })
+  object: string;
+
   @Prop({ type: String, default: null })
-  owner: string;
+  author: string;
+
+  @Prop({ type: String, default: null })
+  oldToken: string;
+
+  @Prop({ type: String, default: null })
+  newToken: string;
 }
 export const ActivitySchema = SchemaFactory.createForClass(Activity);

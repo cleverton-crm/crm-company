@@ -28,85 +28,99 @@ export class Deals extends Document {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
 
-  @Prop({ type: Boolean, default: true })
+  @Prop({
+    type: Boolean,
+    default: true,
+    description: 'Статус архивации',
+    changelog: 'Смена статуса архивации',
+  })
   active: boolean;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Комментарий', changelog: 'Изменение комментариев' })
   comments: Map<string, any>;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Документы', changelog: 'Изменение документов' })
   attachments: Map<string, any>;
 
   @Prop({ type: String, default: null })
   author: string;
 
-  @Prop({ type: String, default: null, ref: 'Clients' })
+  @Prop({ type: String, default: null, ref: 'Clients', description: 'Клиент', changelog: 'Изменение клиента' })
   client: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Компания', changelog: 'Изменение компании' })
   company: string;
 
-  @Prop({ type: Date, default: null })
-  createdAt: Date;
-
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Валюта', changelog: 'Изменение валюты' })
   currency: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Описание', changelog: 'Изменение описания лида/сделки' })
   description: string;
 
-  @Prop({ type: Date, default: null })
+  @Prop({
+    type: Date,
+    default: null,
+    description: 'Дата окончания',
+    changelog: 'Дата завершения сделки',
+  })
   endDate: Date;
 
   @Prop({ type: Map, default: {} })
   information: Map<string, any>;
 
-  @Prop({ type: String, default: null })
+  @Prop({
+    type: String,
+    default: null,
+    description: 'Название лида/сделки',
+    changelog: 'Изменение названия сделки/лида',
+  })
   name: string;
 
   @Prop({ type: String, default: 'task' })
   object: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Ответственный', changelog: 'Смена ответственного' })
   owner: string;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Права доступа', changelog: 'Изменение прав доступа' })
   permissions: Map<string, any>;
 
-  @Prop({ type: Number, default: 0 })
+  @Prop({ type: Number, default: 0, description: 'Стоимость', changelog: 'Изменение стоимости' })
   price: number;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Тип топлива', changelog: 'Изменение статуса сделки/лида' })
   fuelType: string;
 
-  @Prop({ type: Number, default: null })
+  @Prop({ type: Number, default: null, description: 'Количество топлива', changelog: 'Изменение количества топлива' })
   amountFuel: number;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Источник', changelog: 'Изменение источника' })
   source: string;
 
-  @Prop({ type: Date, default: null })
+  @Prop({ type: Date, default: null, description: 'Дата начала', changelog: 'Изменение даты начала' })
   startDate: Date;
 
-  @Prop({ type: StatusSchema, default: {} })
+  @Prop({ type: StatusSchema, default: {}, description: 'Статус', changelog: 'Изменение статуса сделки/лида' })
   status?: StatusDeals;
 
-  @Prop({ type: Boolean, default: false })
+  @Prop({
+    type: Boolean,
+    default: false,
+    description: 'Завершенная сделка',
+    changelog: 'Изменение сделки на завершенную',
+  })
   final: boolean;
 
-  @Prop({ type: Array, default: [] })
+  @Prop({ type: Array, default: [], description: 'Тэги', changelog: 'Изменение тэгов' })
   tags: Array<string>;
 
   @Prop({ type: String, default: 'lead' })
   type: string;
 
-  @Prop({ type: Date, default: null })
-  updatedAt: Date;
-
   @Prop({ type: Array, default: [] })
   contacts: Array<any>;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Изображение', changelog: 'Изменение изображения сделки/лида' })
   avatar: Map<string, any>;
 }
 export type DealModel<T extends Document> = PaginateModel<Deals>;

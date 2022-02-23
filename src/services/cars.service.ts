@@ -4,13 +4,14 @@ import { Cars, CarsModel } from '../schemas/cars.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Companies, CompanyModel } from '../schemas/company.schema';
+import { ActivityService } from './activity.service';
 
 @Injectable()
 export class CarsService {
   private readonly carsModel: CarsModel<Cars>;
   private readonly companyModel: CompanyModel<Companies>;
 
-  constructor(@InjectConnection() private connection: Connection) {
+  constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.carsModel = this.connection.model('Cars') as CarsModel<Cars>;
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
   }
@@ -85,9 +86,11 @@ export class CarsService {
   async archiveCar(archiveData: Core.Cars.ArchiveData): Promise<Core.Response.Answer> {
     let result;
     const car = await this.carsModel.findOne({ _id: archiveData.id }).exec();
+    const oldCar = car.toObject();
     if (car) {
       car.active = archiveData.active;
-      await car.save();
+      const newCar = await this.carsModel.findOneAndUpdate({ _id: archiveData.id }, car, { new: true });
+      await this.activityService.historyData(oldCar, newCar.toObject(), this.carsModel, archiveData.userId);
       if (!car.active) {
         result = Core.ResponseSuccess('Транспорт был отправлен в архив');
       } else {
@@ -106,11 +109,14 @@ export class CarsService {
    */
   async updateCar(updateData: Core.Cars.UpdateData): Promise<Core.Response.Answer> {
     let result;
+    const car = await this.carsModel.findOne({ _id: updateData.id }).exec();
+    const oldCar = car.toObject();
     try {
-      await this.carsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
+      const newCar = await this.carsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
+      await this.activityService.historyData(oldCar, newCar.toObject(), this.carsModel, updateData.userId);
       result = Core.ResponseSuccess('Данные о транспорте изменены');
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }

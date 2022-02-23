@@ -23,7 +23,7 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:find')
-  async findLead(id: string) {
+  async findLead(@Payload() id: string) {
     return await this.appService.findLead(id);
   }
 
@@ -43,12 +43,12 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:company:update')
-  async updateLeadCompany(@Payload() updateData: { id: string; cid: string; data: Core.Company.Schema }) {
+  async updateLeadCompany(@Payload() updateData: { id: string; cid: string; data: Core.Company.Schema; owner: any }) {
     return await this.appService.updateLeadCompany(updateData);
   }
 
   @MessagePattern('leads:client:update')
-  async updateLeadClient(@Payload() updateData: { id: string; cid: string; data: Core.Client.Schema }) {
+  async updateLeadClient(@Payload() updateData: { id: string; cid: string; data: Core.Client.Schema; owner: any }) {
     return await this.appService.updateLeadClient(updateData);
   }
 

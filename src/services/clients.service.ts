@@ -3,12 +3,13 @@ import { Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Core } from 'crm-core';
 import { ClientModel, Clients } from '../schemas/clients.schema';
+import { ActivityService } from './activity.service';
 
 @Injectable()
 export class ClientService {
   private readonly clientModel: ClientModel<Clients>;
 
-  constructor(@InjectConnection() private connection: Connection) {
+  constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
   }
 
@@ -36,10 +37,12 @@ export class ClientService {
    */
   async archiveClient(archiveData: Core.Client.ArchiveData): Promise<Core.Response.Answer> {
     let result;
-    const client = await this.clientModel.findOne({ _id: archiveData.id });
+    const client = await this.clientModel.findOne({ _id: archiveData.id }).exec();
+    const oldClient = client.toObject();
     if (client) {
       client.active = archiveData.active;
-      await client.save();
+      const newClient = await this.clientModel.findOneAndUpdate({ _id: archiveData.id }, client, { new: true });
+      await this.activityService.historyData(oldClient, newClient.toObject(), this.clientModel, archiveData.userId);
       if (!client.active) {
         result = Core.ResponseSuccess('Клиент был отправлен в архив');
       } else {
@@ -64,7 +67,6 @@ export class ClientService {
         filter = Object.assign(filter, { company: data.company });
       }
       clients = await this.clientModel.paginate(filter, data.pagination);
-      console.log(clients);
       result = Core.ResponseDataRecords('Список клиентов', clients.data, clients.records);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -99,9 +101,12 @@ export class ClientService {
    */
   async updateClient(updateData: Core.Client.UpdateData): Promise<Core.Response.Answer> {
     let result;
+    const client = await this.clientModel.findOne({ _id: updateData.id }).exec();
+    const oldClient = client.toObject();
     try {
-      const client = await this.clientModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
-      result = Core.ResponseData('Клиент успешно изменен', client);
+      const newClient = await this.clientModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, { new: true });
+      await this.activityService.historyData(oldClient, newClient.toObject(), this.clientModel, updateData.userId);
+      result = Core.ResponseData('Клиент успешно изменен', newClient);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }

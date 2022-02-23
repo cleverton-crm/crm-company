@@ -6,6 +6,7 @@ import { Connection, Model } from 'mongoose';
 import { DealModel, Deals } from '../schemas/deals.schema';
 import { StatusDeals } from '../schemas/status-deals.schema';
 import { Profile } from '../schemas/profile.schema';
+import { ActivityService } from './activity.service';
 
 @Injectable()
 export class DealsService {
@@ -13,7 +14,7 @@ export class DealsService {
   private readonly statusModel: Model<StatusDeals>;
   private readonly profileModel: Model<Profile>;
 
-  constructor(@InjectConnection() private connection: Connection) {
+  constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.profileModel = this.connection.model('Profile') as Model<Profile>;
     this.dealsModel = this.connection.model('Deals') as DealModel<Deals>;
     this.statusModel = this.connection.model('StatusDeals') as Model<StatusDeals>;
@@ -71,7 +72,7 @@ export class DealsService {
         result = Core.ResponseSuccess('Сделка с таким ID не найдена');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
@@ -83,14 +84,16 @@ export class DealsService {
    */
   async archiveDeal(archiveData: Core.Deals.ArchiveData): Promise<Core.Response.Answer> {
     let result;
+    const deal = await this.dealsModel.findOne({ _id: archiveData.id }).exec();
+    const oldDeal = deal.toObject();
     try {
-      const deal = await this.dealsModel.findOne({ _id: archiveData.id }).exec();
       if (deal) {
         if (deal.final) {
           throw new BadRequestException('Сделка уже завершена и не может быть изменена');
         }
         deal.active = archiveData.active;
-        await deal.save();
+        const newDeal = await this.dealsModel.findOneAndUpdate({ _id: deal.id }, deal, { new: true }).exec();
+        await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, archiveData.userId);
         if (!deal.active) {
           result = Core.ResponseSuccess('Сделка была отправлена в архив');
         } else {
@@ -112,7 +115,8 @@ export class DealsService {
    */
   async updateDeal(updateData: Core.Deals.UpdateData): Promise<Core.Response.Answer> {
     let result;
-    const deal = await this.dealsModel.findOne({ _id: updateData.id }).exec();
+    const deal = await this.dealsModel.findOne({ _id: updateData.id, type: 'deal' }).exec();
+    const oldDeal = deal.toObject();
     try {
       if (!deal) {
         throw new BadRequestException('Сделка с таким идентификатором не найдена');
@@ -138,10 +142,8 @@ export class DealsService {
       if (!updateData.data.active && updateData.data.active !== undefined) {
         throw new BadRequestException('Для архивации сделки воспользуйтесь отдельным эндпоинтом');
       }
-
-      updateData.data.updatedAt = new Date();
-
-      await this.dealsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
+      const newDeal = await this.dealsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, { new: true });
+      await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, updateData.owner);
       result = Core.ResponseDataAsync('Сделка успешно изменена', deal);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
@@ -156,6 +158,7 @@ export class DealsService {
   async changeDealStatus(data: { id: string; sid: string; owner: any }) {
     let result;
     const deal = await this.dealsModel.findOne({ _id: data.id, type: 'deal' }).exec();
+    const oldDeal = deal.toObject();
     const status = await this.statusModel.findOne({ _id: data.sid }).exec();
     try {
       if (deal) {
@@ -164,7 +167,10 @@ export class DealsService {
         }
         if (status) {
           deal.status = status;
-          await deal.save();
+          const newDeal = await this.dealsModel.findOneAndUpdate({ _id: data.id }, deal, {
+            new: true,
+          });
+          await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, data.owner.userID);
           result = Core.ResponseSuccess('Статус сделки успешно изменен');
         } else {
           result = Core.ResponseError('Статус с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
@@ -185,6 +191,7 @@ export class DealsService {
   async changeDealOwner(data: { id: string; oid: string; owner: any }) {
     let result;
     const deal = await this.dealsModel.findOne({ _id: data.id, type: 'deal' }).exec();
+    const oldDeal = deal.toObject();
     const profile = await this.profileModel.findOne({ _id: data.oid }).exec();
     try {
       if (deal) {
@@ -193,7 +200,10 @@ export class DealsService {
         }
         if (profile) {
           deal.owner = profile.id;
-          await deal.save();
+          const newDeal = await this.dealsModel.findOneAndUpdate({ _id: data.id }, deal, {
+            new: true,
+          });
+          await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, data.owner.userID);
           result = Core.ResponseSuccess('Ответственный сделки успешно изменен');
         } else {
           result = Core.ResponseError(
@@ -218,6 +228,7 @@ export class DealsService {
   async commentDeal(commentData: Core.Deals.CommentData) {
     let result;
     const deal = await this.dealsModel.findOne({ _id: commentData.id, type: 'deal' }).exec();
+    const oldDeal = deal.toObject();
     try {
       if (deal) {
         if (deal.final) {
@@ -226,7 +237,8 @@ export class DealsService {
         deal.comments.set(Date.now().toString(), {
           [commentData.userId]: commentData.comments,
         });
-        await deal.save();
+        const newDeal = await this.dealsModel.findOneAndUpdate({ _id: commentData.id }, deal, { new: true });
+        await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, commentData.userId);
         result = Core.ResponseDataAsync('Комментарий успешно добавлен', deal);
       } else {
         result = Core.ResponseError('Сделка с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
