@@ -46,11 +46,11 @@ export class DealsService {
    * Список сделок
    * @return ({Core.Response.Answer})
    */
-  async listDeals(): Promise<Core.Response.Answer> {
+  async listDeals(pagination: Core.MongoPagination): Promise<Core.Response.RecordsData> {
     let result;
-    const deals = await this.dealsModel.find().exec();
+    const deals = await this.dealsModel.paginate({ active: true, type: 'deal' }, pagination);
     try {
-      result = Core.ResponseData('Список сделок', deals);
+      result = Core.ResponseDataRecords('Список сделок', deals.data, deals.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }

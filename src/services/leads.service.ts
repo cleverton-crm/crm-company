@@ -129,7 +129,6 @@ export class LeadsService {
    */
   async listLeads(pagination: Core.MongoPagination): Promise<Core.Response.RecordsData> {
     let result;
-    console.log(pagination);
     const leads = await this.leadsModel.paginate({ active: true, type: 'lead' }, pagination);
     try {
       result = Core.ResponseDataRecords('Список лидов', leads.data, leads.records);

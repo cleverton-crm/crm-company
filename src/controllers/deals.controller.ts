@@ -13,8 +13,8 @@ export class DealsController {
   }
 
   @MessagePattern('deals:list')
-  async listDeals() {
-    return await this.appService.listDeals();
+  async listDeals(pagination: Core.MongoPagination) {
+    return await this.appService.listDeals(pagination);
   }
 
   @MessagePattern('deals:find')
