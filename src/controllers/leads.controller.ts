@@ -18,8 +18,8 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:list')
-  async listLeads() {
-    return await this.appService.listLeads();
+  async listLeads(pagination: Core.MongoPagination) {
+    return await this.appService.listLeads(pagination);
   }
 
   @MessagePattern('leads:find')

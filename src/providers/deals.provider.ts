@@ -1,8 +1,4 @@
 import { Deals, DealSchema } from '../schemas/deals.schema';
+import { BaseProvider } from './base.provider';
 
-export const DealsProviderSchema = {
-  name: Deals.name,
-  useFactory: () => {
-    return DealSchema;
-  },
-};
+export const DealsProviderSchema = BaseProvider(Deals, DealSchema);

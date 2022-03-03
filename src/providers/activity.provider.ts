@@ -1,11 +1,4 @@
 import { Activity, ActivitySchema } from '../schemas/activity.schema';
+import { BaseProvider } from './base.provider';
 
-export const ActivityProviderSchema = {
-  name: Activity.name,
-  useFactory: () => {
-    ActivitySchema.set('toJSON', { virtuals: true });
-    ActivitySchema.set('toObject', { virtuals: true });
-
-    return ActivitySchema;
-  },
-};
+export const ActivityProviderSchema = BaseProvider(Activity, ActivitySchema);

@@ -127,13 +127,14 @@ export class LeadsService {
    * Список лидов
    * @return ({Core.Response.Answer})
    */
-  async listLeads(): Promise<Core.Response.Answer> {
+  async listLeads(pagination: Core.MongoPagination): Promise<Core.Response.RecordsData> {
     let result;
-    const leads = await this.leadsModel.find().exec();
+    console.log(pagination);
+    const leads = await this.leadsModel.paginate({ active: true, type: 'lead' }, pagination);
     try {
-      result = Core.ResponseData('Список лидов', leads);
+      result = Core.ResponseDataRecords('Список лидов', leads.data, leads.records);
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }

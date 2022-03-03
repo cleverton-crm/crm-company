@@ -1,8 +1,4 @@
 import { StatusDeals, StatusSchema } from '../schemas/status-deals.schema';
+import { BaseProvider } from './base.provider';
 
-export const StatusDealsProviderSchema = {
-  name: StatusDeals.name,
-  useFactory: () => {
-    return StatusSchema;
-  },
-};
+export const StatusDealsProviderSchema = BaseProvider(StatusDeals, StatusSchema);
