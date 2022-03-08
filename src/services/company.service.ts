@@ -4,15 +4,24 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Companies, CompanyModel, ListCompany } from 'src/schemas/company.schema';
 import { Core } from 'crm-core';
 import { ActivityService } from './activity.service';
+import { Cars, CarsModel } from '../schemas/cars.schema';
+import { ClientModel, Clients } from '../schemas/clients.schema';
+import { DealModel, Deals } from '../schemas/deals.schema';
 
 @Injectable()
 export class CompanyService {
   private readonly companyModel: CompanyModel<Companies>;
   private readonly listCompanyModel: Model<ListCompany>;
+  private readonly carsModel: CarsModel<Cars>;
+  private readonly clientModel: ClientModel<Clients>;
+  private readonly dealsModel: DealModel<Deals>;
 
   constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
     this.listCompanyModel = this.connection.model('ListCompany');
+    this.carsModel = this.connection.model('Cars') as CarsModel<Cars>;
+    this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
+    this.dealsModel = this.connection.model('Deals') as DealModel<Deals>;
   }
 
   /**
@@ -41,11 +50,14 @@ export class CompanyService {
   async archiveCompany(archiveData: Core.Company.ArchiveData): Promise<Core.Response.Answer> {
     let result;
     const company = await this.companyModel.findOne({ _id: archiveData.id }).exec();
-    const oldCompany = company.toObject();
     try {
       if (company) {
+        const oldCompany = company.toObject();
         company.active = archiveData.active;
         const newCompany = await this.companyModel.findOneAndUpdate({ _id: archiveData.id }, company, { new: true });
+        await this.carsModel.updateMany({ company: archiveData.id }, { $set: { active: archiveData.active } });
+        await this.clientModel.updateMany({ company: archiveData.id }, { $set: { active: archiveData.active } });
+        await this.dealsModel.updateMany({ company: archiveData.id }, { $set: { active: archiveData.active } });
         await this.activityService.historyData(
           oldCompany,
           newCompany.toObject(),
@@ -61,7 +73,7 @@ export class CompanyService {
         result = Core.ResponseError('Компания с таким ID не найдена', HttpStatus.OK, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
