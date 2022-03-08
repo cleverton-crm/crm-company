@@ -42,7 +42,7 @@ export class CarsService {
    * Список всех машин
    * @return ({Core.Response.Answer})
    */
-  async listCars(data: { company: string }): Promise<Core.Response.Answer> {
+  async listCars(data: { company: string; pagination: Core.MongoPagination }): Promise<Core.Response.Answer> {
     let result;
     let cars;
     let filter = {};
@@ -50,8 +50,8 @@ export class CarsService {
       if (data.company) {
         filter = Object.assign(filter, { company: data.company });
       }
-      cars = await this.carsModel.find(filter).exec();
-      result = Core.ResponseData('List of cars', cars);
+      cars = await this.carsModel.paginate(filter, data.pagination);
+      result = Core.ResponseDataRecords('Список транспорта', cars.data, cars.records);
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }

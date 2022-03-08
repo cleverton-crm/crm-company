@@ -13,7 +13,7 @@ export class CarsController {
   }
 
   @MessagePattern('cars:list')
-  async listCars(@Payload() data: { company: string }) {
+  async listCars(@Payload() data: { company: string; pagination: Core.MongoPagination }) {
     return await this.appService.listCars(data);
   }
 
