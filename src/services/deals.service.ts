@@ -1,5 +1,5 @@
 import { Core } from 'crm-core';
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
@@ -7,17 +7,20 @@ import { DealModel, Deals } from '../schemas/deals.schema';
 import { StatusDeals } from '../schemas/status-deals.schema';
 import { Profile } from '../schemas/profile.schema';
 import { ActivityService } from './activity.service';
+import { ClientModel, Clients } from '../schemas/clients.schema';
 
 @Injectable()
 export class DealsService {
   private readonly dealsModel: DealModel<Deals>;
   private readonly statusModel: Model<StatusDeals>;
   private readonly profileModel: Model<Profile>;
+  private readonly clientModel: ClientModel<Clients>;
 
   constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.profileModel = this.connection.model('Profile') as Model<Profile>;
     this.dealsModel = this.connection.model('Deals') as DealModel<Deals>;
     this.statusModel = this.connection.model('StatusDeals') as Model<StatusDeals>;
+    this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
   }
 
   /**
@@ -27,15 +30,22 @@ export class DealsService {
    */
   async createDeal(dealData: { data: Core.Deals.Schema; owner: any }): Promise<Core.Response.Answer> {
     let result;
+    let client;
     try {
-      const deal = new this.dealsModel(dealData.data);
-      deal.owner = dealData.owner.userID;
-      deal.type = 'deal';
-      deal.author = dealData.owner.userID;
-      const status = await this.statusModel.findOne({ priority: 1, locked: true }).exec();
-      deal.status = status;
-      await deal.save();
-      result = Core.ResponseSuccess('Сделка успешно создана');
+      client = await this.clientModel.findOne({ _id: dealData.data.client, active: true }).exec();
+      if (client) {
+        const deal = new this.dealsModel(dealData.data);
+        deal.owner = dealData.owner.userID;
+        deal.type = 'deal';
+        deal.company = client.company || null;
+        deal.author = dealData.owner.userID;
+        const status = await this.statusModel.findOne({ priority: 1, locked: true }).exec();
+        deal.status = status;
+        await deal.save();
+        result = Core.ResponseSuccess('Сделка успешно создана');
+      } else {
+        result = Core.ResponseError('Клиент с таким ID не найден', HttpStatus.OK, 'Not Found');
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
