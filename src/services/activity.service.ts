@@ -1,16 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
-import { Activity } from 'src/schemas/activity.schema';
+import { Activity, ActivityModel } from 'src/schemas/activity.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
+import { Core } from 'crm-core';
 
 @Injectable()
 export class ActivityService {
-  private readonly activityModel: Model<Activity>;
+  private readonly activityModel: ActivityModel<Activity>;
   private readonly logger = new Logger(ActivityService.name);
 
   constructor(@InjectConnection() private connection: Connection, private jwtService: JwtService) {
-    this.activityModel = this.connection.model('Activity') as Model<Activity>;
+    this.activityModel = this.connection.model('Activity') as ActivityModel<Activity>;
   }
 
   /**
@@ -107,5 +108,39 @@ export class ActivityService {
     }
 
     return true;
+  }
+
+  /**
+   * Список историй изменений
+   * @param pagination
+   */
+  async listActivity(pagination: Core.MongoPagination) {
+    let result;
+    const activity = await this.activityModel.paginate({}, pagination);
+    try {
+      result = Core.ResponseDataRecords('Список историй изменений', activity.data, activity.records);
+    } catch (e) {
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+    }
+    return result;
+  }
+
+  /**
+   * Поиск истории по ID
+   * @param id
+   */
+  async findActivity(id: string) {
+    let result;
+    const activity = await this.activityModel.findOne({ _id: id }).exec();
+    try {
+      if (activity !== null) {
+        result = Core.ResponseData('История изменения найдена', activity);
+      } else {
+        result = Core.ResponseSuccess('История изменения с таким идентификатором не найдена');
+      }
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
   }
 }
