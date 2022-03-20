@@ -18,8 +18,8 @@ export class CompanyController {
   }
 
   @MessagePattern('company:list')
-  async listCompanies(pagination: Core.MongoPagination) {
-    return await this.appService.listCompanies(pagination);
+  async listCompanies(data: { searchFilter: string; pagination: Core.MongoPagination; req: any }) {
+    return await this.appService.listCompanies(data);
   }
 
   @MessagePattern('company:find')

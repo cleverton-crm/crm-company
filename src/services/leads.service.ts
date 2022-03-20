@@ -127,10 +127,18 @@ export class LeadsService {
    * Список лидов
    * @return ({Core.Response.Answer})
    */
-  async listLeads(pagination: Core.MongoPagination): Promise<Core.Response.RecordsData> {
+  async listLeads(data: any): Promise<Core.Response.RecordsData> {
     let result;
-    const leads = await this.leadsModel.paginate({ active: true, type: 'lead' }, pagination);
+    const { pagination, searchFilter, req, active, company, client, status, fuelType, source, createdAt, updatedAt } =
+      data;
+    let filter = {};
+    filter = Object.assign(filter, req.filterQuery);
+    filter = searchFilter ? Object.assign(filter, { name: { $regex: searchFilter, $options: 'i' } }) : filter;
+    filter = status ? Object.assign(filter, { 'status._id': status }) : filter;
+    filter = fuelType ? Object.assign(filter, { fuelType: { $regex: fuelType, $options: 'i' } }) : filter;
+    filter = source ? Object.assign(filter, { source: { $regex: source, $options: 'i' } }) : filter;
     try {
+      const leads = await this.leadsModel.paginate({ active, type: 'lead', ...filter }, pagination);
       result = Core.ResponseDataRecords('Список лидов', leads.data, leads.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);

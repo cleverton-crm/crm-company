@@ -251,15 +251,15 @@ export class CompanyRequisitesFinance {
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
 export class CompanyBank {
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: '' })
   bank?: string;
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: '' })
   bankAddress?: string;
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: '' })
   bik?: string;
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: '' })
   correspondent?: string;
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: '' })
   payment?: string;
 }
 

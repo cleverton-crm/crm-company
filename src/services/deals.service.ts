@@ -56,10 +56,20 @@ export class DealsService {
    * Список сделок
    * @return ({Core.Response.Answer})
    */
-  async listDeals(pagination: Core.MongoPagination): Promise<Core.Response.RecordsData> {
+  async listDeals(data: any): Promise<Core.Response.RecordsData> {
+    const { pagination, searchFilter, req, active, company, client, status, fuelType, source, createdAt, updatedAt } =
+      data;
     let result;
-    const deals = await this.dealsModel.paginate({ active: true, type: 'deal' }, pagination);
+    let filter = {};
+    filter = Object.assign(filter, req.filterQuery);
+    filter = searchFilter ? Object.assign(filter, { name: { $regex: searchFilter, $options: 'i' } }) : filter;
+    filter = company ? Object.assign(filter, { company: company }) : filter;
+    filter = client ? Object.assign(filter, { client: client }) : filter;
+    filter = status ? Object.assign(filter, { 'status._id': status }) : filter;
+    filter = fuelType ? Object.assign(filter, { fuelType: { $regex: fuelType, $options: 'i' } }) : filter;
+    filter = source ? Object.assign(filter, { source: { $regex: source, $options: 'i' } }) : filter;
     try {
+      const deals = await this.dealsModel.paginate({ active, type: 'deal', ...filter }, pagination);
       result = Core.ResponseDataRecords('Список сделок', deals.data, deals.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
@@ -167,11 +177,11 @@ export class DealsService {
    */
   async changeDealStatus(data: { id: string; sid: string; owner: any }) {
     let result;
-    const deal = await this.dealsModel.findOne({ _id: data.id, type: 'deal' }).exec();
-    const oldDeal = deal.toObject();
-    const status = await this.statusModel.findOne({ _id: data.sid }).exec();
     try {
+      const deal = await this.dealsModel.findOne({ _id: data.id, type: 'deal' }).exec();
       if (deal) {
+        const oldDeal = deal.toObject();
+        const status = await this.statusModel.findOne({ _id: data.sid }).exec();
         if (deal.final) {
           throw new BadRequestException('Сделка уже завершена и не может быть изменена');
         }

@@ -82,13 +82,28 @@ export class CompanyService {
    * Список компаний
    * @return({Core.Company.Schema[]})
    */
-  async listCompanies(pagination: Core.MongoPagination): Promise<Core.Response.RecordsData> {
+  async listCompanies(data: {
+    searchFilter: string;
+    pagination: Core.MongoPagination;
+    req: any;
+  }): Promise<Core.Response.RecordsData> {
     let result;
+    let filter = data.req.user.filterQuery;
+    if (data.searchFilter) {
+      filter = Object.assign(filter, {
+        $or: [
+          { name: { $regex: data.searchFilter, $options: 'i' } },
+          { inn: { $regex: data.searchFilter, $options: 'i' } },
+          { 'requisites.data.emails': { $regex: data.searchFilter, $options: 'i' } },
+          { 'bank.bank': { $regex: data.searchFilter, $options: 'i' } },
+        ],
+      });
+    }
     try {
-      const company = await this.companyModel.paginate({ active: true }, pagination);
+      const company = await this.companyModel.paginate({ active: true, ...filter }, data.pagination);
       result = Core.ResponseDataRecords('Список компаний', company.data, company.records);
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }

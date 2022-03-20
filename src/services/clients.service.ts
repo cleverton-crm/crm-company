@@ -58,18 +58,34 @@ export class ClientService {
    * Список компаний
    * @return({Core.Client.Schema[]})
    */
-  async listClients(data: { company: string; pagination: Core.MongoPagination }): Promise<Core.Response.RecordsData> {
+  async listClients(data: {
+    company: string;
+    searchFilter: string;
+    pagination: Core.MongoPagination;
+    req: any;
+  }): Promise<Core.Response.RecordsData> {
     let result;
-    let filter = {};
+    let filter = data.req.user.filterQuery;
     let clients;
+    if (data.searchFilter) {
+      filter = Object.assign(filter, {
+        $or: [
+          { first: { $regex: data.searchFilter, $options: 'i' } },
+          { last: { $regex: data.searchFilter, $options: 'i' } },
+          { middle: { $regex: data.searchFilter, $options: 'i' } },
+          { email: { $regex: data.searchFilter, $options: 'i' } },
+          { workPhone: { $regex: data.searchFilter, $options: 'i' } },
+        ],
+      });
+    }
+    if (data.company) {
+      filter = Object.assign(filter, { company: data.company });
+    }
     try {
-      if (data.company) {
-        filter = Object.assign(filter, { company: data.company });
-      }
-      clients = await this.clientModel.paginate(filter, data.pagination);
+      clients = await this.clientModel.paginate({ active: true, ...filter }, data.pagination);
       result = Core.ResponseDataRecords('Список клиентов', clients.data, clients.records);
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
