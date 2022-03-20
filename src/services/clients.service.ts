@@ -65,7 +65,7 @@ export class ClientService {
     req: any;
   }): Promise<Core.Response.RecordsData> {
     let result;
-    let filter = data.req.user.filterQuery;
+    let filter = data.req?.filterQuery;
     let clients;
     if (data.searchFilter) {
       filter = Object.assign(filter, {

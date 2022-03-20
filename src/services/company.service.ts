@@ -88,7 +88,7 @@ export class CompanyService {
     req: any;
   }): Promise<Core.Response.RecordsData> {
     let result;
-    let filter = data.req.user.filterQuery;
+    let filter = data.req?.filterQuery;
     if (data.searchFilter) {
       filter = Object.assign(filter, {
         $or: [
