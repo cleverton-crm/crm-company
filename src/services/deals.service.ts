@@ -8,6 +8,7 @@ import { StatusDeals } from '../schemas/status-deals.schema';
 import { Profile } from '../schemas/profile.schema';
 import { ActivityService } from './activity.service';
 import { ClientModel, Clients } from '../schemas/clients.schema';
+import { Companies, CompanyModel } from '../schemas/company.schema';
 
 @Injectable()
 export class DealsService {
@@ -15,9 +16,11 @@ export class DealsService {
   private readonly statusModel: Model<StatusDeals>;
   private readonly profileModel: Model<Profile>;
   private readonly clientModel: ClientModel<Clients>;
+  private readonly companyModel: CompanyModel<Companies>;
 
   constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.profileModel = this.connection.model('Profile') as Model<Profile>;
+    this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
     this.dealsModel = this.connection.model('Deals') as DealModel<Deals>;
     this.statusModel = this.connection.model('StatusDeals') as Model<StatusDeals>;
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
@@ -30,9 +33,15 @@ export class DealsService {
    */
   async createDeal(dealData: { data: Core.Deals.Schema; owner: any }): Promise<Core.Response.Answer> {
     let result;
-    let client;
+    let client, company;
     try {
       client = await this.clientModel.findOne({ _id: dealData.data.client, active: true }).exec();
+      if (dealData.data.company) {
+        company = await this.companyModel.findOne({ _id: dealData.data.company, active: true }).exec();
+        if (!company) {
+          throw new BadRequestException('Компания с таким ID не найдена');
+        }
+      }
       if (client) {
         const deal = new this.dealsModel(dealData.data);
         deal.owner = dealData.owner.userID;
