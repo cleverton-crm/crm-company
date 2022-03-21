@@ -129,14 +129,29 @@ export class LeadsService {
    */
   async listLeads(data: any): Promise<Core.Response.RecordsData> {
     let result;
-    const { pagination, searchFilter, req, active, company, client, status, fuelType, source, createdAt, updatedAt } =
-      data;
+    const {
+      pagination,
+      searchFilter,
+      req,
+      active,
+      status,
+      fuelType,
+      source,
+      createdAt,
+      updatedAt,
+      startDate,
+      endDate,
+    } = data;
     let filter = {};
     filter = Object.assign(filter, req.filterQuery);
     filter = searchFilter ? Object.assign(filter, { name: { $regex: searchFilter, $options: 'i' } }) : filter;
     filter = status ? Object.assign(filter, { 'status._id': status }) : filter;
     filter = fuelType ? Object.assign(filter, { fuelType: { $regex: fuelType, $options: 'i' } }) : filter;
     filter = source ? Object.assign(filter, { source: { $regex: source, $options: 'i' } }) : filter;
+    filter = createdAt ? Object.assign(filter, { createdAt: { $gte: createdAt, $lte: new Date() } }) : filter;
+    filter = updatedAt ? Object.assign(filter, { createdAt: { $gte: updatedAt, $lte: new Date() } }) : filter;
+    filter = startDate ? Object.assign(filter, { startDate: { $gte: startDate, $lte: new Date() } }) : filter;
+    filter = endDate ? Object.assign(filter, { endDate: { $gte: endDate, $lte: new Date() } }) : filter;
     try {
       const leads = await this.leadsModel.paginate({ active, type: 'lead', ...filter }, pagination);
       result = Core.ResponseDataRecords('Список лидов', leads.data, leads.records);

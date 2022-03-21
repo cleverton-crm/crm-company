@@ -68,6 +68,8 @@ export class DealsService {
     filter = status ? Object.assign(filter, { 'status._id': status }) : filter;
     filter = fuelType ? Object.assign(filter, { fuelType: { $regex: fuelType, $options: 'i' } }) : filter;
     filter = source ? Object.assign(filter, { source: { $regex: source, $options: 'i' } }) : filter;
+    filter = createdAt ? Object.assign(filter, { createdAt: { $gte: createdAt, $lte: new Date() } }) : filter;
+    filter = updatedAt ? Object.assign(filter, { updatedAt: { $gte: updatedAt, $lte: new Date() } }) : filter;
     try {
       const deals = await this.dealsModel.paginate({ active, type: 'deal', ...filter }, pagination);
       result = Core.ResponseDataRecords('Список сделок', deals.data, deals.records);

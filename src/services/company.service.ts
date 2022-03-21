@@ -86,6 +86,8 @@ export class CompanyService {
     searchFilter: string;
     pagination: Core.MongoPagination;
     req: any;
+    createdAt: string;
+    updatedAt: string;
   }): Promise<Core.Response.RecordsData> {
     let result;
     let filter = data.req?.filterQuery;
@@ -99,6 +101,8 @@ export class CompanyService {
         ],
       });
     }
+    filter = data.createdAt ? Object.assign(filter, { createdAt: { $gte: data.createdAt, $lte: new Date() } }) : filter;
+    filter = data.updatedAt ? Object.assign(filter, { updatedAt: { $gte: data.updatedAt, $lte: new Date() } }) : filter;
     try {
       const company = await this.companyModel.paginate({ active: true, ...filter }, data.pagination);
       result = Core.ResponseDataRecords('Список компаний', company.data, company.records);
