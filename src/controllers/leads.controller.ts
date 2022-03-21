@@ -22,6 +22,16 @@ export class LeadsController {
     return await this.appService.listLeads(data);
   }
 
+  @MessagePattern('leads:clients:list')
+  async listLeadClients(@Payload() pagination: Core.MongoPagination) {
+    return await this.appService.listLeadClients(pagination);
+  }
+
+  @MessagePattern('leads:companies:list')
+  async listLeadCompanies(@Payload() pagination: Core.MongoPagination) {
+    return await this.appService.listLeadCompanies(pagination);
+  }
+
   @MessagePattern('leads:find')
   async findLead(@Payload() id: string) {
     return await this.appService.findLead(id);

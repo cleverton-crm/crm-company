@@ -38,8 +38,8 @@ export class ClientService {
   async archiveClient(archiveData: Core.Client.ArchiveData): Promise<Core.Response.Answer> {
     let result;
     const client = await this.clientModel.findOne({ _id: archiveData.id }).exec();
-    const oldClient = client.toObject();
     if (client) {
+      const oldClient = client.toObject();
       client.active = archiveData.active;
       const newClient = await this.clientModel.findOneAndUpdate({ _id: archiveData.id }, client, { new: true });
       await this.activityService.historyData(oldClient, newClient.toObject(), this.clientModel, archiveData.userId);
@@ -124,11 +124,16 @@ export class ClientService {
   async updateClient(updateData: Core.Client.UpdateData): Promise<Core.Response.Answer> {
     let result;
     const client = await this.clientModel.findOne({ _id: updateData.id }).exec();
-    const oldClient = client.toObject();
+    let oldClient;
     try {
-      const newClient = await this.clientModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, { new: true });
-      await this.activityService.historyData(oldClient, newClient.toObject(), this.clientModel, updateData.userId);
-      result = Core.ResponseData('Клиент успешно изменен', newClient);
+      if (client) {
+        oldClient = client.toObject();
+        const newClient = await this.clientModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, {
+          new: true,
+        });
+        await this.activityService.historyData(oldClient, newClient.toObject(), this.clientModel, updateData.userId);
+        result = Core.ResponseData('Клиент успешно изменен', newClient);
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
     }

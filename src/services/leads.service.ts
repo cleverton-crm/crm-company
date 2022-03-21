@@ -101,8 +101,8 @@ export class LeadsService {
     let result;
     try {
       const lead = await this.leadsModel.findOne({ _id: archiveData.id });
-      const oldLead = lead.toObject();
       if (lead) {
+        const oldLead = lead.toObject();
         if (lead.final) {
           throw new BadRequestException('Нельзя изменять законченный лид');
         }
@@ -232,9 +232,9 @@ export class LeadsService {
   async commentLead(commentData: Core.Deals.CommentData) {
     let result;
     const lead = await this.leadsModel.findOne({ _id: commentData.id, type: 'lead' }).exec();
-    const oldLead = lead.toObject();
     try {
       if (lead) {
+        const oldLead = lead.toObject();
         if (lead.final) {
           throw new BadRequestException('Нельзя изменять законченный лид');
         }
@@ -260,10 +260,10 @@ export class LeadsService {
   async changeLeadStatus(data: { id: string; sid: string; owner: any }) {
     let result;
     const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
-    const oldLead = lead.toObject();
     const status = await this.statusModel.findOne({ _id: data.sid }).exec();
     try {
       if (lead) {
+        const oldLead = lead.toObject();
         if (lead.final) {
           throw new BadRequestException('Нельзя изменять законченный лид');
         }
@@ -291,10 +291,10 @@ export class LeadsService {
   async changeLeadOwner(data: { id: string; oid: string; owner: any }) {
     let result;
     const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
-    const oldLead = lead.toObject();
     const profile = await this.profileModel.findOne({ _id: data.oid }).exec();
     try {
       if (lead) {
+        const oldLead = lead.toObject();
         if (lead.final) {
           throw new BadRequestException('Нельзя изменять законченный лид');
         }
@@ -326,11 +326,15 @@ export class LeadsService {
   async failureLead(data: { id: string; owner: any }) {
     let result;
     const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
-    const oldLead = lead.toObject();
     try {
-      const newLead = await this.leadsModel.findOneAndUpdate({ _id: data.id, type: 'lead' }, { active: false }).exec();
-      await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userID);
-      result = Core.ResponseSuccess('Лид был отменен');
+      if (lead) {
+        const oldLead = lead.toObject();
+        const newLead = await this.leadsModel
+          .findOneAndUpdate({ _id: data.id, type: 'lead' }, { active: false })
+          .exec();
+        await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userID);
+        result = Core.ResponseSuccess('Лид был отменен');
+      }
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
@@ -346,9 +350,9 @@ export class LeadsService {
     let result, newCompany, newClient;
     try {
       const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
-      const oldLead = lead.toObject();
       const status = await this.statusModel.findOne({ priority: 9999 }).exec();
       if (lead) {
+        const oldLead = lead.toObject();
         if (lead.status.priority === 1) {
           throw new BadRequestException('Новый лид нельзя переводить в законченную сделку');
         }
@@ -417,8 +421,8 @@ export class LeadsService {
     let result;
     try {
       const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead' }).exec();
-      const oldLead = lead.toObject();
       if (lead) {
+        const oldLead = lead.toObject();
         const company = await this.leadCompanyModel.findOne({ _id: updateData.cid }).exec();
         if (company && lead.company === company.id) {
           const newLead = await this.leadCompanyModel.findOneAndUpdate({ _id: updateData.cid }, updateData.data);
@@ -448,10 +452,9 @@ export class LeadsService {
     let result;
     try {
       const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead' }).exec();
-      const oldLead = lead.toObject();
       if (lead) {
+        const oldLead = lead.toObject();
         const client = await this.leadClientModel.findOne({ _id: updateData.cid }).exec();
-        console.log(updateData.cid);
         if (client && lead.client === client.id) {
           const newLead = await this.leadClientModel.findOneAndUpdate({ _id: updateData.cid }, updateData.data);
           await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, updateData.owner.userID);
@@ -468,6 +471,28 @@ export class LeadsService {
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
+
+  async listLeadClients(pagination: Core.MongoPagination) {
+    let result;
+    const leadClients = await this.leadClientModel.paginate({ active: true }, pagination);
+    try {
+      result = Core.ResponseDataRecords('Список клиентов лидов', leadClients.data, leadClients.records);
+    } catch (e) {
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+    }
+    return result;
+  }
+
+  async listLeadCompanies(pagination: Core.MongoPagination) {
+    let result;
+    const leadCompanies = await this.leadCompanyModel.paginate({ active: true }, pagination);
+    try {
+      result = Core.ResponseDataRecords('Список компании лидов', leadCompanies.data, leadCompanies.records);
+    } catch (e) {
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }

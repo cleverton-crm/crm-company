@@ -139,8 +139,11 @@ export class CompanyService {
   async updateCompany(updateData: Core.Company.UpdateData): Promise<Core.Response.Answer> {
     let result;
     const company = await this.companyModel.findOne({ _id: updateData.id }).exec();
-    const oldCompany = company.toObject();
+    let oldCompany;
     try {
+      if (company) {
+        oldCompany = company.toObject();
+      }
       const newCompany = await this.companyModel
         .findOneAndUpdate(
           { _id: updateData.id },
