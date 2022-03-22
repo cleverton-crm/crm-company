@@ -90,20 +90,21 @@ export class DealsService {
 
   /**
    * Поиск сделки
-   * @param id
    * @return ({Core.Response.Answer})
+   * @param data
    */
-  async findDeal(id: string): Promise<Core.Response.Answer> {
+  async findDeal(data: { id: string; req: any }): Promise<Core.Response.Answer> {
     let result;
-    const deal = await this.dealsModel.findOne({ _id: id }).exec();
+    let filter = data.req?.filterQuery;
     try {
+      const deal = await this.dealsModel.findOne({ _id: data.id, filter }).exec();
       if (deal !== null) {
         result = Core.ResponseData('Сделка найдена', deal);
       } else {
-        result = Core.ResponseSuccess('Сделка с таким ID не найдена');
+        result = Core.ResponseError('Сделка с таким ID не найдена', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -113,25 +114,26 @@ export class DealsService {
    * @param archiveData
    * @return ({Core.Response.Answer})
    */
-  async archiveDeal(archiveData: Core.Deals.ArchiveData): Promise<Core.Response.Answer> {
+  async archiveDeal(archiveData: { id: string; req: any; active: boolean }): Promise<Core.Response.Answer> {
     let result;
-    const deal = await this.dealsModel.findOne({ _id: archiveData.id }).exec();
-    const oldDeal = deal.toObject();
+    let filter = archiveData.req?.filterQuery;
+    const deal = await this.dealsModel.findOne({ _id: archiveData.id, filter }).exec();
     try {
       if (deal) {
+        const oldDeal = deal.toObject();
         if (deal.final) {
           throw new BadRequestException('Сделка уже завершена и не может быть изменена');
         }
         deal.active = archiveData.active;
         const newDeal = await this.dealsModel.findOneAndUpdate({ _id: deal.id }, deal, { new: true }).exec();
-        await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, archiveData.userId);
+        await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, archiveData.req.userID);
         if (!deal.active) {
           result = Core.ResponseSuccess('Сделка была отправлена в архив');
         } else {
           result = Core.ResponseSuccess('Сделка была разархивирована');
         }
       } else {
-        result = Core.ResponseError('Сделка с таким ID не найдена', HttpStatus.OK, 'Not Found');
+        result = Core.ResponseError('Сделка с таким ID не найдена', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -144,13 +146,15 @@ export class DealsService {
    * @param updateData
    * @return ({Core.Response.Answer})
    */
-  async updateDeal(updateData: Core.Deals.UpdateData): Promise<Core.Response.Answer> {
-    let result;
-    const deal = await this.dealsModel.findOne({ _id: updateData.id, type: 'deal' }).exec();
-    const oldDeal = deal.toObject();
+  async updateDeal(updateData: { id: string; req: any; data: Core.Deals.Schema }): Promise<Core.Response.Answer> {
+    let result, oldDeal;
+    let filter = updateData.req?.filterQuery;
     try {
+      const deal = await this.dealsModel.findOne({ _id: updateData.id, type: 'deal', filter }).exec();
       if (!deal) {
-        throw new BadRequestException('Сделка с таким идентификатором не найдена');
+        throw new NotFoundException('Сделка с таким идентификатором не найдена');
+      } else {
+        oldDeal = deal.toObject();
       }
       if (deal.final) {
         throw new BadRequestException('Сделка уже завершена и не может быть изменена');
@@ -166,7 +170,7 @@ export class DealsService {
       }
       if (
         (updateData.data.owner !== undefined && updateData.data.owner !== deal.owner) ||
-        (updateData.data.owner !== undefined && deal.owner !== updateData.owner.userID)
+        (updateData.data.owner !== undefined && deal.owner !== updateData.req.userID)
       ) {
         throw new BadRequestException('Для смены ответственного воспользуйтесь отдельным эндпоинтом');
       }
@@ -174,7 +178,7 @@ export class DealsService {
         throw new BadRequestException('Для архивации сделки воспользуйтесь отдельным эндпоинтом');
       }
       const newDeal = await this.dealsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, { new: true });
-      await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, updateData.owner);
+      await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, updateData.req.userID);
       result = Core.ResponseDataAsync('Сделка успешно изменена', deal);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
@@ -188,8 +192,9 @@ export class DealsService {
    */
   async changeDealStatus(data: { id: string; sid: string; owner: any }) {
     let result;
+    let filter = data.owner?.filterQuery;
     try {
-      const deal = await this.dealsModel.findOne({ _id: data.id, type: 'deal' }).exec();
+      const deal = await this.dealsModel.findOne({ _id: data.id, type: 'deal', filter }).exec();
       if (deal) {
         const oldDeal = deal.toObject();
         const status = await this.statusModel.findOne({ _id: data.sid }).exec();
@@ -204,10 +209,10 @@ export class DealsService {
           await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, data.owner.userID);
           result = Core.ResponseSuccess('Статус сделки успешно изменен');
         } else {
-          result = Core.ResponseError('Статус с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+          result = Core.ResponseError('Статус с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
         }
       } else {
-        result = Core.ResponseError('Сделка с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Сделка с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -221,11 +226,12 @@ export class DealsService {
    */
   async changeDealOwner(data: { id: string; oid: string; owner: any }) {
     let result;
-    const deal = await this.dealsModel.findOne({ _id: data.id, type: 'deal' }).exec();
-    const oldDeal = deal.toObject();
+    let filter = data.owner?.filterQuery;
+    const deal = await this.dealsModel.findOne({ _id: data.id, type: 'deal', filter }).exec();
     const profile = await this.profileModel.findOne({ _id: data.oid }).exec();
     try {
       if (deal) {
+        const oldDeal = deal.toObject();
         if (deal.final) {
           throw new BadRequestException('Сделка уже завершена и не может быть изменена');
         }
@@ -239,12 +245,12 @@ export class DealsService {
         } else {
           result = Core.ResponseError(
             'Ответственный с таким ID не существует в базе',
-            HttpStatus.BAD_REQUEST,
-            'Bad Request',
+            HttpStatus.NOT_FOUND,
+            'Not Found',
           );
         }
       } else {
-        result = Core.ResponseError('Сделка с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Сделка с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -256,23 +262,24 @@ export class DealsService {
    * Комментарий для сделки
    * @param commentData
    */
-  async commentDeal(commentData: Core.Deals.CommentData) {
+  async commentDeal(commentData: { id: string; req: any; comments: string }) {
     let result;
-    const deal = await this.dealsModel.findOne({ _id: commentData.id, type: 'deal' }).exec();
-    const oldDeal = deal.toObject();
+    let filter = commentData.req?.filterQuery;
+    const deal = await this.dealsModel.findOne({ _id: commentData.id, type: 'deal', filter }).exec();
     try {
       if (deal) {
+        const oldDeal = deal.toObject();
         if (deal.final) {
           throw new BadRequestException('Сделка уже завершена и не может быть изменена');
         }
         deal.comments.set(Date.now().toString(), {
-          [commentData.userId]: commentData.comments,
+          [commentData.req.userID]: commentData.comments,
         });
         const newDeal = await this.dealsModel.findOneAndUpdate({ _id: commentData.id }, deal, { new: true });
-        await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, commentData.userId);
+        await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, commentData.req.userID);
         result = Core.ResponseDataAsync('Комментарий успешно добавлен', deal);
       } else {
-        result = Core.ResponseError('Сделка с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Сделка с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);

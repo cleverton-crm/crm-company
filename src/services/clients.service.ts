@@ -32,25 +32,35 @@ export class ClientService {
 
   /**
    * Архивация клиента
-   * @param {Core.Client.ArchiveData} archiveData
    * @return ({Core.Response.Answer})
    */
-  async archiveClient(archiveData: Core.Client.ArchiveData): Promise<Core.Response.Answer> {
+  async archiveClient(archiveData: { id: string; req: any; active: boolean }): Promise<Core.Response.Answer> {
     let result;
-    const client = await this.clientModel.findOne({ _id: archiveData.id }).exec();
-    if (client) {
-      const oldClient = client.toObject();
-      client.active = archiveData.active;
-      const newClient = await this.clientModel.findOneAndUpdate({ _id: archiveData.id }, client, { new: true });
-      await this.activityService.historyData(oldClient, newClient.toObject(), this.clientModel, archiveData.userId);
-      if (!client.active) {
-        result = Core.ResponseSuccess('Клиент был отправлен в архив');
+    let filter = archiveData.req?.filterQuery;
+    try {
+      const client = await this.clientModel.findOne({ _id: archiveData.id, filter }).exec();
+      if (client) {
+        const oldClient = client.toObject();
+        client.active = archiveData.active;
+        const newClient = await this.clientModel.findOneAndUpdate({ _id: archiveData.id }, client, { new: true });
+        await this.activityService.historyData(
+          oldClient,
+          newClient.toObject(),
+          this.clientModel,
+          archiveData.req.userID,
+        );
+        if (!client.active) {
+          result = Core.ResponseSuccess('Клиент был отправлен в архив');
+        } else {
+          result = Core.ResponseSuccess('Клиент был разархивирован');
+        }
       } else {
-        result = Core.ResponseSuccess('Клиент был разархивирован');
+        result = Core.ResponseError('Клиент с таким ID не найден', HttpStatus.OK, 'Not Found');
       }
-    } else {
-      result = Core.ResponseError('Клиент с таким id не найден', HttpStatus.OK, 'Not Found');
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
+
     return result;
   }
 
@@ -99,16 +109,17 @@ export class ClientService {
   /**
    * Поиск клиента по ID
    * @return({Core.Client.Schema[]})
-   * @param id
+   * @param data
    */
-  async findClient(id: string): Promise<Core.Client.Schema> {
+  async findClient(data: { id: string; req: any }): Promise<Core.Client.Schema> {
     let result;
-    const client = await this.clientModel.findOne({ _id: id }).exec();
+    let filter = data.req?.filterQuery;
     try {
+      const client = await this.clientModel.findOne({ _id: data.id, filter }).exec();
       if (client !== null) {
         result = Core.ResponseData('Клиент найден', client);
       } else {
-        result = Core.ResponseSuccess('Клиент с таким идентификатором не найден');
+        result = Core.ResponseError('Клиент с таким ID не найден', HttpStatus.OK, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -121,18 +132,26 @@ export class ClientService {
    * @param updateData
    * @return({Core.Response.Answer})
    */
-  async updateClient(updateData: Core.Client.UpdateData): Promise<Core.Response.Answer> {
+  async updateClient(updateData: { id: string; req: any; data: Core.Client.Schema }): Promise<Core.Response.Answer> {
     let result;
-    const client = await this.clientModel.findOne({ _id: updateData.id }).exec();
-    let oldClient;
+    let filter = updateData.req?.filterQuery;
     try {
+      const client = await this.clientModel.findOne({ _id: updateData.id, filter }).exec();
+      let oldClient;
       if (client) {
         oldClient = client.toObject();
         const newClient = await this.clientModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, {
           new: true,
         });
-        await this.activityService.historyData(oldClient, newClient.toObject(), this.clientModel, updateData.userId);
+        await this.activityService.historyData(
+          oldClient,
+          newClient.toObject(),
+          this.clientModel,
+          updateData.req.userID,
+        );
         result = Core.ResponseData('Клиент успешно изменен', newClient);
+      } else {
+        result = Core.ResponseError('Клиент с таким ID не найден', HttpStatus.OK, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);

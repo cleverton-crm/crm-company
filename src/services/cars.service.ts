@@ -42,10 +42,9 @@ export class CarsService {
    * Список всех машин
    * @return ({Core.Response.Answer})
    */
-  async listCars(data: { company: string; pagination: Core.MongoPagination }): Promise<Core.Response.Answer> {
-    let result;
-    let cars;
-    let filter = {};
+  async listCars(data: { company: string; pagination: Core.MongoPagination; req: any }): Promise<Core.Response.Answer> {
+    let result, cars;
+    let filter = data.req?.filterQuery;
     try {
       if (data.company) {
         filter = Object.assign(filter, { company: data.company });
@@ -53,24 +52,25 @@ export class CarsService {
       cars = await this.carsModel.paginate(filter, data.pagination);
       result = Core.ResponseDataRecords('Список транспорта', cars.data, cars.records);
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
 
   /**
    * Поиск машины по ID
-   * @param id
    * @return ({Core.Response.Answer})
+   * @param data
    */
-  async findCar(id: string): Promise<Core.Response.Answer> {
+  async findCar(data: { id: string; req: any }): Promise<Core.Response.Answer> {
     let result;
-    const car = await this.carsModel.findOne({ _id: id }).exec();
+    const filter = data.req?.filterQuery;
     try {
+      const car = await this.carsModel.findOne({ _id: data.id, filter }).exec();
       if (car !== null) {
         result = Core.ResponseData('Транспорт найден', car);
       } else {
-        result = Core.ResponseSuccess('Транспорт с таким идентификатором не найден');
+        result = Core.ResponseError('Транспорт с таким идентификатором не найден', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -83,21 +83,26 @@ export class CarsService {
    * @param archiveData
    * @return ({Core.Response.Answer})
    */
-  async archiveCar(archiveData: Core.Cars.ArchiveData): Promise<Core.Response.Answer> {
+  async archiveCar(archiveData: { id: string; req: any; active: boolean }): Promise<Core.Response.Answer> {
     let result;
-    const car = await this.carsModel.findOne({ _id: archiveData.id }).exec();
-    const oldCar = car.toObject();
-    if (car) {
-      car.active = archiveData.active;
-      const newCar = await this.carsModel.findOneAndUpdate({ _id: archiveData.id }, car, { new: true });
-      await this.activityService.historyData(oldCar, newCar.toObject(), this.carsModel, archiveData.userId);
-      if (!car.active) {
-        result = Core.ResponseSuccess('Транспорт был отправлен в архив');
+    const filter = archiveData.req?.filterQuery;
+    try {
+      const car = await this.carsModel.findOne({ _id: archiveData.id, filter }).exec();
+      if (car) {
+        const oldCar = car.toObject();
+        car.active = archiveData.active;
+        const newCar = await this.carsModel.findOneAndUpdate({ _id: archiveData.id }, car, { new: true });
+        await this.activityService.historyData(oldCar, newCar.toObject(), this.carsModel, archiveData.req.userID);
+        if (!car.active) {
+          result = Core.ResponseSuccess('Транспорт был отправлен в архив');
+        } else {
+          result = Core.ResponseSuccess('Транспорт был разархивирован');
+        }
       } else {
-        result = Core.ResponseSuccess('Транспорт был разархивирован');
+        result = Core.ResponseError('Транспорт с таким ID не найден', HttpStatus.NOT_FOUND, 'Not Found');
       }
-    } else {
-      result = Core.ResponseError('Транспорт с таким ID не найден', HttpStatus.OK, 'Not Found');
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -107,16 +112,21 @@ export class CarsService {
    * @param updateData
    * @return ({Core.Response.Answer})
    */
-  async updateCar(updateData: Core.Cars.UpdateData): Promise<Core.Response.Answer> {
+  async updateCar(updateData: { id: string; req: any; data: Core.Cars.Schema }): Promise<Core.Response.Answer> {
     let result;
-    const car = await this.carsModel.findOne({ _id: updateData.id }).exec();
-    const oldCar = car.toObject();
+    const filter = updateData.req?.filterQuery;
     try {
-      const newCar = await this.carsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
-      await this.activityService.historyData(oldCar, newCar.toObject(), this.carsModel, updateData.userId);
-      result = Core.ResponseSuccess('Данные о транспорте изменены');
+      const car = await this.carsModel.findOne({ _id: updateData.id, filter }).exec();
+      if (car) {
+        const oldCar = car.toObject();
+        const newCar = await this.carsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data);
+        await this.activityService.historyData(oldCar, newCar.toObject(), this.carsModel, updateData.req.userID);
+        result = Core.ResponseSuccess('Данные о транспорте изменены');
+      } else {
+        result = Core.ResponseError('Транспорт с таким ID не найден', HttpStatus.NOT_FOUND, 'Not Found');
+      }
     } catch (e) {
-      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }

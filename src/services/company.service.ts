@@ -70,7 +70,7 @@ export class CompanyService {
           result = Core.ResponseSuccess('Компания была разархивирована');
         }
       } else {
-        result = Core.ResponseError('Компания с таким ID не найдена', HttpStatus.OK, 'Not Found');
+        result = Core.ResponseError('Компания с таким ID не найдена', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
@@ -90,7 +90,7 @@ export class CompanyService {
     updatedAt: string;
   }): Promise<Core.Response.RecordsData> {
     let result;
-    let filter = data.req?.filterQuery;
+    let filter = {};
     if (data.searchFilter) {
       filter = Object.assign(filter, {
         $or: [
@@ -124,7 +124,7 @@ export class CompanyService {
       if (company !== null) {
         result = Core.ResponseData('Компания найдена', company);
       } else {
-        result = Core.ResponseSuccess('Компания с таким ID не найдена');
+        result = Core.ResponseError('Компания с таким ID не найдена', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);

@@ -13,7 +13,7 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:archive')
-  async archiveLead(@Payload() archiveData: Core.Deals.ArchiveData) {
+  async archiveLead(@Payload() archiveData: { id: string; req: any; active: boolean }) {
     return await this.appService.archiveLead(archiveData);
   }
 
@@ -33,8 +33,8 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:find')
-  async findLead(@Payload() id: string) {
-    return await this.appService.findLead(id);
+  async findLead(@Payload() data: { id: string; req: any }) {
+    return await this.appService.findLead(data);
   }
 
   @MessagePattern('leads:update')
@@ -73,7 +73,7 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:comment')
-  async commentLead(@Payload() commentData: Core.Deals.CommentData) {
+  async commentLead(@Payload() commentData: { id: string; req: any; comments: string }) {
     return await this.appService.commentLead(commentData);
   }
 }

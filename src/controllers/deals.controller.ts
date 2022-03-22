@@ -18,8 +18,8 @@ export class DealsController {
   }
 
   @MessagePattern('deals:find')
-  async findDeal(@Payload() id: string) {
-    return await this.appService.findDeal(id);
+  async findDeal(@Payload() data: { id: string; req: any }) {
+    return await this.appService.findDeal(data);
   }
 
   @MessagePattern('deals:change:status')
@@ -33,17 +33,17 @@ export class DealsController {
   }
 
   @MessagePattern('deals:archive')
-  async archiveDeal(@Payload() archiveData: Core.Deals.ArchiveData) {
+  async archiveDeal(@Payload() archiveData: { id: string; req: any; active: boolean }) {
     return await this.appService.archiveDeal(archiveData);
   }
 
   @MessagePattern('deals:update')
-  async updateDeal(@Payload() updateData: Core.Deals.UpdateData) {
+  async updateDeal(@Payload() updateData: { id: string; req: any; data: Core.Deals.Schema }) {
     return await this.appService.updateDeal(updateData);
   }
 
   @MessagePattern('deals:comment')
-  async commentDeal(@Payload() commentData: Core.Deals.CommentData) {
+  async commentDeal(@Payload() commentData: { id: string; req: any; comments: string }) {
     return await this.appService.commentDeal(commentData);
   }
 }

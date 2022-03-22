@@ -13,7 +13,7 @@ export class ClientsController {
   }
 
   @MessagePattern('client:archive')
-  async archiveClient(@Payload() archiveData: Core.Company.ArchiveData) {
+  async archiveClient(@Payload() archiveData: { id: string; req: any; active: boolean }) {
     return await this.appService.archiveClient(archiveData);
   }
 
@@ -34,12 +34,12 @@ export class ClientsController {
   }
 
   @MessagePattern('client:find')
-  async findClient(id: string) {
-    return await this.appService.findClient(id);
+  async findClient(data: { id: string; req: any }) {
+    return await this.appService.findClient(data);
   }
 
   @MessagePattern('client:update')
-  async updateClient(@Payload() updateData: Core.Client.UpdateData) {
+  async updateClient(@Payload() updateData: { id: string; req: any; data: Core.Client.Schema }) {
     return await this.appService.updateClient(updateData);
   }
 }

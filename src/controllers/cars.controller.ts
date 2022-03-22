@@ -13,22 +13,22 @@ export class CarsController {
   }
 
   @MessagePattern('cars:list')
-  async listCars(@Payload() data: { company: string; pagination: Core.MongoPagination }) {
+  async listCars(@Payload() data: { company: string; pagination: Core.MongoPagination; req: any }) {
     return await this.appService.listCars(data);
   }
 
   @MessagePattern('cars:find')
-  async findCar(id: string) {
-    return await this.appService.findCar(id);
+  async findCar(@Payload() data: { id: string; req: any }) {
+    return await this.appService.findCar(data);
   }
 
   @MessagePattern('cars:archive')
-  async archiveCar(@Payload() archiveData: Core.Cars.ArchiveData) {
+  async archiveCar(@Payload() archiveData: { id: string; req: any; active: boolean }) {
     return await this.appService.archiveCar(archiveData);
   }
 
   @MessagePattern('cars:update')
-  async updateCar(@Payload() updateData: Core.Cars.UpdateData) {
+  async updateCar(@Payload() updateData: { id: string; req: any; data: Core.Cars.Schema }) {
     return await this.appService.updateCar(updateData);
   }
 }

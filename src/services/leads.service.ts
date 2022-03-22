@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 
@@ -97,10 +97,11 @@ export class LeadsService {
    * @param archiveData
    * @return ({Core.Response.Answer})
    */
-  async archiveLead(archiveData: Core.Deals.ArchiveData): Promise<Core.Response.Answer> {
+  async archiveLead(archiveData: { id: string; req: any; active: boolean }): Promise<Core.Response.Answer> {
     let result;
+    const filter = archiveData.req?.filterQuery;
     try {
-      const lead = await this.leadsModel.findOne({ _id: archiveData.id });
+      const lead = await this.leadsModel.findOne({ _id: archiveData.id, filter });
       if (lead) {
         const oldLead = lead.toObject();
         if (lead.final) {
@@ -108,17 +109,17 @@ export class LeadsService {
         }
         lead.active = archiveData.active;
         const newLead = await this.leadsModel.findOneAndUpdate({ _id: lead.id }, lead, { new: true }).exec();
-        await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, archiveData.userId);
+        await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, archiveData.req.userID);
         if (!lead.active) {
           result = Core.ResponseSuccess('Лид был отправлен в архив');
         } else {
           result = Core.ResponseSuccess('Лид был разархивирован');
         }
       } else {
-        result = Core.ResponseError('Лид с таким ID не найден', HttpStatus.OK, 'Not Found');
+        result = Core.ResponseError('Лид с таким ID не найден', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -163,17 +164,18 @@ export class LeadsService {
 
   /**
    * Поиск лида
-   * @param id
    * @return ({Core.Response.Answer})
+   * @param data
    */
-  async findLead(id: string): Promise<Core.Response.Answer> {
+  async findLead(data: { id: string; req: any }): Promise<Core.Response.Answer> {
     let result;
-    const lead = await this.leadsModel.findOne({ _id: id }).exec();
+    const filter = data.req?.filterQuery;
+    const lead = await this.leadsModel.findOne({ _id: data.id, filter }).exec();
     try {
       if (lead !== null) {
         result = Core.ResponseData('Лид найден', lead);
       } else {
-        result = Core.ResponseSuccess('Лид с таким идентификатором не найден');
+        result = Core.ResponseError('Лид с таким идентификатором не найден', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -187,12 +189,14 @@ export class LeadsService {
    * @return ({Core.Response.Answer})
    */
   async updateLead(updateData: Core.Deals.UpdateData): Promise<Core.Response.Answer> {
-    let result;
+    let result, oldLead;
+    const filter = updateData.owner?.filterQuery;
     try {
-      const lead = await this.leadsModel.findOne({ _id: updateData.id });
-      const oldLead = lead.toObject();
+      const lead = await this.leadsModel.findOne({ _id: updateData.id, filter }).exec();
       if (!lead) {
-        throw new BadRequestException('Лид с таким идентификатором не найден');
+        throw new NotFoundException('Лид с таким идентификатором не найден');
+      } else {
+        oldLead = lead.toObject();
       }
       if (lead.final) {
         throw new BadRequestException('Нельзя изменять законченный лид');
@@ -229,9 +233,10 @@ export class LeadsService {
    * Комментарий для лида
    * @param commentData
    */
-  async commentLead(commentData: Core.Deals.CommentData) {
+  async commentLead(commentData: { id: string; req: any; comments: string }) {
     let result;
-    const lead = await this.leadsModel.findOne({ _id: commentData.id, type: 'lead' }).exec();
+    const filter = commentData.req?.filterQuery;
+    const lead = await this.leadsModel.findOne({ _id: commentData.id, type: 'lead', filter }).exec();
     try {
       if (lead) {
         const oldLead = lead.toObject();
@@ -239,16 +244,16 @@ export class LeadsService {
           throw new BadRequestException('Нельзя изменять законченный лид');
         }
         lead.comments.set(Date.now().toString(), {
-          [commentData.userId]: commentData.comments,
+          [commentData.req.userID]: commentData.comments,
         });
         const newLead = await this.leadsModel.findOneAndUpdate({ _id: commentData.id }, lead, { new: true });
-        await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, commentData.userId);
+        await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, commentData.req.userID);
         result = Core.ResponseDataAsync('Комментарий успешно добавлен', lead);
       } else {
-        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -259,7 +264,8 @@ export class LeadsService {
    */
   async changeLeadStatus(data: { id: string; sid: string; owner: any }) {
     let result;
-    const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
+    const filter = data.owner?.filterQuery;
+    const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead', filter }).exec();
     const status = await this.statusModel.findOne({ _id: data.sid }).exec();
     try {
       if (lead) {
@@ -273,10 +279,10 @@ export class LeadsService {
           await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userId);
           result = Core.ResponseSuccess('Статус лида успешно изменен');
         } else {
-          result = Core.ResponseError('Статус с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+          result = Core.ResponseError('Статус с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
         }
       } else {
-        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -290,7 +296,8 @@ export class LeadsService {
    */
   async changeLeadOwner(data: { id: string; oid: string; owner: any }) {
     let result;
-    const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
+    const filter = data.owner?.filterQuery;
+    const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead', filter }).exec();
     const profile = await this.profileModel.findOne({ _id: data.oid }).exec();
     try {
       if (lead) {
@@ -306,12 +313,12 @@ export class LeadsService {
         } else {
           result = Core.ResponseError(
             'Ответственный с таким ID не существует в базе',
-            HttpStatus.BAD_REQUEST,
-            'Bad Request',
+            HttpStatus.NOT_FOUND,
+            'Not Found',
           );
         }
       } else {
-        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -325,7 +332,8 @@ export class LeadsService {
    */
   async failureLead(data: { id: string; owner: any }) {
     let result;
-    const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
+    const filter = data.owner?.filterQuery;
+    const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead', filter }).exec();
     try {
       if (lead) {
         const oldLead = lead.toObject();
@@ -348,8 +356,9 @@ export class LeadsService {
    */
   async doneLead(data: { id: string; owner: any }) {
     let result, newCompany, newClient;
+    const filter = data.owner?.filterQuery;
     try {
-      const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead' }).exec();
+      const lead = await this.leadsModel.findOne({ _id: data.id, type: 'lead', filter }).exec();
       const status = await this.statusModel.findOne({ priority: 9999 }).exec();
       if (lead) {
         const oldLead = lead.toObject();
@@ -405,7 +414,7 @@ export class LeadsService {
         await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userID);
         result = Core.ResponseSuccess('Лид успешно конвертирован в сделку');
       } else {
-        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
@@ -419,8 +428,9 @@ export class LeadsService {
    */
   async updateLeadCompany(updateData: { id: string; cid: string; data: Core.Company.Schema; owner: any }) {
     let result;
+    const filter = updateData.owner?.filterQuery;
     try {
-      const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead' }).exec();
+      const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead', filter }).exec();
       if (lead) {
         const oldLead = lead.toObject();
         const company = await this.leadCompanyModel.findOne({ _id: updateData.cid }).exec();
@@ -431,15 +441,15 @@ export class LeadsService {
         } else {
           result = Core.ResponseError(
             'Компания с таким ID не существует в данном лиде',
-            HttpStatus.BAD_REQUEST,
-            'Bad Request',
+            HttpStatus.NOT_FOUND,
+            'Not Found',
           );
         }
       } else {
-        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+      result = Core.ResponseError(e.message, e.status, e.error);
     }
     return result;
   }
@@ -450,8 +460,9 @@ export class LeadsService {
    */
   async updateLeadClient(updateData: { id: string; cid: string; data: Core.Client.Schema; owner: any }) {
     let result;
+    const filter = updateData.owner?.filterQuery;
     try {
-      const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead' }).exec();
+      const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead', filter }).exec();
       if (lead) {
         const oldLead = lead.toObject();
         const client = await this.leadClientModel.findOne({ _id: updateData.cid }).exec();
@@ -462,12 +473,12 @@ export class LeadsService {
         } else {
           result = Core.ResponseError(
             'Клиент с таким ID не существует в данном лиде',
-            HttpStatus.BAD_REQUEST,
-            'Bad Request',
+            HttpStatus.NOT_FOUND,
+            'Not Found',
           );
         }
       } else {
-        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.BAD_REQUEST, 'Bad Request');
+        result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
       result = Core.ResponseError(e.message, e.status, e.error);
