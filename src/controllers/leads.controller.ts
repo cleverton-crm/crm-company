@@ -37,6 +37,16 @@ export class LeadsController {
     return await this.appService.findLead(data);
   }
 
+  @MessagePattern('leads:client:find')
+  async findLeadClient(@Payload() data: { id: string; req: any }) {
+    return await this.appService.findLeadClient(data);
+  }
+
+  @MessagePattern('leads:company:find')
+  async findLeadCompany(@Payload() data: { id: string; req: any }) {
+    return await this.appService.findLeadCompany(data);
+  }
+
   @MessagePattern('leads:update')
   async updateLead(@Payload() updateData: Core.Deals.UpdateData) {
     return await this.appService.updateLead(updateData);

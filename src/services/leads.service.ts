@@ -517,4 +517,44 @@ export class LeadsService {
     }
     return result;
   }
+
+  /**
+   * Поиск клиента лида по ID
+   * @param data
+   */
+  async findLeadClient(data: { id: string; req: any }) {
+    let result;
+    const filter = data.req?.filterQuery;
+    const client = await this.leadClientModel.findOne({ _id: data.id, filter }).exec();
+    try {
+      if (client !== null) {
+        result = Core.ResponseData('Клиент найден', client);
+      } else {
+        result = Core.ResponseError('Клиент с таким ID не найден', HttpStatus.NOT_FOUND, 'Not Found');
+      }
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
+
+  /**
+   * Поиск компании лида по ID
+   * @param data
+   */
+  async findLeadCompany(data: { id: string; req: any }) {
+    let result;
+    const filter = data.req?.filterQuery;
+    const company = await this.leadCompanyModel.findOne({ _id: data.id, filter }).exec();
+    try {
+      if (company !== null) {
+        result = Core.ResponseData('Компания найдена', company);
+      } else {
+        result = Core.ResponseError('Компания с таким ID не найдена', HttpStatus.NOT_FOUND, 'Not Found');
+      }
+    } catch (e) {
+      result = Core.ResponseError(e.message, e.status, e.error);
+    }
+    return result;
+  }
 }
