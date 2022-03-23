@@ -28,6 +28,11 @@ export class ClientsController {
       createdAt: string;
       updatedAt: string;
       birthDate: string;
+      first: string;
+      last: string;
+      middle: string;
+      email: string;
+      workPhone: string;
     },
   ) {
     return await this.appService.listClients(data);

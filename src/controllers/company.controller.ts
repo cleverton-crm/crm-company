@@ -24,6 +24,10 @@ export class CompanyController {
     req: any;
     createdAt: string;
     updatedAt: string;
+    inn: string;
+    name: string;
+    bank: string;
+    email: string;
   }) {
     return await this.appService.listCompanies(data);
   }

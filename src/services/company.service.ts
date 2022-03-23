@@ -88,6 +88,10 @@ export class CompanyService {
     req: any;
     createdAt: string;
     updatedAt: string;
+    inn: string;
+    name: string;
+    bank: string;
+    email: string;
   }): Promise<Core.Response.RecordsData> {
     let result;
     let filter = {};
@@ -101,6 +105,12 @@ export class CompanyService {
         ],
       });
     }
+    filter = data.inn ? Object.assign(filter, { inn: { $regex: data.inn, $options: 'i' } }) : filter;
+    filter = data.name ? Object.assign(filter, { name: { $regex: data.name, $options: 'i' } }) : filter;
+    filter = data.bank ? Object.assign(filter, { 'bank.bank': { $regex: data.bank, $options: 'i' } }) : filter;
+    filter = data.email
+      ? Object.assign(filter, { 'requisites.data.emails': { $regex: data.email, $options: 'i' } })
+      : filter;
     filter = data.createdAt ? Object.assign(filter, { createdAt: { $gte: data.createdAt, $lte: new Date() } }) : filter;
     filter = data.updatedAt ? Object.assign(filter, { updatedAt: { $gte: data.updatedAt, $lte: new Date() } }) : filter;
     try {

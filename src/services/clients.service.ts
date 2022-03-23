@@ -76,6 +76,11 @@ export class ClientService {
     createdAt: string;
     updatedAt: string;
     birthDate: string;
+    first: string;
+    last: string;
+    middle: string;
+    email: string;
+    workPhone: string;
   }): Promise<Core.Response.RecordsData> {
     let result;
     let filter = data.req?.filterQuery;
@@ -91,6 +96,13 @@ export class ClientService {
         ],
       });
     }
+    filter = data.first ? Object.assign(filter, { first: { $regex: data.searchFilter, $options: 'i' } }) : filter;
+    filter = data.last ? Object.assign(filter, { last: { $regex: data.searchFilter, $options: 'i' } }) : filter;
+    filter = data.middle ? Object.assign(filter, { middle: { $regex: data.searchFilter, $options: 'i' } }) : filter;
+    filter = data.email ? Object.assign(filter, { email: { $regex: data.searchFilter, $options: 'i' } }) : filter;
+    filter = data.workPhone
+      ? Object.assign(filter, { workPhone: { $regex: data.searchFilter, $options: 'i' } })
+      : filter;
     filter = data.createdAt ? Object.assign(filter, { createdAt: { $gte: data.createdAt, $lte: new Date() } }) : filter;
     filter = data.updatedAt ? Object.assign(filter, { updatedAt: { $gte: data.updatedAt, $lte: new Date() } }) : filter;
     filter = data.birthDate ? Object.assign(filter, { birthDate: { $gte: data.birthDate, $lte: new Date() } }) : filter;
