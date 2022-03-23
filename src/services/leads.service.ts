@@ -486,9 +486,14 @@ export class LeadsService {
     return result;
   }
 
-  async listLeadClients(pagination: Core.MongoPagination) {
+  /**
+   * Список клиентов лидов
+   * @param data
+   */
+  async listLeadClients(data: { pagination: Core.MongoPagination; req: any }) {
     let result;
-    const leadClients = await this.leadClientModel.paginate({ active: true }, pagination);
+    const filter = data.req?.filterQuery;
+    const leadClients = await this.leadClientModel.paginate({ active: true, filter }, data.pagination);
     try {
       result = Core.ResponseDataRecords('Список клиентов лидов', leadClients.data, leadClients.records);
     } catch (e) {
@@ -497,9 +502,14 @@ export class LeadsService {
     return result;
   }
 
-  async listLeadCompanies(pagination: Core.MongoPagination) {
+  /**
+   * Список компаний лидов
+   * @param data
+   */
+  async listLeadCompanies(data: { pagination: Core.MongoPagination; req: any }) {
     let result;
-    const leadCompanies = await this.leadCompanyModel.paginate({ active: true }, pagination);
+    const filter = data.req?.filterQuery;
+    const leadCompanies = await this.leadCompanyModel.paginate({ active: true, filter }, data.pagination);
     try {
       result = Core.ResponseDataRecords('Список компании лидов', leadCompanies.data, leadCompanies.records);
     } catch (e) {

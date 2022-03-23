@@ -23,13 +23,13 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:clients:list')
-  async listLeadClients(@Payload() pagination: Core.MongoPagination) {
-    return await this.appService.listLeadClients(pagination);
+  async listLeadClients(@Payload() data: { pagination: Core.MongoPagination; req: any }) {
+    return await this.appService.listLeadClients(data);
   }
 
   @MessagePattern('leads:companies:list')
-  async listLeadCompanies(@Payload() pagination: Core.MongoPagination) {
-    return await this.appService.listLeadCompanies(pagination);
+  async listLeadCompanies(@Payload() data: { pagination: Core.MongoPagination; req: any }) {
+    return await this.appService.listLeadCompanies(data);
   }
 
   @MessagePattern('leads:find')
