@@ -30,6 +30,7 @@ import { ProfileProviderSchema } from './providers/profile.provider';
 import { ActivityProviderSchema } from './providers/activity.provider';
 import { ActivityService } from './services/activity.service';
 import { ActivityController } from './controllers/activity.controller';
+import { ParkCompanyProviderSchema } from './providers/park.provider';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { ActivityController } from './controllers/activity.controller';
       DealsProviderSchema,
       ActivityProviderSchema,
       StatusDealsProviderSchema,
+      ParkCompanyProviderSchema,
       ProfileProviderSchema,
     ]),
   ],
