@@ -179,7 +179,7 @@ export class DealsService {
       }
       const newDeal = await this.dealsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, { new: true });
       await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, updateData.req.userID);
-      result = Core.ResponseDataAsync('Сделка успешно изменена', deal);
+      result = Core.ResponseDataAsync('Сделка успешно изменена', newDeal);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
