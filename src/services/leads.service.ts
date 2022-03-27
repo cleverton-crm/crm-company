@@ -378,11 +378,9 @@ export class LeadsService {
         if (companyContact) {
           /** FIND COMPANY */
           let innCompany = companyContact.requisites.data.inn ?? companyContact.inn;
-          console.log(innCompany);
           const company = await this.companyModel.findOne({
             inn: innCompany,
           });
-          console.log(companyContact);
           if (company) {
             lead.company = company._id;
           } else {
