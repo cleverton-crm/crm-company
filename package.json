@@ -1,6 +1,6 @@
 {
   "name": "crm-company",
-  "version": "1.0.102",
+  "version": "1.0.103",
   "description": "Company and Clients for CRM",
   "author": "",
   "private": true,
@@ -51,7 +51,8 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
