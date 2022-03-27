@@ -30,7 +30,7 @@ import {
 import {
   ActivityService,
   CarsService,
-  ClientService,
+  ClientService, CompanyService,
   DealsService,
   ImportService,
   JwtConfigService,
