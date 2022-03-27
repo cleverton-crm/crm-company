@@ -33,6 +33,7 @@ export class ClientsController {
       middle: string;
       email: string;
       workPhone: string;
+      active: boolean;
     },
   ) {
     return await this.appService.listClients(data);

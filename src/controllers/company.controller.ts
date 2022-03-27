@@ -28,6 +28,7 @@ export class CompanyController {
     name: string;
     bank: string;
     email: string;
+    active: boolean;
   }) {
     return await this.appService.listCompanies(data);
   }

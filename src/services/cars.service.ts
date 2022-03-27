@@ -42,14 +42,20 @@ export class CarsService {
    * Список всех машин
    * @return ({Core.Response.Answer})
    */
-  async listCars(data: { company: string; pagination: Core.MongoPagination; req: any }): Promise<Core.Response.Answer> {
+  async listCars(data: {
+    company: string;
+    active: boolean;
+    pagination: Core.MongoPagination;
+    req: any;
+  }): Promise<Core.Response.Answer> {
     let result, cars;
-    let filter = data.req?.filterQuery;
+    let filter = data.req.filterQuery;
+    const active = data.active;
     try {
       if (data.company) {
         filter = Object.assign(filter, { company: data.company });
       }
-      cars = await this.carsModel.paginate(filter, data.pagination);
+      cars = await this.carsModel.paginate({ active, filter }, data.pagination);
       result = Core.ResponseDataRecords('Список транспорта', cars.data, cars.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);

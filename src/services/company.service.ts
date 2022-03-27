@@ -92,9 +92,11 @@ export class CompanyService {
     name: string;
     bank: string;
     email: string;
+    active: boolean;
   }): Promise<Core.Response.RecordsData> {
     let result;
     let filter = {};
+    const active = data.active;
     if (data.searchFilter) {
       filter = Object.assign(filter, {
         $or: [
@@ -114,7 +116,7 @@ export class CompanyService {
     filter = data.createdAt ? Object.assign(filter, { createdAt: { $gte: data.createdAt, $lte: new Date() } }) : filter;
     filter = data.updatedAt ? Object.assign(filter, { updatedAt: { $gte: data.updatedAt, $lte: new Date() } }) : filter;
     try {
-      const company = await this.companyModel.paginate({ active: true, ...filter }, data.pagination);
+      const company = await this.companyModel.paginate({ active, ...filter }, data.pagination);
       result = Core.ResponseDataRecords('Список компаний', company.data, company.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);

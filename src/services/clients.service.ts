@@ -81,10 +81,12 @@ export class ClientService {
     middle: string;
     email: string;
     workPhone: string;
+    active: boolean;
   }): Promise<Core.Response.RecordsData> {
     let result;
     let filter = data.req?.filterQuery;
     let clients;
+    const active = data.active;
     if (data.searchFilter) {
       filter = Object.assign(filter, {
         $or: [
@@ -108,7 +110,7 @@ export class ClientService {
       filter = Object.assign(filter, { company: data.company });
     }
     try {
-      clients = await this.clientModel.paginate({ active: true, ...filter }, data.pagination);
+      clients = await this.clientModel.paginate({ active, ...filter }, data.pagination);
       result = Core.ResponseDataRecords('Список клиентов', clients.data, clients.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
