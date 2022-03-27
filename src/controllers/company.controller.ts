@@ -18,18 +18,7 @@ export class CompanyController {
   }
 
   @MessagePattern('company:list')
-  async listCompanies(data: {
-    searchFilter: string;
-    pagination: Core.MongoPagination;
-    req: any;
-    createdAt: string;
-    updatedAt: string;
-    inn: string;
-    name: string;
-    bank: string;
-    email: string;
-    active: boolean;
-  }) {
+  async listCompanies(data: any) {
     return await this.appService.listCompanies(data);
   }
 

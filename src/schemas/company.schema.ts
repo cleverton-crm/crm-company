@@ -117,6 +117,11 @@ export const CompanyModel: CompanyModel<Companies> = model<Companies>(
 @Schema({ collection: 'companyList' })
 export class ListCompany extends Companies {}
 export const ListCompanySchema = SchemaFactory.createForClass(ListCompany);
+export type ListCompanyModel<T extends Document> = PaginateModel<ListCompany>;
+export const ListCompanyModel: ListCompanyModel<ListCompany> = model<ListCompany>(
+  'ListCompany',
+  ListCompanySchema,
+) as ListCompanyModel<ListCompany>;
 
 // Lead Model Collection
 @Schema({ timestamps: true })

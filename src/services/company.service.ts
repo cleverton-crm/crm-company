@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
-import { Companies, CompanyModel, ListCompany } from 'src/schemas/company.schema';
+import { Companies, CompanyModel, ListCompany, ListCompanyModel } from 'src/schemas/company.schema';
 import { Core } from 'crm-core';
 import { ActivityService } from './activity.service';
 import { Cars, CarsModel } from '../schemas/cars.schema';
@@ -11,14 +11,14 @@ import { DealModel, Deals } from '../schemas/deals.schema';
 @Injectable()
 export class CompanyService {
   private readonly companyModel: CompanyModel<Companies>;
-  private readonly listCompanyModel: Model<ListCompany>;
+  private readonly listCompanyModel: ListCompanyModel<ListCompany>;
   private readonly carsModel: CarsModel<Cars>;
   private readonly clientModel: ClientModel<Clients>;
   private readonly dealsModel: DealModel<Deals>;
 
   constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
-    this.listCompanyModel = this.connection.model('ListCompany');
+    this.listCompanyModel = this.connection.model('ListCompany') as ListCompanyModel<ListCompany>;
     this.carsModel = this.connection.model('Cars') as CarsModel<Cars>;
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
     this.dealsModel = this.connection.model('Deals') as DealModel<Deals>;
@@ -96,7 +96,6 @@ export class CompanyService {
   }): Promise<Core.Response.RecordsData> {
     let result;
     let filter = {};
-    const active = data.active;
     if (data.searchFilter) {
       filter = Object.assign(filter, {
         $or: [
@@ -107,16 +106,19 @@ export class CompanyService {
         ],
       });
     }
-    filter = data.inn ? Object.assign(filter, { inn: { $regex: data.inn, $options: 'i' } }) : filter;
-    filter = data.name ? Object.assign(filter, { name: { $regex: data.name, $options: 'i' } }) : filter;
-    filter = data.bank ? Object.assign(filter, { 'bank.bank': { $regex: data.bank, $options: 'i' } }) : filter;
-    filter = data.email
-      ? Object.assign(filter, { 'requisites.data.emails': { $regex: data.email, $options: 'i' } })
-      : filter;
+    filter = data.active ? Object.assign(filter, { active: data.active }) : filter;
+    if (!data.searchFilter) {
+      filter = data.inn ? Object.assign(filter, { inn: { $regex: data.inn, $options: 'i' } }) : filter;
+      filter = data.name ? Object.assign(filter, { name: { $regex: data.name, $options: 'i' } }) : filter;
+      filter = data.bank ? Object.assign(filter, { 'bank.bank': { $regex: data.bank, $options: 'i' } }) : filter;
+      filter = data.email
+        ? Object.assign(filter, { 'requisites.data.emails': { $regex: data.email, $options: 'i' } })
+        : filter;
+    }
     filter = data.createdAt ? Object.assign(filter, { createdAt: { $gte: data.createdAt, $lte: new Date() } }) : filter;
     filter = data.updatedAt ? Object.assign(filter, { updatedAt: { $gte: data.updatedAt, $lte: new Date() } }) : filter;
     try {
-      const company = await this.companyModel.paginate({ active, ...filter }, data.pagination);
+      const company = await this.listCompanyModel.paginate(filter, data.pagination);
       result = Core.ResponseDataRecords('Список компаний', company.data, company.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);

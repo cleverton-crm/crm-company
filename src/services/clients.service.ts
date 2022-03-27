@@ -86,35 +86,41 @@ export class ClientService {
     let result;
     let filter = data.req?.filterQuery;
     let clients;
-    const active = data.active;
-    let ArrayFilter = [];
-    let searchDataFrom = [
-      { first: { $regex: data.searchFilter, $options: 'i' } },
-      { last: { $regex: data.searchFilter, $options: 'i' } },
-      { middle: { $regex: data.searchFilter, $options: 'i' } },
-      { email: { $regex: data.searchFilter, $options: 'i' } },
-      { workPhone: { $regex: data.searchFilter, $options: 'i' } },
-    ];
-
     if (data.searchFilter) {
-      searchDataFrom.forEach((obj) => ArrayFilter.push(obj));
+      filter = Object.assign(filter, {
+        $or: [
+          { first: { $regex: data.searchFilter, $options: 'i' } },
+          { last: { $regex: data.searchFilter, $options: 'i' } },
+          { middle: { $regex: data.searchFilter, $options: 'i' } },
+          { email: { $regex: data.searchFilter, $options: 'i' } },
+          { workPhone: { $regex: data.searchFilter, $options: 'i' } },
+        ],
+      });
     }
-    filter = data.first ? ArrayFilter.push({ first: { $regex: data.first, $options: 'i' } }) : filter;
-    filter = data.last ? ArrayFilter.push({ last: { $regex: data.last, $options: 'i' } }) : filter;
-    filter = data.middle ? ArrayFilter.push({ middle: { $regex: data.middle, $options: 'i' } }) : filter;
-    filter = data.email ? ArrayFilter.push({ email: { $regex: data.email, $options: 'i' } }) : filter;
-    filter = data.workPhone ? Object.assign(filter, { workPhone: { $regex: data.workPhone, $options: 'i' } }) : filter;
+    if (!data.searchFilter) {
+      filter = data.first ? Object.assign(filter, { first: { $regex: data.first, $options: 'i' } }) : filter;
+      filter = data.last ? Object.assign(filter, { last: { $regex: data.last, $options: 'i' } }) : filter;
+      filter = data.middle ? Object.assign(filter, { middle: { $regex: data.middle, $options: 'i' } }) : filter;
+      filter = data.email ? Object.assign(filter, { email: { $regex: data.email, $options: 'i' } }) : filter;
+      filter = data.workPhone
+        ? Object.assign(filter, {
+            workPhone: {
+              $regex: data.workPhone,
+              $options: 'i',
+            },
+          })
+        : filter;
+    }
     filter = data.createdAt ? Object.assign(filter, { createdAt: { $gte: data.createdAt, $lte: new Date() } }) : filter;
     filter = data.updatedAt ? Object.assign(filter, { updatedAt: { $gte: data.updatedAt, $lte: new Date() } }) : filter;
     filter = data.birthDate ? Object.assign(filter, { birthDate: { $gte: data.birthDate, $lte: new Date() } }) : filter;
-
-    filter = Object.assign(filter, { $or: ArrayFilter });
-
+    filter = data.active ? Object.assign(filter, { active: data.active }) : filter;
     if (data.company) {
       filter = Object.assign(filter, { company: data.company });
     }
     try {
-      clients = await this.clientModel.paginate({ active, ...filter }, data.pagination);
+      console.dir(filter, { depth: 5 });
+      clients = await this.clientModel.paginate(filter, data.pagination);
       result = Core.ResponseDataRecords('Список клиентов', clients.data, clients.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
