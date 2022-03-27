@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { CarsService } from '../services/cars.service';
+import { CarsService } from '../services';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Core } from 'crm-core';
 

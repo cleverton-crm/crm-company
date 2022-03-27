@@ -87,16 +87,6 @@ export class ClientService {
     let filter = data.req?.filterQuery;
     let clients;
     const active = data.active;
-    if (data.searchFilter) {
-      filter = Object.assign(filter, {
-        $or: [
-          { first: { $regex: data.searchFilter, $options: 'i' } },
-          { last: { $regex: data.searchFilter, $options: 'i' } },
-          { middle: { $regex: data.searchFilter, $options: 'i' } },
-          { email: { $regex: data.searchFilter, $options: 'i' } },
-          { workPhone: { $regex: data.searchFilter, $options: 'i' } },
-        ],
-      });
     let ArrayFilter = [];
     let searchDataFrom = [
       { first: { $regex: data.searchFilter, $options: 'i' } },

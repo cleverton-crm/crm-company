@@ -58,12 +58,14 @@ export class LeadsService {
         } else {
           cacheCompany = await this.leadCompanyModel.create({
             ...companyContact,
+            owner: leadData.owner.userID,
             inn: companyContact.requisites.data.inn,
           });
         }
       } else {
         cacheCompany = await this.leadCompanyModel.create({
           inn: failInn,
+          owner: leadData.owner.userID,
           requisites: {
             data: {
               inn: failInn,
@@ -74,7 +76,10 @@ export class LeadsService {
 
       let clientContact = leadData.data.contacts.find((o) => o.object === 'client') as Core.Client.Schema;
       cacheClient = clientContact ? clientContact : {};
-      let leadClient = (await this.leadClientModel.create(cacheClient)) as Core.Client.Schema;
+      let leadClient = (await this.leadClientModel.create({
+        cacheClient,
+        owner: leadData.owner.userID,
+      })) as Core.Client.Schema;
 
       const lead = new this.leadsModel(leadData.data);
       lead.owner = leadData.owner.userID;
@@ -368,48 +373,50 @@ export class LeadsService {
         if (lead.final) {
           throw new BadRequestException('Нельзя изменять законченный лид');
         }
-        if (lead.contacts.length != 0) {
-          let companyContact = lead.contacts.find((o) => o.object === 'company');
-          let clientContact = lead.contacts.find((o) => o.object === 'client');
-          if (companyContact) {
-            /** FIND COMPANY */
-            let innCompany = companyContact.requisites.data.inn ?? companyContact.inn;
-            const company = await this.companyModel.findOne({
-              inn: innCompany,
-            });
-
-            if (company) {
-              lead.company = company.id;
-            } else {
-              newCompany = await this.companyService.createCompany({ ...companyContact, owner: lead.owner });
-              lead.company = newCompany.data.id;
-            }
-          }
-          if (clientContact) {
-            const client = await this.clientModel.findOne({
-              email: clientContact.email,
-            });
-            if (client) {
-              lead.client = client.id;
-            } else {
-              newClient = companyContact
-                ? await this.clientService.createClient({
-                    ...clientContact,
-                    company: lead.company,
-                    owner: lead.owner,
-                  })
-                : await this.clientService.createClient({ ...clientContact, owner: lead.owner });
-              lead.client = newClient.data.id;
-            }
-          }
-          if (companyContact && clientContact) {
-            lead.contacts = [];
+        let companyContact = await this.leadCompanyModel.findOne({ _id: lead.company }).exec();
+        let clientContact = await this.leadClientModel.findOne({ _id: lead.client }).exec();
+        if (companyContact) {
+          /** FIND COMPANY */
+          let innCompany = companyContact.requisites.data.inn ?? companyContact.inn;
+          console.log(innCompany);
+          const company = await this.companyModel.findOne({
+            inn: innCompany,
+          });
+          console.log(companyContact);
+          if (company) {
+            lead.company = company._id;
+          } else {
+            let companyData = companyContact.toObject();
+            delete companyData._id;
+            newCompany = new this.companyModel(companyData);
+            await newCompany.save();
+            lead.company = newCompany._id;
           }
         }
+        if (clientContact) {
+          const client = await this.clientModel.findOne({
+            email: clientContact.email,
+          });
+          if (client) {
+            lead.client = client.id;
+          } else {
+            newClient = companyContact
+              ? await this.clientService.createClient({
+                  ...clientContact,
+                  company: lead.company,
+                  owner: lead.owner,
+                })
+              : await this.clientService.createClient({ ...clientContact, owner: lead.owner });
+            lead.client = newClient.data.id;
+          }
+        }
+        if (companyContact && clientContact) {
+          lead.contacts = [];
+        }
         lead.status = status;
-        lead.final = true;
+        // lead.final = true;
         lead.tags.push(status.name);
-        lead.type = 'deal';
+        // lead.type = 'deal';
         const newLead = await this.leadsModel.findOneAndUpdate({ _id: lead.id }, lead, { new: true });
         await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userID);
         result = Core.ResponseSuccess('Лид успешно конвертирован в сделку');
@@ -417,7 +424,7 @@ export class LeadsService {
         result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
