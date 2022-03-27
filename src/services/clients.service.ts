@@ -85,25 +85,29 @@ export class ClientService {
     let result;
     let filter = data.req?.filterQuery;
     let clients;
+    let ArrayFilter = [];
+    let searchDataFrom = [
+      { first: { $regex: data.searchFilter, $options: 'i' } },
+      { last: { $regex: data.searchFilter, $options: 'i' } },
+      { middle: { $regex: data.searchFilter, $options: 'i' } },
+      { email: { $regex: data.searchFilter, $options: 'i' } },
+      { workPhone: { $regex: data.searchFilter, $options: 'i' } },
+    ];
+
     if (data.searchFilter) {
-      filter = Object.assign(filter, {
-        $or: [
-          { first: { $regex: data.searchFilter, $options: 'i' } },
-          { last: { $regex: data.searchFilter, $options: 'i' } },
-          { middle: { $regex: data.searchFilter, $options: 'i' } },
-          { email: { $regex: data.searchFilter, $options: 'i' } },
-          { workPhone: { $regex: data.searchFilter, $options: 'i' } },
-        ],
-      });
+      searchDataFrom.forEach((obj) => ArrayFilter.push(obj));
     }
-    filter = data.first ? Object.assign(filter, { first: { $regex: data.first, $options: 'i' } }) : filter;
-    filter = data.last ? Object.assign(filter, { last: { $regex: data.last, $options: 'i' } }) : filter;
-    filter = data.middle ? Object.assign(filter, { middle: { $regex: data.middle, $options: 'i' } }) : filter;
-    filter = data.email ? Object.assign(filter, { email: { $regex: data.email, $options: 'i' } }) : filter;
+    filter = data.first ? ArrayFilter.push({ first: { $regex: data.first, $options: 'i' } }) : filter;
+    filter = data.last ? ArrayFilter.push({ last: { $regex: data.last, $options: 'i' } }) : filter;
+    filter = data.middle ? ArrayFilter.push({ middle: { $regex: data.middle, $options: 'i' } }) : filter;
+    filter = data.email ? ArrayFilter.push({ email: { $regex: data.email, $options: 'i' } }) : filter;
     filter = data.workPhone ? Object.assign(filter, { workPhone: { $regex: data.workPhone, $options: 'i' } }) : filter;
     filter = data.createdAt ? Object.assign(filter, { createdAt: { $gte: data.createdAt, $lte: new Date() } }) : filter;
     filter = data.updatedAt ? Object.assign(filter, { updatedAt: { $gte: data.updatedAt, $lte: new Date() } }) : filter;
     filter = data.birthDate ? Object.assign(filter, { birthDate: { $gte: data.birthDate, $lte: new Date() } }) : filter;
+
+    filter = Object.assign(filter, { $or: ArrayFilter });
+
     if (data.company) {
       filter = Object.assign(filter, { company: data.company });
     }
