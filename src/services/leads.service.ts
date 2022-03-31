@@ -562,4 +562,21 @@ export class LeadsService {
     }
     return result;
   }
+
+  /**
+   * Создание компании лида
+   * @param leadData
+   */
+  async createCompanyLead(leadData: Core.Company.Schema) {
+    let result;
+    const company = new this.leadCompanyModel(leadData);
+    company.inn = leadData.requisites.data.inn;
+    try {
+      await company.save();
+      result = Core.ResponseDataAsync('Компания для лида успешно создана', company);
+    } catch (e) {
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
+    }
+    return result;
+  }
 }

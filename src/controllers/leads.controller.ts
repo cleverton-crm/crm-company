@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Core } from 'crm-core';
-import { LeadsService } from '../services/leads.service';
+import { LeadsService } from '../services';
 
 @Controller()
 export class LeadsController {
@@ -10,6 +10,11 @@ export class LeadsController {
   @MessagePattern('leads:create')
   async createLead(@Payload() leadData: { data: Core.Deals.Schema; owner: any }) {
     return await this.appService.createLead(leadData);
+  }
+
+  @MessagePattern('leads:company:create')
+  async createCompanyLead(@Payload() leadData: Core.Company.Schema) {
+    return await this.appService.createCompanyLead(leadData);
   }
 
   @MessagePattern('leads:archive')

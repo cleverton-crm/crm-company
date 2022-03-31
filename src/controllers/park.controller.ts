@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Core } from 'crm-core';
-import { ParkCompanyService } from '../services/park.service';
+import { ParkCompanyService } from '../services';
 
 @Controller()
 export class ParkCompanyController {
