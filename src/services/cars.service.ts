@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { Core } from 'crm-core';
-import { Cars, CarsModel } from '../schemas/cars.schema';
+import { Cars, CarsList, CarsListModel, CarsModel } from '../schemas/cars.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection } from 'mongoose';
 import { Companies, CompanyModel } from '../schemas/company.schema';
@@ -9,10 +9,12 @@ import { ActivityService } from './activity.service';
 @Injectable()
 export class CarsService {
   private readonly carsModel: CarsModel<Cars>;
+  private readonly carsListModel: CarsListModel<CarsList>;
   private readonly companyModel: CompanyModel<Companies>;
 
   constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.carsModel = this.connection.model('Cars') as CarsModel<Cars>;
+    this.carsListModel = this.connection.model('CarsList') as CarsListModel<CarsList>;
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
   }
 
@@ -55,7 +57,7 @@ export class CarsService {
       if (data.company) {
         filter = Object.assign(filter, { company: data.company });
       }
-      cars = await this.carsModel.paginate({ active, filter }, data.pagination);
+      cars = await this.carsListModel.paginate({ active, filter }, data.pagination);
       result = Core.ResponseDataRecords('Список транспорта', cars.data, cars.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);

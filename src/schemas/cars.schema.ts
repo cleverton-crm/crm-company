@@ -73,3 +73,13 @@ export class Cars extends Document {
 export type CarsModel<T extends Document> = PaginateModel<Cars>;
 export const CarsSchema = SchemaFactory.createForClass(Cars);
 export const CarsModel: CarsModel<Cars> = model<Cars>('Cars', CarsSchema) as CarsModel<Cars>;
+
+@Schema({ collection: 'carsList' })
+export class CarsList extends Cars {}
+
+export type CarsListModel<T extends Document> = PaginateModel<CarsList>;
+export const CarsListSchema = SchemaFactory.createForClass(CarsList);
+export const CarsListModel: CarsListModel<CarsList> = model<CarsList>(
+  'CarsList',
+  CarsListSchema,
+) as CarsListModel<CarsList>;

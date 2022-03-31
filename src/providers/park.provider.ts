@@ -1,17 +1,6 @@
-import { BaseProvider } from './base.provider';
 import { ParkCompany, ParkCompanyList, ParkCompanyListSchema, ParkCompanySchema } from '../schemas/park.schema';
-import { Schema } from 'mongoose';
 import { Core } from 'crm-core';
 import mongoosePaginator = require('mongoose-paginate-v2');
-import { Collection } from '@discordjs/collection';
-
-function toMap(obj) {
-  let map = new Map();
-  for (let k of Object.keys(obj)) {
-    obj[k] instanceof Object ? map.set(k, toMap(obj[k])) : map.set(k, obj[k]);
-  }
-  return map;
-}
 
 export const ParkCompanyProviderSchema = {
   name: ParkCompany.name,

@@ -3,7 +3,7 @@ import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '
 
 import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
-import { DealModel, Deals } from '../schemas/deals.schema';
+import { DealModel, Deals, DealsList, DealsListModel } from '../schemas/deals.schema';
 import { StatusDeals } from '../schemas/status-deals.schema';
 import { Profile } from '../schemas/profile.schema';
 import { ActivityService } from './activity.service';
@@ -13,6 +13,7 @@ import { Companies, CompanyModel } from '../schemas/company.schema';
 @Injectable()
 export class DealsService {
   private readonly dealsModel: DealModel<Deals>;
+  private readonly dealsListModel: DealsListModel<DealsList>;
   private readonly statusModel: Model<StatusDeals>;
   private readonly profileModel: Model<Profile>;
   private readonly clientModel: ClientModel<Clients>;
@@ -22,6 +23,7 @@ export class DealsService {
     this.profileModel = this.connection.model('Profile') as Model<Profile>;
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
     this.dealsModel = this.connection.model('Deals') as DealModel<Deals>;
+    this.dealsListModel = this.connection.model('DealsList') as DealsListModel<DealsList>;
     this.statusModel = this.connection.model('StatusDeals') as Model<StatusDeals>;
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
   }
@@ -80,7 +82,7 @@ export class DealsService {
     filter = createdAt ? Object.assign(filter, { createdAt: { $gte: createdAt, $lte: new Date() } }) : filter;
     filter = updatedAt ? Object.assign(filter, { updatedAt: { $gte: updatedAt, $lte: new Date() } }) : filter;
     try {
-      const deals = await this.dealsModel.paginate({ active, type: 'deal', ...filter }, pagination);
+      const deals = await this.dealsListModel.paginate({ active, type: 'deal', ...filter }, pagination);
       result = Core.ResponseDataRecords('Список сделок', deals.data, deals.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);

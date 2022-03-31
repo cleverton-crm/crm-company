@@ -12,17 +12,21 @@ import {
   ListCompanyProviderSchema,
 } from './providers/company.provider';
 import { ConfigService } from './config/config.service';
-import { ClientsProviderSchema, LeadClientsProviderSchema } from './providers/clients.provider';
+import {
+  ClientsListProviderSchema,
+  ClientsProviderSchema,
+  LeadClientsProviderSchema,
+} from './providers/clients.provider';
 import { ClientsController } from './controllers/clients.controller';
 import { ClientService } from './services/clients.service';
-import { CarsProviderSchema } from './providers/cars.provider';
+import { CarsListProviderSchema, CarsProviderSchema } from './providers/cars.provider';
 import { CarsController } from './controllers/cars.controller';
 import { CarsService } from './services/cars.service';
 import { DealsService } from './services/deals.service';
 import { LeadsController } from './controllers/leads.controller';
 import { LeadsService } from './services/leads.service';
 import { DealsController } from './controllers/deals.controller';
-import { DealsProviderSchema } from './providers/deals.provider';
+import { DealsListProviderSchema, DealsProviderSchema } from './providers/deals.provider';
 import { StatusDealsProviderSchema } from './providers/status-deals.provider';
 import { StatusDealsService } from './services/status-deals.service';
 import { StatusDealsController } from './controllers/status-deals.controller';
@@ -51,9 +55,12 @@ import { ParkCompanyService } from './services';
       LeadCompanyProviderSchema,
       ListCompanyProviderSchema,
       ClientsProviderSchema,
+      ClientsListProviderSchema,
       LeadClientsProviderSchema,
       CarsProviderSchema,
+      CarsListProviderSchema,
       DealsProviderSchema,
+      DealsListProviderSchema,
       ActivityProviderSchema,
       StatusDealsProviderSchema,
       ParkCompanyProviderSchema,

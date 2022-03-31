@@ -2,15 +2,17 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Core } from 'crm-core';
-import { ClientModel, Clients } from '../schemas/clients.schema';
+import { ClientModel, Clients, ClientsList, ClientsListModel } from '../schemas/clients.schema';
 import { ActivityService } from './activity.service';
 
 @Injectable()
 export class ClientService {
   private readonly clientModel: ClientModel<Clients>;
+  private readonly clientsListModel: ClientsListModel<ClientsList>;
 
   constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
+    this.clientsListModel = this.connection.model('ClientsList') as ClientsListModel<ClientsList>;
   }
 
   /**
@@ -119,8 +121,7 @@ export class ClientService {
       filter = Object.assign(filter, { company: data.company });
     }
     try {
-      console.dir(filter, { depth: 5 });
-      clients = await this.clientModel.paginate(filter, data.pagination);
+      clients = await this.clientsListModel.paginate(filter, data.pagination);
       result = Core.ResponseDataRecords('Список клиентов', clients.data, clients.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);

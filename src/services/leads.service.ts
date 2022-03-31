@@ -3,7 +3,7 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Connection, Model } from 'mongoose';
 
 import { Core } from 'crm-core';
-import { DealModel, Deals } from '../schemas/deals.schema';
+import { DealModel, Deals, DealsList, DealsListModel } from '../schemas/deals.schema';
 import { StatusDeals } from '../schemas/status-deals.schema';
 import { Profile } from '../schemas/profile.schema';
 import { CompanyService } from './company.service';
@@ -15,12 +15,14 @@ import { ActivityService } from './activity.service';
 @Injectable()
 export class LeadsService {
   private readonly leadsModel: DealModel<Deals>;
+  private readonly leadsListModel: DealsListModel<DealsList>;
   private readonly statusModel: Model<StatusDeals>;
   private readonly profileModel: Model<Profile>;
   private readonly companyModel: CompanyModel<Companies>;
   private readonly clientModel: ClientModel<Clients>;
   private readonly leadCompanyModel: LeadCompanyModel<LeadCompany>;
   private readonly leadClientModel: LeadClientModel<LeadClients>;
+  // private readonly viewClient;
 
   constructor(
     @InjectConnection() private connection: Connection,
@@ -28,7 +30,12 @@ export class LeadsService {
     private readonly clientService: ClientService,
     private readonly activityService: ActivityService,
   ) {
+    // if (this.connection.model('myViewClient')) {
+    //   console.log('Test');
+    // }
+    // this.viewClient = this.connection.createCollection('myViewClient', { viewOn: 'clients', pipeline: [] });
     this.leadsModel = this.connection.model('Deals') as DealModel<Deals>;
+    this.leadsListModel = this.connection.model('DealsList') as DealsListModel<DealsList>;
     this.statusModel = this.connection.model('StatusDeals') as Model<StatusDeals>;
     this.profileModel = this.connection.model('Profile') as Model<Profile>;
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
@@ -159,7 +166,7 @@ export class LeadsService {
     filter = startDate ? Object.assign(filter, { startDate: { $gte: startDate, $lte: new Date() } }) : filter;
     filter = endDate ? Object.assign(filter, { endDate: { $gte: endDate, $lte: new Date() } }) : filter;
     try {
-      const leads = await this.leadsModel.paginate({ active, type: 'lead', ...filter }, pagination);
+      const leads = await this.leadsListModel.paginate({ active, type: 'lead', ...filter }, pagination);
       result = Core.ResponseDataRecords('Список лидов', leads.data, leads.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
