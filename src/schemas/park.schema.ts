@@ -7,39 +7,48 @@ export class ParkCompany extends Document {
   @Prop({ type: uuidv4, default: uuidv4 })
   _id: string;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: Boolean, default: true })
+  active: boolean;
+
+  @Prop({ type: String, default: '' })
+  name: string;
+
+  @Prop({ type: String, default: '' })
   company: string; // id компании
 
   @Prop({
-    type: () => ParkCompanyObject,
+    type: Map,
     default: {},
   })
-  objects: ParkCompanyObject[]; // Объекты парка
+  store: Map<string, any>; // Объекты парка
 
-  @Prop({ type: Number, default: 0 })
-  allCapacity: number; // Общая емкость
+  @Prop({ type: String, default: 'park' })
+  object: string;
 
-  @Prop({ type: Number, default: 0 })
-  allConsumption: number; // Общее потребление
+  @Prop({ type: String, default: '' })
+  author: string;
+
+  @Prop({ type: String, default: '' })
+  owner: string;
 }
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
 export class ParkCompanyObject {
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: '' })
   name: string; // Название
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: '' })
   address?: string; // Адрес
 
-  @Prop({ type: String, default: null })
-  havePump?: string; // Наличе насоса
+  @Prop({ type: Boolean, default: false })
+  havePump?: boolean; // Наличе насоса
 
   @Prop({ type: String, default: null })
   distance?: string; // Дистанция по бездорожью
 
   @Prop({
-    type: () => ParkCompanyFuel,
-    default: {},
+    type: () => [ParkCompanyFuel],
+    default: [],
   })
   fuels: ParkCompanyFuel[]; // Виды топлива
 
@@ -52,7 +61,10 @@ export class ParkCompanyObject {
 
 @Schema({ timestamps: false, _id: false, versionKey: false })
 export class ParkCompanyFuel {
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: '' })
+  id: string;
+
+  @Prop({ type: String, default: '' })
   name: string; // Тип топлива
 
   @Prop({ type: Number, default: 0 })
@@ -68,3 +80,13 @@ export const ParkCompanyModel: ParkCompanyModel<ParkCompany> = model<ParkCompany
   'ParkCompany',
   ParkCompanySchema,
 ) as ParkCompanyModel<ParkCompany>;
+
+@Schema({ collection: 'parkcompanyList' })
+export class ParkCompanyList extends ParkCompany {}
+
+export type ParkCompanyListModel<T extends Document> = PaginateModel<ParkCompanyList>;
+export const ParkCompanyListSchema = SchemaFactory.createForClass(ParkCompanyList);
+export const ParkCompanyListModel: ParkCompanyListModel<ParkCompanyList> = model<ParkCompanyList>(
+  'ParkCompanyList',
+  ParkCompanyListSchema,
+) as ParkCompanyListModel<ParkCompanyList>;

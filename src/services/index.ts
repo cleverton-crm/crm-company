@@ -6,5 +6,6 @@ export * from './company.service';
 export * from './clients.service';
 export * from './leads.service';
 export * from './deals.service';
+export * from './park.service';
 export * from './status-deals.service';
 export * from './import.service';
