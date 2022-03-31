@@ -22,7 +22,6 @@ export class LeadsService {
   private readonly clientModel: ClientModel<Clients>;
   private readonly leadCompanyModel: LeadCompanyModel<LeadCompany>;
   private readonly leadClientModel: LeadClientModel<LeadClients>;
-  // private readonly viewClient;
 
   constructor(
     @InjectConnection() private connection: Connection,
@@ -30,10 +29,6 @@ export class LeadsService {
     private readonly clientService: ClientService,
     private readonly activityService: ActivityService,
   ) {
-    // if (this.connection.model('myViewClient')) {
-    //   console.log('Test');
-    // }
-    // this.viewClient = this.connection.createCollection('myViewClient', { viewOn: 'clients', pipeline: [] });
     this.leadsModel = this.connection.model('Deals') as DealModel<Deals>;
     this.leadsListModel = this.connection.model('DealsList') as DealsListModel<DealsList>;
     this.statusModel = this.connection.model('StatusDeals') as Model<StatusDeals>;
