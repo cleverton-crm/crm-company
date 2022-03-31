@@ -224,6 +224,9 @@ export class LeadsService {
       if (!updateData.data.active && updateData.data.active !== undefined) {
         throw new BadRequestException('Для архивации лида воспользуйтесь отдельным эндпоинтом');
       }
+      if (updateData.data.client) {
+        throw new BadRequestException('Изменение клиента запрещено');
+      }
 
       const newLead = await this.leadsModel.findOneAndUpdate({ _id: updateData.id }, updateData.data, { new: true });
       await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, updateData.owner.userID);
@@ -390,6 +393,8 @@ export class LeadsService {
             await newCompany.save();
             lead.company = newCompany._id;
           }
+        } else {
+          throw new BadRequestException('В лиде отсутствует юридическое/физическое лицо. Невозможно завершить лид');
         }
         if (clientContact) {
           const client = await this.clientModel.findOne({
@@ -412,9 +417,9 @@ export class LeadsService {
           lead.contacts = [];
         }
         lead.status = status;
-        // lead.final = true;
+        lead.final = true;
         lead.tags.push(status.name);
-        // lead.type = 'deal';
+        lead.type = 'deal';
         const newLead = await this.leadsModel.findOneAndUpdate({ _id: lead.id }, lead, { new: true });
         await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, data.owner.userID);
         result = Core.ResponseSuccess('Лид успешно конвертирован в сделку');
