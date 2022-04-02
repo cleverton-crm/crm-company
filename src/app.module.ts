@@ -1,42 +1,37 @@
 import { Module } from '@nestjs/common';
-import { CompanyController } from './controllers/company.controller';
-import { CompanyService } from './services/company.service';
+import { CompanyController } from './controllers';
+import { CompanyService } from './services';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { JwtConfigService } from './services/jwt.services';
+import { JwtConfigService } from './services';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MongoConfigService } from './services/mongo.service';
-import {
-  CompanyProviderSchema,
-  LeadCompanyProviderSchema,
-  ListCompanyProviderSchema,
-} from './providers/company.provider';
+import { MongoConfigService } from './services';
+import { CompanyProviderSchema, LeadCompanyProviderSchema, ListCompanyProviderSchema } from './providers';
 import { ConfigService } from './config/config.service';
-import {
-  ClientsListProviderSchema,
-  ClientsProviderSchema,
-  LeadClientsProviderSchema,
-} from './providers/clients.provider';
-import { ClientsController } from './controllers/clients.controller';
-import { ClientService } from './services/clients.service';
-import { CarsListProviderSchema, CarsProviderSchema } from './providers/cars.provider';
-import { CarsController } from './controllers/cars.controller';
-import { CarsService } from './services/cars.service';
-import { DealsService } from './services/deals.service';
-import { LeadsController } from './controllers/leads.controller';
-import { LeadsService } from './services/leads.service';
-import { DealsController } from './controllers/deals.controller';
-import { DealsListProviderSchema, DealsProviderSchema } from './providers/deals.provider';
-import { StatusDealsProviderSchema } from './providers/status-deals.provider';
-import { StatusDealsService } from './services/status-deals.service';
-import { StatusDealsController } from './controllers/status-deals.controller';
-import { ProfileProviderSchema } from './providers/profile.provider';
-import { ActivityProviderSchema } from './providers/activity.provider';
-import { ActivityService } from './services/activity.service';
-import { ActivityController } from './controllers/activity.controller';
-import { ParkCompanyListProviderSchema, ParkCompanyProviderSchema } from './providers/park.provider';
+import { ClientsListProviderSchema, ClientsProviderSchema, LeadClientsProviderSchema } from './providers';
+import { ClientsController } from './controllers';
+import { ClientService } from './services';
+import { CarsListProviderSchema, CarsProviderSchema } from './providers';
+import { CarsController } from './controllers';
+import { CarsService } from './services';
+import { DealsService } from './services';
+import { LeadsController } from './controllers';
+import { LeadsService } from './services';
+import { DealsController } from './controllers';
+import { DealsListProviderSchema, DealsProviderSchema } from './providers';
+import { StatusDealsProviderSchema } from './providers';
+import { StatusDealsService } from './services';
+import { StatusDealsController } from './controllers';
+import { ProfileProviderSchema } from './providers';
+import { ActivityProviderSchema } from './providers';
+import { ActivityService } from './services';
+import { ActivityController } from './controllers';
+import { ParkCompanyListProviderSchema, ParkCompanyProviderSchema } from './providers';
 import { ParkCompanyController } from './controllers';
 import { ParkCompanyService } from './services';
+import { TaskService } from './services/task.service';
+import { TaskProviderSchema } from './providers/task.provider';
+import { TaskController } from './controllers/task.controller';
 
 @Module({
   imports: [
@@ -62,6 +57,7 @@ import { ParkCompanyService } from './services';
       DealsProviderSchema,
       DealsListProviderSchema,
       ActivityProviderSchema,
+      TaskProviderSchema,
       StatusDealsProviderSchema,
       ParkCompanyProviderSchema,
       ParkCompanyListProviderSchema,
@@ -74,6 +70,7 @@ import { ParkCompanyService } from './services';
     CarsController,
     LeadsController,
     DealsController,
+    TaskController,
     ParkCompanyController,
     ActivityController,
     StatusDealsController,
@@ -85,6 +82,7 @@ import { ParkCompanyService } from './services';
     CarsService,
     DealsService,
     LeadsService,
+    TaskService,
     ParkCompanyService,
     StatusDealsService,
     ActivityService,
