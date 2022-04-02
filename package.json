@@ -1,6 +1,6 @@
 {
   "name": "crm-company",
-  "version": "1.0.118",
+  "version": "1.0.119",
   "description": "Company and Clients for CRM",
   "author": "",
   "private": true,
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@discordjs/collection": "^0.5.0",
+    "@nestjs/axios": "^0.0.7",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^1.1.5",
     "@nestjs/core": "^8.0.0",
@@ -37,10 +38,12 @@
     "@nestjs/microservices": "^8.2.3",
     "@nestjs/mongoose": "^9.0.1",
     "@nestjs/platform-express": "^8.0.0",
+    "axios": "^0.26.1",
     "bcryptjs": "^2.4.3",
     "cli-color": "^2.0.1",
     "crm-core": "https://github.com/cleverton-crm/crm-core.git",
     "cross-env": "^7.0.3",
+    "csv-parser": "^3.0.0",
     "date-fns": "^2.27.0",
     "env-url": "^0.0.3",
     "husky": "^7.0.4",

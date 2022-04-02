@@ -7,6 +7,11 @@ import { Core } from 'crm-core';
 export class CompanyController {
   constructor(private readonly appService: CompanyService) {}
 
+  @MessagePattern('company:csv')
+  async csvCompany() {
+    return await this.appService.convertCompany();
+  }
+
   @MessagePattern('company:create')
   async createCompany(@Payload() companyData: Core.Company.Schema) {
     return await this.appService.createCompany(companyData);

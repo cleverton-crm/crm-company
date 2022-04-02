@@ -1,10 +1,4 @@
 import { Profile, ProfileSchema } from 'src/schemas/profile.schema';
+import { BaseProvider } from './base.provider';
 
-export const ProfileProviderSchema = {
-  name: Profile.name,
-  useFactory: () => {
-    ProfileSchema.set('toJSON', { virtuals: true });
-    ProfileSchema.set('toObject', { virtuals: true });
-    return ProfileSchema;
-  },
-};
+export const ProfileProviderSchema = BaseProvider(Profile, ProfileSchema);

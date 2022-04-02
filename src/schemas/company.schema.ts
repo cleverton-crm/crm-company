@@ -56,6 +56,9 @@ export class Companies extends Document {
   @Prop({ type: Array, default: [], description: 'Телефоны', changelog: 'Изменение телефонных номеров' })
   phones: Array<string>;
 
+  @Prop({ type: Array, default: [], description: 'Эл.почта', changelog: 'Изменение Эл.почты' })
+  emails: Array<string>;
+
   @Prop({
     type: String,
     default: null,
@@ -80,6 +83,9 @@ export class Companies extends Document {
 
   @Prop({ type: String, default: null, description: 'Сайт', changelog: 'Изменение адреса сайта' })
   web: string;
+
+  @Prop({ type: String, default: null, description: 'Статус', changelog: 'Изменение статуса компании' })
+  status: string;
 
   @Prop({ type: Map, default: {} })
   partner: Map<string, any>;

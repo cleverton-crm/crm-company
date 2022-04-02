@@ -7,6 +7,10 @@ import { ActivityService } from './activity.service';
 import { Cars, CarsModel } from '../schemas/cars.schema';
 import { ClientModel, Clients } from '../schemas/clients.schema';
 import { DealModel, Deals } from '../schemas/deals.schema';
+import { DataParserHelper } from '../helpers/data-parser.helper';
+import { Profile, ProfileModel } from '../schemas/profile.schema';
+import Collection from '@discordjs/collection';
+import * as fs from 'fs';
 
 @Injectable()
 export class CompanyService {
@@ -15,13 +19,67 @@ export class CompanyService {
   private readonly carsModel: CarsModel<Cars>;
   private readonly clientModel: ClientModel<Clients>;
   private readonly dealsModel: DealModel<Deals>;
+  private readonly profileModel: ProfileModel<Profile>;
 
-  constructor(@InjectConnection() private connection: Connection, private readonly activityService: ActivityService) {
+  constructor(
+    @InjectConnection() private connection: Connection,
+    private readonly activityService: ActivityService,
+    private dataParser: DataParserHelper,
+  ) {
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
     this.listCompanyModel = this.connection.model('ListCompany') as ListCompanyModel<ListCompany>;
     this.carsModel = this.connection.model('Cars') as CarsModel<Cars>;
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
     this.dealsModel = this.connection.model('Deals') as DealModel<Deals>;
+    this.profileModel = this.connection.model('Profile') as ProfileModel<Profile>;
+
+    // console.log(this.dataParser.fetchCompanyData('562200148698').then((t) => console.log(t)));
+  }
+
+  async convertCompany() {
+    /*
+    const resultCollection = new Collection();
+    const companyCSV = await this.dataParser.getDataCSV();
+    //let companyData: Core.Company.Clear;
+
+    for (let key of Object.keys(Object.fromEntries(companyCSV))) {
+      let newCompany = companyCSV.get(key);
+      if (newCompany) {
+        let profileMan = await this.profileModel.findOne({ lastName: newCompany?.manager[0] }).exec();
+        if (profileMan) {
+          newCompany['owner'] = profileMan._id;
+        } else {
+          newCompany['owner'] = 'f4468854-2e85-4e07-8baa-c1ed50fc6515';
+        }
+        resultCollection.set(key, newCompany);
+      }
+    }
+    let arrayCompany = [];
+    //console.log(resultCollection);
+    for (let keys of Object.keys(Object.fromEntries(resultCollection))) {
+      let newData = resultCollection.get(keys);
+
+      let companyName = await this.dataParser.fetchCompanyData(keys);
+      let companyData = new this.companyModel(newData);
+
+      const company = await this.companyModel.findOne({ inn: companyData.inn }).exec();
+      if (!company) {
+        if (companyData.requisites.data !== undefined) {
+          companyData.requisites = companyName[0];
+          companyData.inn = companyData.requisites?.data.inn;
+          companyData.name = companyData.requisites?.value;
+          companyData.ownership = companyData.requisites?.data.opf.short;
+          companyData.factLocation = companyData.requisites?.data.address.unrestricted_value;
+
+          await companyData.save();
+          //  arrayCompany.push(companyData);
+        }
+      }
+
+      //fs.writeFileSync(__dirname + '/../../company.json', JSON.stringify(arrayCompany));
+    }
+  */
+    return Core.ResponseDataAsync('Эта функция не работает', '');
   }
 
   /**
