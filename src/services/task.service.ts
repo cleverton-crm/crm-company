@@ -53,6 +53,9 @@ export class TaskService {
     const task = await this.taskModel.findOne({ _id: updateData.id, filter }).exec();
     try {
       if (task) {
+        if (updateData.data.object) {
+          throw new BadRequestException('Смена объекта запрещена');
+        }
         if (updateData.data.linkId && !updateData.data.linkType) {
           throw new BadRequestException('Отсутствует тип объекта');
         }
