@@ -4,19 +4,21 @@ import { InjectConnection } from '@nestjs/mongoose';
 import { Companies, CompanyModel } from '../schemas/company.schema';
 import { ClientModel, Clients } from '../schemas/clients.schema';
 import { DealModel, Deals } from '../schemas/deals.schema';
-import { Task, TaskModel } from '../schemas/task.schema';
+import { ListTask, ListTaskModel, Task, TaskModel } from '../schemas/task.schema';
 import { Cars, CarsModel } from '../schemas/cars.schema';
 import { Core } from 'crm-core';
 
 @Injectable()
 export class TaskService {
   private readonly taskModel: TaskModel<Task>;
+  private readonly listTaskModel: ListTaskModel<ListTask>;
   private readonly dealsModel: DealModel<Deals>;
   private readonly companyModel: CompanyModel<Companies>;
   private readonly clientModel: ClientModel<Clients>;
   private readonly carsModel: CarsModel<Cars>;
 
   constructor(@InjectConnection() private connection: Connection) {
+    this.listTaskModel = this.connection.model('ListTask') as ListTaskModel<ListTask>;
     this.taskModel = this.connection.model('Task') as TaskModel<Task>;
     this.clientModel = this.connection.model('Clients') as ClientModel<Clients>;
     this.companyModel = this.connection.model('Companies') as CompanyModel<Companies>;
@@ -92,7 +94,7 @@ export class TaskService {
     filter = data.status ? Object.assign(filter, { status: data.status }) : filter;
     filter = data.linkType ? Object.assign(filter, { linkType: { $regex: data.linkType, $options: 'i' } }) : filter;
     try {
-      const tasks = await this.taskModel.paginate(filter, data.pagination);
+      const tasks = await this.listTaskModel.paginate(filter, data.pagination);
       result = Core.ResponseDataRecords('Список задач', tasks.data, tasks.records);
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
