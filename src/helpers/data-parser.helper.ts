@@ -6,6 +6,9 @@ import axios, { AxiosResponse } from 'axios';
 import * as csv from 'csv-parser';
 import * as fs from 'fs';
 import Collection from '@discordjs/collection';
+import { Profile, ProfileModel } from '../schemas/profile.schema';
+import { Companies, CompanyModel } from '../schemas/company.schema';
+import { ClientModel, Clients } from '../schemas/clients.schema';
 
 export interface CompanyData {
   suggestions: any[];
@@ -51,7 +54,109 @@ export class DataParserHelper {
     return dadata;
   }
 
-  getDataCSV(): any {
+  getClientsDataCSV(): any {
+    const collectionClient = new Collection<string, any>();
+    const temp = fs.createReadStream(__dirname + '/../../clients.csv');
+    return new Promise((resolve) => {
+      temp
+        .pipe(csv({ separator: ';' }))
+        .on('data', (data) => {
+          data.name = {};
+          data.metadata = {};
+          data.passport = {};
+          data.phones = [];
+
+          // INN
+          if (data['Контрагент ИНН']) {
+            data.inn = data['Контрагент ИНН'];
+          }
+          delete data['Контрагент ИНН'];
+          // FIO
+          if (data['﻿ФИО']) {
+            let names = data['﻿ФИО'].split(' ');
+            data.first = names[1];
+            data.last = names[0];
+            data.middle = names[2];
+          }
+          delete data['﻿ФИО'];
+
+          if (data['Телефон']) {
+            data.phones.push(data['Телефон']);
+          }
+          delete data['Телефон'];
+
+          if (data['Адрес электронной почты']) {
+            data.email = data['Адрес электронной почты'];
+          } else {
+            data.email = '';
+          }
+          delete data['Адрес электронной почты'];
+
+          if (data['Паспорт серия']) {
+            data.passport.series = data['Паспорт серия'];
+          }
+          delete data['Паспорт серия'];
+
+          if (data['Паспорт номер']) {
+            data.passport.number = data['Паспорт номер'];
+          }
+          delete data['Паспорт номер'];
+
+          if (data['Паспорт кем выдан']) {
+            data.passport.issuedBy = data['Паспорт кем выдан'];
+          }
+          delete data['Паспорт кем выдан'];
+
+          if (data['Паспорт дата выдачи']) {
+            // data.passport.dateOfIssue = data['Паспорт дата выдачи'];
+          }
+          delete data['Паспорт дата выдачи'];
+
+          if (data['Должность по визитке']) {
+            data.roleInCompany = data['Должность по визитке'];
+          }
+          delete data['Должность по визитке'];
+
+          if (data['Контрагент']) {
+            data.metadata.contragent = data['Контрагент'];
+          }
+          delete data['Контрагент'];
+          delete data['Пол'];
+
+          delete data['Дата рождения'];
+
+          if (data['ФИО родительный падеж']) {
+            data.metadata.genitive = data['ФИО родительный падеж'].split(' ');
+          }
+          delete data['ФИО родительный падеж'];
+
+          if (data['ФИО дательный падеж']) {
+            data.metadata.dative = data['ФИО дательный падеж'].split(' ');
+          }
+          delete data['ФИО дательный падеж'];
+
+          if (data['Должность родительный падеж']) {
+            data.metadata.genitiveRole = data['Должность родительный падеж'];
+          }
+          delete data['Должность родительный падеж'];
+
+          if (data['Должность дательный падеж']) {
+            data.metadata.dativeRole = data['Должность дательный падеж'];
+          }
+          delete data['Должность дательный падеж'];
+
+          collectionClient.set(data.inn, data);
+        })
+        .on('end', () => {
+          resolve(collectionClient);
+        });
+    });
+  }
+
+  /**
+   * Создаем данные о компании из файла
+   */
+  getCompanyDataCSV(): any {
     const collection = new Collection<string, any>();
     const temp = fs.createReadStream(__dirname + '/../../company.csv');
     return new Promise((resolve) => {
@@ -139,13 +244,68 @@ export class DataParserHelper {
         });
     });
   }
-}
 
-// export const instance = axios.create({
-//   baseURL: url,
-//   headers: {
-//     'Content-Type': 'application/json',
-//     Accept: 'application/json',
-//     Authorization: 'Token ' + token,
-//   },
-// });
+  async insertClient(companyModel: CompanyModel<Companies>, clientModel: ClientModel<Clients>) {
+    const listClients = await this.getClientsDataCSV();
+    for (let key of Object.keys(Object.fromEntries(listClients))) {
+      let company = await companyModel.findOne({ inn: key }).exec();
+      let client = new clientModel(listClients.get(key));
+
+      if (company) {
+        client.company = company._id;
+        client.owner = company.owner;
+        client.metadata.set('company', company.name);
+      }
+      client.owner = 'f4468854-2e85-4e07-8baa-c1ed50fc6515';
+      //await client.save();
+    }
+  }
+
+  /**
+   * Import company from CSV
+   * @param profileModel
+   * @param companyModel
+   */
+  async insertCompany(profileModel: ProfileModel<Profile>, companyModel: CompanyModel<Companies>) {
+    const resultCollection = new Collection();
+    const companyCSV = await this.getCompanyDataCSV();
+    //let companyData: Core.Company.Clear;
+
+    for (let key of Object.keys(Object.fromEntries(companyCSV))) {
+      let newCompany = companyCSV.get(key);
+      if (newCompany) {
+        let profileMan = await profileModel.findOne({ lastName: newCompany?.manager[0] }).exec();
+        if (profileMan) {
+          newCompany['owner'] = profileMan._id;
+        } else {
+          newCompany['owner'] = 'f4468854-2e85-4e07-8baa-c1ed50fc6515';
+        }
+        resultCollection.set(key, newCompany);
+      }
+    }
+    let arrayCompany = [];
+    //console.log(resultCollection);
+    for (let keys of Object.keys(Object.fromEntries(resultCollection))) {
+      let newData = resultCollection.get(keys);
+
+      let companyName = await this.fetchCompanyData(keys);
+      let companyData = new companyModel(newData);
+
+      const company = await companyModel.findOne({ inn: companyData.inn }).exec();
+      if (!company) {
+        if (companyData.requisites.data !== undefined) {
+          companyData.requisites = companyName[0];
+          companyData.inn = companyData.requisites?.data.inn;
+          companyData.name = companyData.requisites?.value;
+          companyData.ownership = companyData.requisites?.data.opf.short;
+          companyData.factLocation = companyData.requisites?.data.address.unrestricted_value;
+
+          await companyData.save();
+          //  arrayCompany.push(companyData);
+        }
+      }
+
+      //fs.writeFileSync(__dirname + '/../../company.json', JSON.stringify(arrayCompany));
+    }
+  }
+}

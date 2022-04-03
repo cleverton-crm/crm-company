@@ -41,6 +41,14 @@ export class Companies extends Document {
   @Prop({ type: String, default: 'company' })
   object: 'company';
 
+  @Prop({
+    type: Map,
+    default: {},
+    description: 'Дополнительная информация',
+    changelog: 'Изменение/добавление доп. информации',
+  })
+  metadata: Map<string, any>;
+
   @Prop({ type: String, default: null, description: 'Ответственный', changelog: 'Изменение ответственного' })
   owner: string;
 

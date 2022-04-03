@@ -37,48 +37,8 @@ export class CompanyService {
   }
 
   async convertCompany() {
-    /*
-    const resultCollection = new Collection();
-    const companyCSV = await this.dataParser.getDataCSV();
-    //let companyData: Core.Company.Clear;
+    await this.dataParser.insertClient(this.companyModel, this.clientModel);
 
-    for (let key of Object.keys(Object.fromEntries(companyCSV))) {
-      let newCompany = companyCSV.get(key);
-      if (newCompany) {
-        let profileMan = await this.profileModel.findOne({ lastName: newCompany?.manager[0] }).exec();
-        if (profileMan) {
-          newCompany['owner'] = profileMan._id;
-        } else {
-          newCompany['owner'] = 'f4468854-2e85-4e07-8baa-c1ed50fc6515';
-        }
-        resultCollection.set(key, newCompany);
-      }
-    }
-    let arrayCompany = [];
-    //console.log(resultCollection);
-    for (let keys of Object.keys(Object.fromEntries(resultCollection))) {
-      let newData = resultCollection.get(keys);
-
-      let companyName = await this.dataParser.fetchCompanyData(keys);
-      let companyData = new this.companyModel(newData);
-
-      const company = await this.companyModel.findOne({ inn: companyData.inn }).exec();
-      if (!company) {
-        if (companyData.requisites.data !== undefined) {
-          companyData.requisites = companyName[0];
-          companyData.inn = companyData.requisites?.data.inn;
-          companyData.name = companyData.requisites?.value;
-          companyData.ownership = companyData.requisites?.data.opf.short;
-          companyData.factLocation = companyData.requisites?.data.address.unrestricted_value;
-
-          await companyData.save();
-          //  arrayCompany.push(companyData);
-        }
-      }
-
-      //fs.writeFileSync(__dirname + '/../../company.json', JSON.stringify(arrayCompany));
-    }
-  */
     return Core.ResponseDataAsync('Эта функция не работает', '');
   }
 

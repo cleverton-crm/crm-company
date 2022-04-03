@@ -30,6 +30,14 @@ export class Clients extends Document implements Core.Client.Schema {
   @Prop({ type: Map, default: {}, description: 'Комментарии', changelog: 'Изменение/добавление комментария' })
   comments: Map<string, string>;
 
+  @Prop({
+    type: Map,
+    default: {},
+    description: 'Дополнительная информация',
+    changelog: 'Изменение/добавление доп. информации',
+  })
+  metadata: Map<string, any>;
+
   @Prop({ type: String, default: null, description: 'Компания', changelog: 'Изменение компании' })
   company: string;
 
