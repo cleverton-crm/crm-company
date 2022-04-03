@@ -255,9 +255,11 @@ export class DataParserHelper {
         client.company = company._id;
         client.owner = company.owner;
         client.metadata.set('company', company.name);
+      } else {
+        client.owner = 'f4468854-2e85-4e07-8baa-c1ed50fc6515';
       }
-      client.owner = 'f4468854-2e85-4e07-8baa-c1ed50fc6515';
-      //await client.save();
+
+      await client.save();
     }
   }
 
