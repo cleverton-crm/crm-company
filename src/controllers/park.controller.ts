@@ -40,7 +40,7 @@ export class ParkCompanyController {
   }
 
   @MessagePattern('park:find')
-  async findPark(@Payload() data: { id: string; req: any }) {
+  async findPark(@Payload() data: any) {
     return await this.appService.findPark(data);
   }
 

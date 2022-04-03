@@ -243,10 +243,11 @@ export class ParkCompanyService {
    */
   async listParks(data: any) {
     let result;
-    const { pagination, req, active, createdAt, updatedAt } = data;
+    const { companyId, pagination, req, active, createdAt, updatedAt } = data;
     let filter = {};
     filter = Object.assign(filter, req.filterQuery);
     filter = active ? Object.assign(filter, { active: active }) : filter;
+    filter = Object.assign(filter, { company: companyId });
     filter = createdAt ? Object.assign(filter, { createdAt: { $gte: createdAt, $lte: new Date() } }) : filter;
     filter = updatedAt ? Object.assign(filter, { updatedAt: { $gte: updatedAt, $lte: new Date() } }) : filter;
     try {
