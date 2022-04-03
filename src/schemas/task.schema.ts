@@ -38,3 +38,13 @@ export class Task extends Document {
 export type TaskModel<T extends Document> = PaginateModel<Task>;
 export const TaskSchema = SchemaFactory.createForClass(Task);
 export const TaskModel: TaskModel<Task> = model<Task>('Task', TaskSchema) as TaskModel<Task>;
+
+@Schema({ collection: 'taskList' })
+export class ListTask extends Task {}
+
+export const ListTaskSchema = SchemaFactory.createForClass(ListTask);
+export type ListTaskModel<T extends Document> = PaginateModel<ListTask>;
+export const ListTaskModel: ListTaskModel<ListTask> = model<ListTask>(
+  'ListTask',
+  ListTaskSchema,
+) as ListTaskModel<ListTask>;

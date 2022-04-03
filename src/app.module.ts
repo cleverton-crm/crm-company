@@ -44,7 +44,7 @@ import {
   ProfileProviderSchema,
   StatusDealsProviderSchema,
 } from './providers';
-import { TaskProviderSchema } from './providers/task.provider';
+import { ListTaskProviderSchema, TaskProviderSchema } from './providers/task.provider';
 import { TaskController } from './controllers/task.controller';
 import { TaskService } from './services/task.service';
 import { DataParserHelper } from './helpers/data-parser.helper';
@@ -80,6 +80,7 @@ import { DataParserHelper } from './helpers/data-parser.helper';
       DealsListProviderSchema,
       ActivityProviderSchema,
       TaskProviderSchema,
+      ListTaskProviderSchema,
       StatusDealsProviderSchema,
       ParkCompanyProviderSchema,
       ParkCompanyListProviderSchema,
