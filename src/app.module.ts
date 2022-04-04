@@ -14,6 +14,7 @@ import {
   LeadsController,
   ParkCompanyController,
   StatusDealsController,
+  TaskController,
 } from './controllers';
 import {
   ActivityService,
@@ -24,9 +25,10 @@ import {
   LeadsService,
   ParkCompanyService,
   StatusDealsService,
+  TaskService,
+  JwtConfigService,
+  MongoConfigService,
 } from './services';
-import { JwtConfigService } from './services';
-import { MongoConfigService } from './services';
 import {
   ActivityProviderSchema,
   CarsListProviderSchema,
@@ -39,15 +41,18 @@ import {
   LeadClientsProviderSchema,
   LeadCompanyProviderSchema,
   ListCompanyProviderSchema,
+  NewsProviderSchema,
   ParkCompanyListProviderSchema,
   ParkCompanyProviderSchema,
   ProfileProviderSchema,
   StatusDealsProviderSchema,
+  ListTaskProviderSchema,
+  TaskProviderSchema,
+  NewsListProviderSchema,
 } from './providers';
-import { ListTaskProviderSchema, TaskProviderSchema } from './providers/task.provider';
-import { TaskController } from './controllers/task.controller';
-import { TaskService } from './services/task.service';
 import { DataParserHelper } from './helpers/data-parser.helper';
+import { NewsController } from './controllers/news.controller';
+import { NewsService } from './services/news.service';
 
 @Module({
   imports: [
@@ -81,6 +86,8 @@ import { DataParserHelper } from './helpers/data-parser.helper';
       ActivityProviderSchema,
       TaskProviderSchema,
       ListTaskProviderSchema,
+      NewsProviderSchema,
+      NewsListProviderSchema,
       StatusDealsProviderSchema,
       ParkCompanyProviderSchema,
       ParkCompanyListProviderSchema,
@@ -95,6 +102,7 @@ import { DataParserHelper } from './helpers/data-parser.helper';
     DealsController,
     TaskController,
     ParkCompanyController,
+    NewsController,
     ActivityController,
     StatusDealsController,
   ],
@@ -107,6 +115,7 @@ import { DataParserHelper } from './helpers/data-parser.helper';
     DealsService,
     LeadsService,
     TaskService,
+    NewsService,
     ParkCompanyService,
     StatusDealsService,
     ActivityService,

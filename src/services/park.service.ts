@@ -5,8 +5,6 @@ import { Connection } from 'mongoose';
 import { ActivityService } from './activity.service';
 import { ParkCompany, ParkCompanyList, ParkCompanyListModel, ParkCompanyModel } from '../schemas/park.schema';
 import { Core } from 'crm-core';
-import { Collection } from '@discordjs/collection';
-import { log } from 'util';
 
 Injectable();
 export class ParkCompanyService {

@@ -279,7 +279,7 @@ export class DealsService {
         });
         const newDeal = await this.dealsModel.findOneAndUpdate({ _id: commentData.id }, deal, { new: true });
         await this.activityService.historyData(oldDeal, newDeal.toObject(), this.dealsModel, commentData.req.userID);
-        result = Core.ResponseDataAsync('Комментарий успешно добавлен', deal);
+        result = Core.ResponseDataAsync('Комментарий успешно добавлен', newDeal);
       } else {
         result = Core.ResponseError('Сделка с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }

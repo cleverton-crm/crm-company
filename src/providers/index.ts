@@ -4,6 +4,8 @@ export * from './company.provider';
 export * from './clients.provider';
 export * from './cars.provider';
 export * from './deals.provider';
+export * from './news.provider';
+export * from './task.provider';
 export * from './park.provider';
 export * from './profile.provider';
 export * from './status-deals.provider';

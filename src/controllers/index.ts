@@ -5,5 +5,6 @@ export * from './cars.controller';
 export * from './deals.controller';
 export * from './leads.controller';
 export * from './park.controller';
+export * from './task.controller';
 export * from './status-deals.controller';
 export * from './import.controller';

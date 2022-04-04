@@ -175,16 +175,18 @@ export class CompanyService {
     try {
       if (company) {
         oldCompany = company.toObject();
+        const newCompany = await this.companyModel
+          .findOneAndUpdate(
+            { _id: updateData.id },
+            { ...updateData.data, inn: updateData.data.requisites.data.inn },
+            { new: true },
+          )
+          .exec();
+        await this.activityService.historyData(oldCompany, newCompany.toObject(), this.companyModel, updateData.userId);
+        result = Core.ResponseSuccess('Данные о компании изменены');
+      } else {
+        result = Core.ResponseError('Компания с таким ID не найдена', HttpStatus.NOT_FOUND, 'Not Found');
       }
-      const newCompany = await this.companyModel
-        .findOneAndUpdate(
-          { _id: updateData.id },
-          { ...updateData.data, inn: updateData.data.requisites.data.inn },
-          { new: true },
-        )
-        .exec();
-      await this.activityService.historyData(oldCompany, newCompany.toObject(), this.companyModel, updateData.userId);
-      result = Core.ResponseSuccess('Данные о компании изменены');
     } catch (e) {
       result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
