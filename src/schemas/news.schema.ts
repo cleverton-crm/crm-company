@@ -26,7 +26,7 @@ export class News extends Document {
   comments: Map<string, any>;
 
   @Prop({ type: Map, default: {} })
-  picture: Map<string, any>;
+  avatar: Map<string, any>;
 }
 export type NewsModel<T extends Document> = PaginateModel<News>;
 export const NewsSchema = SchemaFactory.createForClass(News);
