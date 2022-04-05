@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
 import { Companies, CompanyModel, ListCompany, ListCompanyModel } from 'src/schemas/company.schema';
@@ -9,8 +9,6 @@ import { ClientModel, Clients } from '../schemas/clients.schema';
 import { DealModel, Deals } from '../schemas/deals.schema';
 import { DataParserHelper } from '../helpers/data-parser.helper';
 import { Profile, ProfileModel } from '../schemas/profile.schema';
-import Collection from '@discordjs/collection';
-import * as fs from 'fs';
 
 @Injectable()
 export class CompanyService {
@@ -173,6 +171,9 @@ export class CompanyService {
     let oldCompany;
     try {
       if (company) {
+        if (updateData.data.requisites) {
+          throw new BadRequestException('Нельзя изменять реквизиты компании');
+        }
         oldCompany = company.toObject();
         const newCompany = await this.companyModel
           .findOneAndUpdate({ _id: updateData.id }, { ...updateData.data }, { new: true })
