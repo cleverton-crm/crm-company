@@ -65,7 +65,7 @@ export class Clients extends Document implements Core.Client.Schema {
   middle: string;
 
   @Prop({ type: String, default: 'client' })
-  object: 'client';
+  object: string;
 
   @Prop({ type: String, default: null })
   owner: string;

@@ -84,6 +84,7 @@ export class TaskService {
     startDate: string;
     endDate: string;
     linkType: string;
+    linkId: string;
   }) {
     let result;
     let filter = {};
@@ -92,6 +93,7 @@ export class TaskService {
     filter = data.startDate ? Object.assign(filter, { startDate: { $gte: data.startDate, $lte: new Date() } }) : filter;
     filter = data.endDate ? Object.assign(filter, { endDate: { $gte: data.endDate, $lte: new Date() } }) : filter;
     filter = data.status ? Object.assign(filter, { status: data.status }) : filter;
+    filter = data.linkId ? Object.assign(filter, { linkId: data.linkId }) : filter;
     filter = data.linkType ? Object.assign(filter, { linkType: { $regex: data.linkType, $options: 'i' } }) : filter;
     try {
       const tasks = await this.listTaskModel.paginate(filter, data.pagination);
