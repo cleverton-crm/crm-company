@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { TaskService } from '../services/task.service';
+import { TaskService } from '../services';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @Controller()

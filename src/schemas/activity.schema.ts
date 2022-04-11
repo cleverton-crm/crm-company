@@ -34,3 +34,13 @@ export const ActivityModel: ActivityModel<Activity> = model<Activity>(
   'Activity',
   ActivitySchema,
 ) as ActivityModel<Activity>;
+
+@Schema({ collection: 'activityList' })
+export class ListActivity extends Activity {}
+
+export const ListActivitySchema = SchemaFactory.createForClass(ListActivity);
+export type ListActivityModel<T extends Document> = PaginateModel<ListActivity>;
+export const ListActivityModel: ListActivityModel<ListActivity> = model<ListActivity>(
+  'ListActivity',
+  ListActivitySchema,
+) as ListActivityModel<ListActivity>;

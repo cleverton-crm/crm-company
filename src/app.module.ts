@@ -49,6 +49,7 @@ import {
   ListTaskProviderSchema,
   TaskProviderSchema,
   NewsListProviderSchema,
+  ListActivityProviderSchema,
 } from './providers';
 import { DataParserHelper } from './helpers/data-parser.helper';
 import { NewsController } from './controllers/news.controller';
@@ -86,6 +87,7 @@ import { NewsService } from './services/news.service';
       ActivityProviderSchema,
       TaskProviderSchema,
       ListTaskProviderSchema,
+      ListActivityProviderSchema,
       NewsProviderSchema,
       NewsListProviderSchema,
       StatusDealsProviderSchema,

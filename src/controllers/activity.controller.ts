@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { ActivityService } from '../services/activity.service';
+import { ActivityService } from '../services';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { Core } from 'crm-core';
 
@@ -8,8 +8,8 @@ export class ActivityController {
   constructor(private readonly appService: ActivityService) {}
 
   @MessagePattern('activity:list')
-  async listActivity(@Payload() pagination: Core.MongoPagination) {
-    return await this.appService.listActivity(pagination);
+  async listActivity(@Payload() data: any) {
+    return await this.appService.listActivity(data);
   }
 
   @MessagePattern('activity:find')

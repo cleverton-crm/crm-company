@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Connection, Model } from 'mongoose';
-import { Activity, ActivityModel } from 'src/schemas/activity.schema';
+import { Activity, ActivityModel, ListActivity, ListActivityModel } from 'src/schemas/activity.schema';
 import { InjectConnection } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
 import { Core } from 'crm-core';
@@ -8,10 +8,12 @@ import { Core } from 'crm-core';
 @Injectable()
 export class ActivityService {
   private readonly activityModel: ActivityModel<Activity>;
+  private readonly activityListModel: ListActivityModel<ListActivity>;
   private readonly logger = new Logger(ActivityService.name);
 
   constructor(@InjectConnection() private connection: Connection, private jwtService: JwtService) {
     this.activityModel = this.connection.model('Activity') as ActivityModel<Activity>;
+    this.activityListModel = this.connection.model('ListActivity') as ListActivityModel<ListActivity>;
   }
 
   /**
@@ -113,11 +115,14 @@ export class ActivityService {
 
   /**
    * Список историй изменений
-   * @param pagination
+   * @param data
    */
-  async listActivity(pagination: Core.MongoPagination) {
+  async listActivity(data: { pagination: Core.MongoPagination; objectId: string; type: string }) {
     let result;
-    const activity = await this.activityModel.paginate({}, pagination);
+    let filter = {};
+    filter = data.objectId ? Object.assign(filter, { objectId: data.objectId }) : filter;
+    filter = data.type ? Object.assign(filter, { type: { $regex: data.type, $options: 'i' } }) : filter;
+    const activity = await this.activityListModel.paginate(filter, data.pagination);
     try {
       result = Core.ResponseDataRecords('Список историй изменений', activity.data, activity.records);
     } catch (e) {
