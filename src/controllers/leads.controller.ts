@@ -68,7 +68,7 @@ export class LeadsController {
   }
 
   @MessagePattern('leads:company:update')
-  async updateLeadCompany(@Payload() updateData: { id: string; cid: string; data: Core.Company.Schema; owner: any }) {
+  async updateLeadCompany(@Payload() updateData: any) {
     return await this.appService.updateLeadCompany(updateData);
   }
 

@@ -438,17 +438,19 @@ export class LeadsService {
    * Обновление компании в лиде
    * @param updateData
    */
-  async updateLeadCompany(updateData: { id: string; cid: string; data: Core.Company.Schema; owner: any }) {
+  async updateLeadCompany(updateData: { id: string; cid: string; data: any; req: any }) {
     let result;
-    const filter = updateData.owner?.filterQuery;
+    const filter = updateData.req?.filterQuery;
     try {
       const lead = await this.leadsModel.findOne({ _id: updateData.id, type: 'lead', filter }).exec();
       if (lead) {
         const oldLead = lead.toObject();
         const company = await this.leadCompanyModel.findOne({ _id: updateData.cid }).exec();
         if (company && lead.company === company.id) {
-          const newLead = await this.leadCompanyModel.findOneAndUpdate({ _id: updateData.cid }, updateData.data);
-          await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, updateData.owner.userID);
+          const newLead = await this.leadCompanyModel.findOneAndUpdate({ _id: updateData.cid }, updateData.data, {
+            multi: true,
+          });
+          await this.activityService.historyData(oldLead, newLead.toObject(), this.leadsModel, updateData.req.userID);
           result = Core.ResponseSuccess('Данные о компании изменены');
         } else {
           result = Core.ResponseError(
@@ -461,7 +463,7 @@ export class LeadsService {
         result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }
@@ -493,7 +495,7 @@ export class LeadsService {
         result = Core.ResponseError('Лид с таким ID не существует в базе', HttpStatus.NOT_FOUND, 'Not Found');
       }
     } catch (e) {
-      result = Core.ResponseError(e.message, e.status, e.error);
+      result = Core.ResponseError(e.message, HttpStatus.BAD_REQUEST, e.error);
     }
     return result;
   }

@@ -24,7 +24,8 @@ export class ActivityService {
   async historyData(oldSchema: any, newSchema: any, className: any, userId: string) {
     const paths = className.schema.paths;
     let collectionChanging = new Map<string, any>();
-
+    delete oldSchema?.id;
+    delete newSchema?.id;
     for (let [key, value] of Object.entries(oldSchema)) {
       for (let [newKey, newValue] of Object.entries(newSchema)) {
         if (key === newKey) {

@@ -6,7 +6,7 @@ import { Core } from 'crm-core';
 
 @Schema({ timestamps: true })
 export class Companies extends Document {
-  @Prop({ type: uuidv4, default: uuidv4 })
+  @Prop({ type: uuidv4, default: uuidv4, description: 'Идентификатор', changelog: 'Изменение идентификатора компании' })
   _id: string;
 
   @Prop({ type: String, default: null, description: 'Название', changelog: 'Изменение названия компании' })
@@ -83,7 +83,7 @@ export class Companies extends Document {
   })
   requisites: CompanyRequisitesCompanyName;
 
-  @Prop({ type: String, default: null })
+  @Prop({ type: String, default: null, description: 'Источник', changelog: 'Изменение источника' })
   source: string;
 
   @Prop({ type: Array, default: [], description: 'Тэги', changelog: 'Изменение тэгов' })
@@ -95,7 +95,7 @@ export class Companies extends Document {
   @Prop({ type: String, default: null, description: 'Статус', changelog: 'Изменение статуса компании' })
   status: string;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Партнер', changelog: 'Изменение партнера' })
   partner: Map<string, any>;
 
   @Prop({ type: Map, default: {}, description: 'Холдинг', changelog: 'Изменение холдинга' })
@@ -111,7 +111,7 @@ export class Companies extends Document {
   })
   inn: string;
 
-  @Prop({ type: Map, default: {} })
+  @Prop({ type: Map, default: {}, description: 'Парк', changelog: 'Изменение парка' })
   park: Map<string, any>;
 
   @Prop({ type: Map, default: null, description: 'Документы', changelog: 'Изменение документов' })
